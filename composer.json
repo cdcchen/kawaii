@@ -1,0 +1,28 @@
+{
+  "name": "cdcchen/kawaii",
+  "description": "php framework base swoole",
+  "type": "framework",
+  "license": "BSD",
+  "authors": [
+    {
+      "name": "cdcchen",
+      "email": "cdcchen@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.5",
+    "psr/http-message": "~1.0",
+    "psr/log": "~1.0",
+    "psr/cache": "~1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "kawaii\\": "src/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}
