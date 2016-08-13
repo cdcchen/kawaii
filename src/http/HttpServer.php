@@ -138,15 +138,14 @@ class HttpServer extends BaseServer
             case self::TRANSFER_WAIT;
                 return;
             default:
-                $request = $this->requests[$clientId] = Request::create($data);
                 break;
         }
 
-        $context = $this->handleRequest($request);
+        $context = $this->handleRequest($result);
         $this->getSwooleServer()->send($clientId, (string)$context->response);
 
         unset($this->requests[$clientId], $this->buffers[$clientId]);
-        unset($request, $response);
+        unset($context, $result);
     }
 
     /**
@@ -169,13 +168,7 @@ class HttpServer extends BaseServer
             return $result;
         }
 
-        $data = $this->buffers[$clientId];
-        $request = Request::create($data);
-        if ($request->getIsPost()) {
-            return static::validatePost($clientId, $request);
-        }
-
-        return self::TRANSFER_FINISHED;
+        return $this->validatePost($clientId);
     }
 
     /**
@@ -185,13 +178,8 @@ class HttpServer extends BaseServer
     public function validateHeader($clientId)
     {
         $data = $this->buffers[$clientId];
-        $pos = strpos($data, Request::HTTP_EOF);
-        if ($pos === false) {
-            if (strlen($data) > self::HTTP_HEAD_MAX_LENGTH) {
-                return self::TRANSFER_ERROR;
-            } else {
-                return self::TRANSFER_WAIT;
-            }
+        if (strpos($data, Request::HTTP_EOF) === false) {
+            return self::TRANSFER_WAIT;
         }
 
         return true;
@@ -199,27 +187,30 @@ class HttpServer extends BaseServer
 
     /**
      * @param int $clientId
-     * @param Request $request
-     * @return int
+     * @return int|Request
      */
-    public function validatePost($clientId, Request $request)
+    public function validatePost($clientId)
     {
-        $contentLength = (int)$request->getContentLength();
-        if ($contentLength < 0) {
-            echo "No have Content-Length header\n";
-            return self::TRANSFER_ERROR;
+        $request = Request::create($this->buffers[$clientId]);
+
+        if ($request->getMethod() === 'POST') {
+            $contentLength = (int)$request->getContentLength();
+            if ($contentLength < 0) {
+                echo "No have Content-Length header\n";
+                return self::TRANSFER_ERROR;
+            }
+
+            if ($contentLength > $this->settings['post_max_size']) {
+                echo "Post data is too long.\n";
+                return self::TRANSFER_ERROR;
+            }
+
+            if ($contentLength > strlen((string)$request->getBody())) {
+                echo "Receiving data ....\n";
+                return self::TRANSFER_WAIT;
+            }
         }
 
-        if ($contentLength > $this->settings['post_max_size']) {
-            echo "Post data is too long.\n";
-            return self::TRANSFER_ERROR;
-        }
-
-        if ($contentLength > strlen((string)$request->getBody())) {
-            echo "Receiving data ....\n";
-            return self::TRANSFER_WAIT;
-        }
-
-        return self::TRANSFER_FINISHED;
+        return $request;
     }
 }
