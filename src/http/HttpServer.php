@@ -133,12 +133,8 @@ class HttpServer extends BaseServer
         }
 
         $result = $this->validateRequest($clientId);
-        switch ($result) {
-            case self::TRANSFER_ERROR:
-            case self::TRANSFER_WAIT;
-                return;
-            default:
-                break;
+        if (is_int($result)) {
+            return;
         }
 
         $context = $this->handleRequest($result);
@@ -159,7 +155,7 @@ class HttpServer extends BaseServer
 
     /**
      * @param int $clientId
-     * @return bool|int
+     * @return int|Request
      */
     public function validateRequest($clientId)
     {
@@ -168,7 +164,15 @@ class HttpServer extends BaseServer
             return $result;
         }
 
-        return $this->validatePost($clientId);
+        $request = Request::create($this->buffers[$clientId]);
+        if ($request->getMethod() === 'POST') {
+            $result = $this->validatePost($clientId, $request);
+            if ($result !== self::TRANSFER_FINISHED) {
+                return $result;
+            }
+        }
+
+        return $request;
     }
 
     /**
@@ -187,12 +191,11 @@ class HttpServer extends BaseServer
 
     /**
      * @param int $clientId
-     * @return int|Request
+     * @param Request $request
+     * @return int
      */
-    public function validatePost($clientId)
+    public function validatePost($clientId, Request $request)
     {
-        $request = Request::create($this->buffers[$clientId]);
-
         if ($request->getMethod() === 'POST') {
             $contentLength = (int)$request->getContentLength();
             if ($contentLength < 0) {
@@ -211,6 +214,6 @@ class HttpServer extends BaseServer
             }
         }
 
-        return $request;
+        return self::TRANSFER_FINISHED;
     }
 }
