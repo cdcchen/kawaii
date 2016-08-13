@@ -9,7 +9,7 @@
 namespace kawaii\base;
 
 
-use kawaii\Kawaii;
+use Kawaii;
 use kawaii\web\Context;
 
 class Controller extends Object
@@ -22,19 +22,13 @@ class Controller extends Object
     private $view;
     private $viewPath;
 
-    protected $app;
-    private   $context;
+    private $context;
 
     public function __construct($id, Context $context, $config = [])
     {
         $this->id = $id;
         $this->context = $context;
         parent::__construct($config);
-    }
-
-    public function bindTo(Application $app)
-    {
-        $this->app = $app;
     }
 
     public function getRequest()

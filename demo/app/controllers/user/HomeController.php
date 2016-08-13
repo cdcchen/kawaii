@@ -10,7 +10,7 @@
 namespace app\controllers\user;
 
 
-use kawaii\Kawaii;
+use Kawaii;
 use kawaii\web\Controller;
 
 class HomeController extends Controller

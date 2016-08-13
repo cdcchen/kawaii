@@ -10,7 +10,7 @@ namespace kawaii\di;
 use Closure;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
-use kawaii\Kawaii;
+use Kawaii;
 
 /**
  * ServiceLocator implements a [service locator](http://en.wikipedia.org/wiki/Service_locator_pattern).

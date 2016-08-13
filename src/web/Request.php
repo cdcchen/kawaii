@@ -32,9 +32,19 @@ class Request extends ServerRequest
         $uri = '/' . ltrim($uri, '/');
         $serverRequest = new static($method, $uri, $headers, $body, $version, $serverParams);
 
-        parse_str($serverRequest->getUri()->getQuery(), $queryParams);
+        if (function_exists('mb_parse_str')) {
+            mb_parse_str($serverRequest->getUri()->getQuery(), $queryParams);
+        } else {
+            parse_str($serverRequest->getUri()->getQuery(), $queryParams);
+        }
         $cookieParams = CookieParser::parse($serverRequest->getHeaderLine('cookie'));
-        parse_str((string)$serverRequest->getBody(), $parsedBody);
+
+        if (function_exists('mb_parse_str')) {
+            mb_parse_str($serverRequest->getBody(), $parsedBody);
+        } else {
+            parse_str((string)$serverRequest->getBody(), $parsedBody);
+        }
+
         $uploadedFiles = [];
 
         return $serverRequest->withCookieParams($cookieParams)

@@ -4,14 +4,11 @@
 
 date_default_timezone_set('Asia/Shanghai');
 require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/../../src/Kawaii.php';
 
 $setting = require(__DIR__ . '/../config/server.php');
 $config = require(__DIR__ . '/../config/app.php');
-$app = new \kawaii\web\Application($config, $setting);
-
-$response = \kawaii\Kawaii::createObject('kawaii\web\Response');
-var_dump(spl_object_hash($response));
-
+$app = new kawaii\web\Application($config, $setting);
 
 //$app->hook(function (\kawaii\web\Context $context, callable $next) {
 ////    var_dump($next);
@@ -105,12 +102,12 @@ var_dump(spl_object_hash($response));
 //        $context->response->getBody()->write('<br />ROUTER #3 <br />');
 //        return $context;
 //    });
-//$app->get('/',
-//    function (\kawaii\web\Context $context, $next) {
-//        /* @var \kawaii\web\Context $context */
-//        $context = $next($context);
-//        $context->response->getBody()->write('Hello world!');
-//        return $context;
-//    });
+$app->get('/',
+    function (\kawaii\web\Context $context, $next) {
+        /* @var \kawaii\web\Context $context */
+        $context = $next($context);
+        $context->response->getBody()->write('Hello world!');
+        return $context;
+    });
 
 $app->run();

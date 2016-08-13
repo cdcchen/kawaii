@@ -8,7 +8,7 @@
 namespace kawaii\di;
 
 use kawaii\base\InvalidConfigException;
-use kawaii\Kawaii;
+use Kawaii;
 
 /**
  * Instance represents a reference to a named object in a dependency injection (DI) container or a service locator.

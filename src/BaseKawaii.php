@@ -14,6 +14,7 @@ use kawaii\base\InvalidParamException;
 use kawaii\base\Object;
 use kawaii\base\UnknownClassException;
 use kawaii\di\Container;
+use kawaii\http\HttpServer;
 use kawaii\web\Application;
 
 /**
@@ -76,6 +77,10 @@ class BaseKawaii extends Object
      * @var Application
      */
     public static $app;
+    /**
+     * @var HttpServer
+     */
+    public static $server;
 
     public static function configure($object, $properties)
     {

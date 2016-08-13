@@ -6,12 +6,9 @@
  * Time: 13:55
  */
 
-namespace kawaii;
-
-
 use kawaii\di\Container;
 
-class Kawaii extends BaseKawaii
+class Kawaii extends \kawaii\BaseKawaii
 {
 }
 

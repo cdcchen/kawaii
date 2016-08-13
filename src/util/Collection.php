@@ -6,7 +6,7 @@
  * Time: 10:27
  */
 
-namespace kawaii\base;
+namespace kawaii\util;
 
 
     /**
@@ -26,14 +26,6 @@ class Collection implements CollectionInterface
 
     public function __construct($items = [])
     {
-        if ($items instanceof \Traversable) {
-            $items = iterator_to_array($items);
-        }
-
-        if (!is_array($items)) {
-            throw new \InvalidArgumentException('Argument is must be an array or an instance of Traversable.');
-        }
-
         $this->addAll($items);
     }
 

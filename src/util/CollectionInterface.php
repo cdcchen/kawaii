@@ -6,7 +6,7 @@
  * Time: 10:17
  */
 
-namespace kawaii\base;
+namespace kawaii\util;
 
 
 /**

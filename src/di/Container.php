@@ -9,7 +9,7 @@ namespace kawaii\di;
 
 use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
-use kawaii\Kawaii;
+use Kawaii;
 use ReflectionClass;
 
 /**

@@ -9,8 +9,8 @@
 namespace kawaii\base;
 
 
+use Kawaii;
 use kawaii\di\ServiceLocator;
-use kawaii\Kawaii;
 use kawaii\web\Context;
 
 /**
@@ -250,7 +250,6 @@ abstract class Application extends ServiceLocator
         if (is_array($parts)) {
             /* @var $controller Controller */
             list($controller, $actionId) = $parts;
-            $controller->bindTo($this);
             $result = $controller->runAction($actionId);
 
             return $result;

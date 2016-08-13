@@ -43,7 +43,7 @@ abstract class BaseServer
     protected $requests = [];
 
     /**
-     * @var \Server
+     * @var \Swoole\Server
      */
     private $_server;
 
@@ -110,7 +110,8 @@ abstract class BaseServer
     public function onClose(Server $server, $clientId, $fromId)
     {
         unset($this->requests[$clientId]);
-        echo "Client: $clientId disconnected.\n-----------------------------\n";
+        $memory = memory_get_usage() . '/' . memory_get_usage(true) . ' - ' . memory_get_peak_usage() . '/' . memory_get_peak_usage(true);
+        echo "Client: $clientId disconnected.\n{$memory}\n-----------------------------\n";
     }
 
     public function onManagerStart(Server $server)

@@ -9,7 +9,7 @@
 namespace kawaii\web;
 
 
-use kawaii\Kawaii;
+use Kawaii;
 
 class ServerParams
 {

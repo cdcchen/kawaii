@@ -9,8 +9,8 @@
 namespace kawaii\web;
 
 
+use Kawaii;
 use kawaii\http\HttpServer;
-use kawaii\Kawaii;
 use RuntimeException;
 
 /**
@@ -29,11 +29,6 @@ class Application extends \kawaii\base\Application
     protected $router;
 
     /**
-     * @var HttpServer
-     */
-    protected $server;
-
-    /**
      * @var MiddlewareStack
      */
     protected $middlewareStack;
@@ -48,7 +43,7 @@ class Application extends \kawaii\base\Application
         parent::__construct($config);
 
         Kawaii::$app = $this;
-        $this->server = new HttpServer($setting);
+        Kawaii::$server = new HttpServer($setting);
 
         $this->middlewareStack = (new MiddlewareStack())->add(static::buildSeedMiddleware());
         $this->router = new Router();
@@ -67,7 +62,7 @@ class Application extends \kawaii\base\Application
 
         $this->hook(new RouteMiddleware($this));
 
-        return $this->server->run($this);
+        return Kawaii::$server->run($this);
     }
 
     /**
@@ -76,14 +71,6 @@ class Application extends \kawaii\base\Application
     protected function beforeRun()
     {
         return true;
-    }
-
-    /**
-     * @return object
-     */
-    public function getServer()
-    {
-        return $this->server;
     }
 
     /**
@@ -164,8 +151,13 @@ class Application extends \kawaii\base\Application
                 ];
                 $route = strtr($route, $placers);
             }
+
+            ob_start();
+            ob_implicit_flush(false);
             $result = $this->runAction($route, $context);
-            $context->response->write($result);
+            $output = ob_get_clean();
+
+            $context->response->write((string)$output . $result);
 
             return $context;
         };
@@ -180,7 +172,7 @@ class Application extends \kawaii\base\Application
         $beginTime = microtime(true);
         echo '------------- Application Begin to process the request.', PHP_EOL;
 
-        $context = new Context($request, new Response());
+        $context = new Context($request, Kawaii::createObject(Response::class));
         try {
             $context = $this->handleMiddleware($context);
         } catch (HttpException $e) {

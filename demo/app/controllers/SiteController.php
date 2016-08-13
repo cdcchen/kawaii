@@ -10,19 +10,24 @@ namespace app\controllers;
 
 use kawaii\web\Controller;
 
+/**
+ * Class SiteController
+ * @package app\controllers
+ */
 class SiteController extends Controller
 {
     public function actionIndex()
     {
 //        throw new \Exception(__METHOD__);
-        $response = \kawaii\Kawaii::createObject('kawaii\web\Response');
-        $hash = spl_object_hash($response);
-        return __METHOD__ . __CLASS__ . "\n" . self::class . "\n\n" . $hash;
+        return 'hello world';
     }
 
     public function actionTest()
     {
-        return __METHOD__;
+
+        $response = \Kawaii::createObject('kawaii\web\Response');
+        $hash = spl_object_hash($response);
+        return __METHOD__ . "\n\n" . $hash;
     }
 
     public function actionUser($uid)
@@ -37,6 +42,12 @@ class SiteController extends Controller
 
     public function actionAaa()
     {
+        echo __FILE__, PHP_EOL;
+        echo $this->getClass(), PHP_EOL;
+        echo $this->getHash(), PHP_EOL;
+        var_dump($this->equals($this)); echo PHP_EOL;
+        echo $this->getClass()->getDocComment(), PHP_EOL;
+
         return __METHOD__;
     }
 

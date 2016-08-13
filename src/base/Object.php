@@ -8,7 +8,7 @@
 
 namespace kawaii\base;
 
-use kawaii\Kawaii;
+use Kawaii;
 
 /**
  * Object is the base class that implements the *property* feature.
@@ -75,7 +75,7 @@ use kawaii\Kawaii;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class Object implements Configurable
+class Object implements Configurable, Reflective
 {
     /**
      * Returns the fully qualified name of this class.
@@ -83,7 +83,7 @@ class Object implements Configurable
      */
     public static function className()
     {
-        return get_called_class();
+        return PHP_VERSION >= '5.5' ? static::class : get_called_class();
     }
 
     /**
@@ -295,5 +295,30 @@ class Object implements Configurable
     public function getHash()
     {
         return spl_object_hash($this);
+    }
+
+    /**
+     * @param mixed $obj
+     * @return bool
+     */
+    public function equals($obj)
+    {
+        return $this === $obj;
+    }
+
+    /**
+     * @return \ReflectionClass
+     */
+    public function getClass()
+    {
+        return new \ReflectionClass(static::className());
+    }
+
+    /**
+     * @return \ReflectionObject
+     */
+    public function getObject()
+    {
+        return new \ReflectionObject($this);
     }
 }
