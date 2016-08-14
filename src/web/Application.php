@@ -31,7 +31,7 @@ class Application extends \kawaii\base\Application
     /**
      * @var MiddlewareStack
      */
-    protected static $middlewareStack;
+    protected $middlewareStack;
 
     /**
      * Application constructor.
@@ -45,7 +45,7 @@ class Application extends \kawaii\base\Application
         Kawaii::$app = $this;
         Kawaii::$server = new HttpServer($setting);
 
-        static::$middlewareStack = (new MiddlewareStack())->add(static::buildSeedMiddleware());
+        $this->middlewareStack = (new MiddlewareStack())->add(static::buildSeedMiddleware());
         $this->router = new Router();
     }
 
@@ -79,7 +79,7 @@ class Application extends \kawaii\base\Application
      */
     public function hook(callable $callable)
     {
-        static::$middlewareStack->add($callable);
+        $this->middlewareStack->add($callable);
         return $this;
     }
 
@@ -173,7 +173,7 @@ class Application extends \kawaii\base\Application
 
         $context = new Context($request, new Response());
         try {
-            $context = static::handleMiddleware($context);
+            $context = $this->handleMiddleware($context);
         } catch (HttpException $e) {
             $context->response = $context->response->withStatus($e->statusCode);
             $context->response->write($e->getMessage());
@@ -193,9 +193,9 @@ class Application extends \kawaii\base\Application
      * @param Context $context
      * @return Context|mixed
      */
-    private static function handleMiddleware(Context $context)
+    private function handleMiddleware(Context $context)
     {
-        return static::$middlewareStack->handle($context);
+        return $this->middlewareStack->handle($context);
     }
 
     /**
