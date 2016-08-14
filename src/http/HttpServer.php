@@ -41,13 +41,11 @@ class HttpServer extends BaseServer
      */
     protected function bindCallback()
     {
-        $server = $this->getSwooleServer();
-
-        $server->on('Receive', [$this, 'onReceive']);
-        $server->on('PipeMessage', [$this, 'onPipeMessage']);
-        $server->on('Task', [$this, 'onTask']);
-        $server->on('Finish', [$this, 'onFinish']);
-        $server->on('WorkerError', [$this, 'onWorkerError']);
+        static::$swooleServer->on('Receive', [$this, 'onReceive']);
+        static::$swooleServer->on('PipeMessage', [$this, 'onPipeMessage']);
+        static::$swooleServer->on('Task', [$this, 'onTask']);
+        static::$swooleServer->on('Finish', [$this, 'onFinish']);
+        static::$swooleServer->on('WorkerError', [$this, 'onWorkerError']);
     }
 
     /**
@@ -58,9 +56,6 @@ class HttpServer extends BaseServer
      */
     public function onReceive(Server $server, $clientId, $fromId, $data)
     {
-        $dataLength = strlen($data);
-        echo "Waiting receive data from $clientId, data length: {$dataLength} ...\n";
-
         try {
             $this->handleOnReceive($clientId, $fromId, $data);
         } catch (\Exception $e) {

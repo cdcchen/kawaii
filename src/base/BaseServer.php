@@ -40,7 +40,7 @@ abstract class BaseServer
     /**
      * @var \Swoole\Server
      */
-    protected static $_server;
+    protected static $swooleServer;
 
     public function __construct(array $settings = [])
     {
@@ -50,18 +50,18 @@ abstract class BaseServer
 
     public function run()
     {
-        $server = $this->getSwooleServer();
-        $server->on('Start', [$this, 'onServerStart']);
-        $server->on('Shutdown', [$this, 'onServerShutdown']);
-        $server->on('Connect', [$this, 'onConnect']);
-        $server->on('Close', [$this, 'onClose']);
-        $server->on('ManagerStart', [$this, 'onManagerStart']);
-        $server->on('ManagerStop', [$this, 'onManagerStop']);
-        $server->on('WorkerStart', [$this, 'onWorkerStart']);
-        $server->on('WorkerStop', [$this, 'onWorkerStop']);
+        static::initSwooleServer();
+        static::$swooleServer->on('Start', [$this, 'onServerStart']);
+        static::$swooleServer->on('Shutdown', [$this, 'onServerShutdown']);
+        static::$swooleServer->on('Connect', [$this, 'onConnect']);
+        static::$swooleServer->on('Close', [$this, 'onClose']);
+        static::$swooleServer->on('ManagerStart', [$this, 'onManagerStart']);
+        static::$swooleServer->on('ManagerStop', [$this, 'onManagerStop']);
+        static::$swooleServer->on('WorkerStart', [$this, 'onWorkerStart']);
+        static::$swooleServer->on('WorkerStop', [$this, 'onWorkerStop']);
 
         $this->bindCallback();
-        return $server->start();
+        return static::$swooleServer->start();
     }
 
     abstract protected function bindCallback();
@@ -70,19 +70,15 @@ abstract class BaseServer
     {
     }
 
-    protected function getSwooleServer()
+    protected static function initSwooleServer()
     {
-        if (!is_object(static::$_server)) {
-            static::$_server = new Server(
-                static::$settings['host'],
-                static::$settings['port'],
-                static::$settings['mode'],
-                static::$settings['type']
-            );
-            static::$_server->set(static::$settings);
-        }
-
-        return static::$_server;
+        static::$swooleServer = new Server(
+            static::$settings['host'],
+            static::$settings['port'],
+            static::$settings['mode'],
+            static::$settings['type']
+        );
+        static::$swooleServer->set(static::$settings);
     }
 
     public function onServerStart(Server $server)

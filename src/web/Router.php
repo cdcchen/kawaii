@@ -77,8 +77,6 @@ class Router extends Object
     public function addDefaultRoute(callable $handler)
     {
         $this->addRoute('*', '{controller}/{action}', $handler);
-//        $route = new Route('*', $handler, ['*']);
-//        $this->routes->add($route);
     }
 
     /**
