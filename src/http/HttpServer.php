@@ -134,7 +134,7 @@ class HttpServer extends BaseServer
         }
 
         $context = static::handleRequest($result);
-        $this->getSwooleServer()->send($clientId, (string)$context->response);
+        static::$swooleServer->send($clientId, (string)$context->response);
 
         unset(static::$buffers[$clientId]);
         unset($context, $result);
