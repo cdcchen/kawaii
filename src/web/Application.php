@@ -31,7 +31,7 @@ class Application extends \kawaii\base\Application
     /**
      * @var MiddlewareStack
      */
-    protected $middlewareStack;
+    protected static $middlewareStack;
 
     /**
      * Application constructor.
@@ -45,7 +45,7 @@ class Application extends \kawaii\base\Application
         Kawaii::$app = $this;
         Kawaii::$server = new HttpServer($setting);
 
-        $this->middlewareStack = (new MiddlewareStack())->add(static::buildSeedMiddleware());
+        static::$middlewareStack = (new MiddlewareStack())->add(static::buildSeedMiddleware());
         $this->router = new Router();
     }
 
@@ -55,14 +55,14 @@ class Application extends \kawaii\base\Application
      */
     public function run()
     {
-        $this->loadRoutes();
         if (!$this->beforeRun()) {
             throw new RuntimeException('Application::beforeRun must return true or false.');
         }
 
-        $this->hook(new RouteMiddleware($this));
+        $this->loadRoutes();
+        $this->hook(new RouteMiddleware());
 
-        return Kawaii::$server->run($this);
+        return Kawaii::$server->run();
     }
 
     /**
@@ -79,7 +79,7 @@ class Application extends \kawaii\base\Application
      */
     public function hook(callable $callable)
     {
-        $this->middlewareStack->add($callable);
+        static::$middlewareStack->add($callable);
         return $this;
     }
 
@@ -170,11 +170,10 @@ class Application extends \kawaii\base\Application
     public function handleRequest(Request $request)
     {
         $beginTime = microtime(true);
-        echo '------------- Application Begin to process the request.', PHP_EOL;
 
-        $context = new Context($request, Kawaii::createObject(Response::class));
+        $context = new Context($request, new Response());
         try {
-            $context = $this->handleMiddleware($context);
+            $context = static::handleMiddleware($context);
         } catch (HttpException $e) {
             $context->response = $context->response->withStatus($e->statusCode);
             $context->response->write($e->getMessage());
@@ -184,7 +183,7 @@ class Application extends \kawaii\base\Application
         }
         finally {
             $finishedTime = microtime(true);
-            echo '------------- Application finish processing the request. time: ', ($finishedTime - $beginTime), PHP_EOL;
+            echo 'Processing the request. time: ', ($finishedTime - $beginTime), PHP_EOL;
         }
 
         return $context;
@@ -194,9 +193,9 @@ class Application extends \kawaii\base\Application
      * @param Context $context
      * @return Context|mixed
      */
-    private function handleMiddleware(Context $context)
+    private static function handleMiddleware(Context $context)
     {
-        return $this->middlewareStack->handle($context);
+        return static::$middlewareStack->handle($context);
     }
 
     /**

@@ -9,6 +9,7 @@
 namespace kawaii\http;
 
 
+use Kawaii;
 use kawaii\base\BaseServer;
 use kawaii\web\Context;
 use kawaii\web\Request;
@@ -33,7 +34,7 @@ class HttpServer extends BaseServer
     /**
      * @var array
      */
-    private $buffers = [];
+    private static $buffers = [];
 
     /**
      * @inheritdoc
@@ -126,10 +127,10 @@ class HttpServer extends BaseServer
      */
     protected function handleOnReceive($clientId, $fromId, $data)
     {
-        if (isset($this->buffers[$clientId])) {
-            $this->buffers[$clientId] .= $data;
+        if (isset(static::$buffers[$clientId])) {
+            static::$buffers[$clientId] .= $data;
         } else {
-            $this->buffers[$clientId] = $data;
+            static::$buffers[$clientId] = $data;
         }
 
         $result = $this->validateRequest($clientId);
@@ -137,10 +138,10 @@ class HttpServer extends BaseServer
             return;
         }
 
-        $context = $this->handleRequest($result);
+        $context = static::handleRequest($result);
         $this->getSwooleServer()->send($clientId, (string)$context->response);
 
-        unset($this->requests[$clientId], $this->buffers[$clientId]);
+        unset(static::$buffers[$clientId]);
         unset($context, $result);
     }
 
@@ -148,25 +149,25 @@ class HttpServer extends BaseServer
      * @param Request $request
      * @return Context
      */
-    protected function handleRequest(Request $request)
+    protected static function handleRequest(Request $request)
     {
-        return $this->app->handleRequest($request);
+        return Kawaii::$app->handleRequest($request);
     }
 
     /**
      * @param int $clientId
      * @return int|Request
      */
-    public function validateRequest($clientId)
+    public static function validateRequest($clientId)
     {
-        $result = $this->validateHeader($clientId);
+        $result = static::validateHeader($clientId);
         if ($result !== true) {
             return $result;
         }
 
-        $request = Request::create($this->buffers[$clientId]);
+        $request = Request::create(static::$buffers[$clientId]);
         if ($request->getMethod() === 'POST') {
-            $result = $this->validatePost($clientId, $request);
+            $result = static::validatePost($clientId, $request);
             if ($result !== self::TRANSFER_FINISHED) {
                 return $result;
             }
@@ -179,9 +180,9 @@ class HttpServer extends BaseServer
      * @param int $clientId
      * @return bool|int
      */
-    public function validateHeader($clientId)
+    public static function validateHeader($clientId)
     {
-        $data = $this->buffers[$clientId];
+        $data = static::$buffers[$clientId];
         if (strpos($data, Request::HTTP_EOF) === false) {
             return self::TRANSFER_WAIT;
         }
@@ -194,7 +195,7 @@ class HttpServer extends BaseServer
      * @param Request $request
      * @return int
      */
-    public function validatePost($clientId, Request $request)
+    public static function validatePost($clientId, Request $request)
     {
         if ($request->getMethod() === 'POST') {
             $contentLength = (int)$request->getContentLength();
@@ -203,7 +204,7 @@ class HttpServer extends BaseServer
                 return self::TRANSFER_ERROR;
             }
 
-            if ($contentLength > $this->settings['post_max_size']) {
+            if ($contentLength > static::$settings['post_max_size']) {
                 echo "Post data is too long.\n";
                 return self::TRANSFER_ERROR;
             }

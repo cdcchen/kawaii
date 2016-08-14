@@ -28,14 +28,9 @@ abstract class BaseServer
     ];
 
     /**
-     * @var Application|\kawaii\web\Application
-     */
-    protected $app;
-
-    /**
      * @var array
      */
-    protected $settings;
+    protected static $settings;
 
     /**
      * @var \kawaii\web\Request[]
@@ -45,18 +40,16 @@ abstract class BaseServer
     /**
      * @var \Swoole\Server
      */
-    private $_server;
+    protected static $_server;
 
     public function __construct(array $settings = [])
     {
-        $this->settings = array_merge(static::$defaultSettings, $settings);
+        static::$settings = array_merge(static::$defaultSettings, $settings);
         $this->init();
     }
 
-    public function run(Application $app)
+    public function run()
     {
-        $this->app = $app;
-
         $server = $this->getSwooleServer();
         $server->on('Start', [$this, 'onServerStart']);
         $server->on('Shutdown', [$this, 'onServerShutdown']);
@@ -79,17 +72,17 @@ abstract class BaseServer
 
     protected function getSwooleServer()
     {
-        if (!is_object($this->_server)) {
-            $this->_server = new Server(
-                $this->settings['host'],
-                $this->settings['port'],
-                $this->settings['mode'],
-                $this->settings['type']
+        if (!is_object(static::$_server)) {
+            static::$_server = new Server(
+                static::$settings['host'],
+                static::$settings['port'],
+                static::$settings['mode'],
+                static::$settings['type']
             );
-            $this->_server->set($this->settings);
+            static::$_server->set(static::$settings);
         }
 
-        return $this->_server;
+        return static::$_server;
     }
 
     public function onServerStart(Server $server)

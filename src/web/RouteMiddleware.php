@@ -21,20 +21,6 @@ use Psr\Http\Message\ResponseInterface;
 class RouteMiddleware implements MiddlewareInterface
 {
     /**
-     * @var Application
-     */
-    private $app;
-
-    /**
-     * RouteMiddleware constructor.
-     * @param Application $app
-     */
-    public function __construct($app)
-    {
-        $this->app = $app;
-    }
-
-    /**
      * @param Context $context
      * @param callable $next
      * @return mixed|ResponseInterface
@@ -47,7 +33,7 @@ class RouteMiddleware implements MiddlewareInterface
         $request = $context->request;
 
         $path = ltrim($request->getUri()->getPath(), '/');
-        $result = $this->app->getRouter()->dispatch($request->getMethod(), $path);
+        $result = \Kawaii::$app->getRouter()->dispatch($request->getMethod(), $path);
         if ($result[0] === Router::ROUTE_NOT_FOUND) {
             $context->response = $context->response->withStatus(404);
             return $context;

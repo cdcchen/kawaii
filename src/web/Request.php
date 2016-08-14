@@ -34,17 +34,12 @@ class Request extends ServerRequest
 
         if (function_exists('mb_parse_str')) {
             mb_parse_str($serverRequest->getUri()->getQuery(), $queryParams);
-        } else {
-            parse_str($serverRequest->getUri()->getQuery(), $queryParams);
-        }
-        $cookieParams = CookieParser::parse($serverRequest->getHeaderLine('cookie'));
-
-        if (function_exists('mb_parse_str')) {
             mb_parse_str($serverRequest->getBody(), $parsedBody);
         } else {
+            parse_str($serverRequest->getUri()->getQuery(), $queryParams);
             parse_str((string)$serverRequest->getBody(), $parsedBody);
         }
-
+        $cookieParams = CookieParser::parse($serverRequest->getHeaderLine('cookie'));
         $uploadedFiles = [];
 
         return $serverRequest->withCookieParams($cookieParams)
