@@ -11,7 +11,6 @@ namespace kawaii\http;
 
 use Kawaii;
 use kawaii\base\BaseServer;
-use kawaii\web\Context;
 use kawaii\web\Request;
 use kawaii\web\Response;
 use Swoole\Server;

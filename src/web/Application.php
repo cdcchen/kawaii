@@ -32,7 +32,7 @@ class Application extends \kawaii\base\Application
      * @var MiddlewareStack
      */
     protected $middlewareStack;
-
+static $res;
     /**
      * Application constructor.
      * @param array $config Application config
@@ -47,6 +47,8 @@ class Application extends \kawaii\base\Application
 
         $this->middlewareStack = (new MiddlewareStack())->add(static::buildSeedMiddleware());
         $this->router = new Router();
+
+        static::$res = new Response();
     }
 
     /**
@@ -178,9 +180,9 @@ class Application extends \kawaii\base\Application
     {
         $beginTime = microtime(true);
 
-        $context = new Context($request, new Response());
+        $context = new Context($request, clone static::$res);
         try {
-            $context = $this->middlewareStack->handle($context);
+            $context = $this->handleMiddleware($context);
         } catch (HttpException $e) {
             $context->response = $context->response->withStatus($e->statusCode);
             $context->response->write($e->getMessage());
