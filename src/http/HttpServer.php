@@ -66,6 +66,7 @@ class HttpServer extends BaseServer
                 ->withBody(StreamHelper::createStream('Exception occurred: ' . $e->getMessage() . ', Line: ' . $e->getLine() . '<hr /> Trace:<br /> ' . $e->getTraceAsString()));
 
             $server->send($clientId, (string)$response);
+            unset($response);
         }
         finally {
             $server->close($clientId);
@@ -133,20 +134,11 @@ class HttpServer extends BaseServer
             return;
         }
 
-        $context = static::handleRequest($result);
+        $context = Kawaii::$app->handleRequest($result);
         static::$swooleServer->send($clientId, (string)$context->response);
 
         unset(static::$buffers[$clientId]);
         unset($context, $result);
-    }
-
-    /**
-     * @param Request $request
-     * @return Context
-     */
-    protected static function handleRequest(Request $request)
-    {
-        return Kawaii::$app->handleRequest($request);
     }
 
     /**

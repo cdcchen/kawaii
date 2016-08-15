@@ -3,8 +3,8 @@
 return [
     'host' => '*',
     'port' => 9502,
-    'mode' => 3,
-    'type' => 1,
+    'mode' => SWOOLE_PROCESS,
+    'type' => SWOOLE_TCP,
     'daemonize' => 0,
 
     'reactor_num' => 4,

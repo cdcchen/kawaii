@@ -152,10 +152,17 @@ class Application extends \kawaii\base\Application
                 $route = strtr($route, $placers);
             }
 
-            ob_start();
-            ob_implicit_flush(false);
-            $result = $this->runAction($route, $context);
-            $output = ob_get_clean();
+            try {
+
+                ob_start();
+                ob_implicit_flush(false);
+                $result = $this->runAction($route, $context);
+            } catch (\Exception $e) {
+                $result = $e->getMessage();
+            }
+            finally {
+                $output = ob_get_clean();
+            }
 
             $context->response->write((string)$output . $result);
 
@@ -173,7 +180,7 @@ class Application extends \kawaii\base\Application
 
         $context = new Context($request, new Response());
         try {
-            $context = $this->handleMiddleware($context);
+            $context = $this->middlewareStack->handle($context);
         } catch (HttpException $e) {
             $context->response = $context->response->withStatus($e->statusCode);
             $context->response->write($e->getMessage());
