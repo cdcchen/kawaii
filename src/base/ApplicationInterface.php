@@ -9,7 +9,11 @@
 namespace kawaii\base;
 
 
+use Psr\Http\Message\RequestInterface;
+
 interface ApplicationInterface
 {
     public function run();
+    
+    public function handleRequest(RequestInterface $request);
 }

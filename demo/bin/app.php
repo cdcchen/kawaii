@@ -101,13 +101,13 @@ $app = new kawaii\web\Application($config);
 //        $context->response->getBody()->write('<br />ROUTER #3 <br />');
 //        return $context;
 //    });
-$app->get('/',
-    function (\kawaii\web\Context $context, $next) {
-        /* @var \kawaii\web\Context $context */
-        $context = $next($context);
-        $context->response->getBody()->write('Hello world!');
-        return $context;
-    });
+//$app->get('/',
+//    function (\kawaii\web\Context $context, $next) {
+//        /* @var \kawaii\web\Context $context */
+//        $context = $next($context);
+//        $context->response->getBody()->write('Hello world!');
+//        return $context;
+//    });
 
 
 $config = require(__DIR__ . '/../config/server.php');

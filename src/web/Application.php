@@ -13,6 +13,7 @@ use Kawaii;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\UserException;
+use Psr\Http\Message\RequestInterface;
 use RuntimeException;
 
 /**
@@ -168,10 +169,10 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     }
 
     /**
-     * @param Request $request
+     * @param RequestInterface $request
      * @return Context|mixed
      */
-    public function handleRequest(Request $request)
+    public function handleRequest(RequestInterface $request)
     {
         $beginTime = microtime(true);
 

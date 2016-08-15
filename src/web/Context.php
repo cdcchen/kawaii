@@ -9,6 +9,8 @@
 namespace kawaii\web;
 
 use kawaii\base\Object;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 
 /**
@@ -33,13 +35,16 @@ class Context extends Object
 
     /**
      * Context constructor.
-     * @param Request $request
-     * @param Response $response
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $config
      */
-    public function __construct($request, $response)
+    public function __construct($request, $response, $config = [])
     {
         $this->request = $request;
         $this->response = $response;
+
+        parent::__construct($config);
     }
 
     /**
