@@ -9,6 +9,7 @@
 namespace kawaii\base;
 
 
+use Kawaii;
 use Swoole\Server;
 
 /**
@@ -20,37 +21,42 @@ abstract class BaseServer
     /**
      * @var array
      */
-    public static $defaultSettings = [
-        'host' => 'localhost',
-        'port' => '9502',
-        'mode' => SWOOLE_PROCESS,
-        'type' => SWOOLE_SOCK_TCP,
+    public static $defaultConfig = [
+        'swoole' => [
+            'host' => '0.0.0.0',
+            'port' => 9502,
+            'mode' => SWOOLE_PROCESS,
+            'type' => SWOOLE_SOCK_TCP,
+        ],
     ];
 
     /**
      * @var array
      */
-    protected static $settings;
+    protected static $config = [];
 
     /**
      * @var \kawaii\web\Request[]
      */
-    protected $requests = [];
+    protected static $requests = [];
 
     /**
      * @var \Swoole\Server
      */
     protected static $swooleServer;
 
-    public function __construct(array $settings = [])
+    public function __construct(array $config = [])
     {
-        static::$settings = array_merge(static::$defaultSettings, $settings);
+        Kawaii::$server = $this;
+        static::$config = array_merge(static::$defaultConfig, $config);
         $this->init();
     }
 
-    public function run()
+    public function run(ApplicationInterface $app)
     {
+        $app->run();
         static::initSwooleServer();
+
         static::$swooleServer->on('Start', [$this, 'onServerStart']);
         static::$swooleServer->on('Shutdown', [$this, 'onServerShutdown']);
         static::$swooleServer->on('Connect', [$this, 'onConnect']);
@@ -72,13 +78,10 @@ abstract class BaseServer
 
     protected static function initSwooleServer()
     {
-        static::$swooleServer = new Server(
-            static::$settings['host'],
-            static::$settings['port'],
-            static::$settings['mode'],
-            static::$settings['type']
-        );
-        static::$swooleServer->set(static::$settings);
+        $config = static::$config['swoole'];
+        static::$swooleServer = new Server($config['host'], $config['port'], $config['mode'], $config['type']);
+        unset($config['host'], $config['port'], $config['mode'], $config['type']);
+        static::$swooleServer->set($config);
     }
 
     public function onServerStart(Server $server)
@@ -98,7 +101,7 @@ abstract class BaseServer
 
     public function onClose(Server $server, $clientId, $fromId)
     {
-        unset($this->requests[$clientId]);
+        unset(static::$requests[$clientId]);
         $memory = memory_get_usage() . '/' . memory_get_usage(true) . ' - ' . memory_get_peak_usage() . '/' . memory_get_peak_usage(true);
         echo "Client: $clientId disconnected.\n{$memory}\n-----------------------------\n";
     }

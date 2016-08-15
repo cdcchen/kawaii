@@ -10,14 +10,16 @@ namespace kawaii\web;
 
 
 use Kawaii;
-use kawaii\http\HttpServer;
+use kawaii\base\ApplicationInterface;
+use kawaii\base\Exception;
+use kawaii\base\UserException;
 use RuntimeException;
 
 /**
  * Class Application
  * @package kawaii\web
  */
-class Application extends \kawaii\base\Application
+class Application extends \kawaii\base\Application implements ApplicationInterface
 {
     use RouterTrait;
 
@@ -35,15 +37,12 @@ class Application extends \kawaii\base\Application
 
     /**
      * Application constructor.
-     * @param array $config Application config
-     * @param array $setting Http server setting
+     * @param array $appConfig Application config
      */
-    public function __construct($config = [], $setting = [])
+    public function __construct($appConfig = [])
     {
-        parent::__construct($config);
-
         Kawaii::$app = $this;
-        Kawaii::$server = new HttpServer($setting);
+        parent::__construct($appConfig);
 
         $this->middlewareStack = (new MiddlewareStack())->add(static::buildSeedMiddleware());
         $this->router = new Router();
@@ -61,8 +60,6 @@ class Application extends \kawaii\base\Application
 
         $this->loadRoutes();
         $this->hook(new RouteMiddleware());
-
-        return Kawaii::$server->run();
     }
 
     /**
@@ -180,13 +177,15 @@ class Application extends \kawaii\base\Application
 
         $context = new Context($request, new Response());
         try {
-            $context = $this->handleMiddleware($context);
+            $context = $this->middlewareStack->handle($context);
         } catch (HttpException $e) {
-            $context->response = $context->response->withStatus($e->statusCode);
-            $context->response->write($e->getMessage());
+            $context->response = $context->response->withStatus($e->statusCode)->write($e->getMessage());
+        } catch (UserException $e) {
+            $context->response = $context->response->withStatus(500)->write($e->getMessage());
+        } catch (Exception $e) {
+            $context->response = $context->response->withStatus(500)->write($e->getMessage());
         } catch (\Exception $e) {
-            $context->response = $context->response->withStatus(500);
-            $context->response->write($e->getMessage());
+            $context->response = $context->response->withStatus(500)->write('Server error');
         }
         finally {
             $finishedTime = microtime(true);
@@ -194,15 +193,6 @@ class Application extends \kawaii\base\Application
         }
 
         return $context;
-    }
-
-    /**
-     * @param Context $context
-     * @return Context|mixed
-     */
-    private function handleMiddleware(Context $context)
-    {
-        return $this->middlewareStack->handle($context);
     }
 
     /**
