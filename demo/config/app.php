@@ -18,9 +18,6 @@ return [
     'timeZone' => 'Asia/Shanghai',
     'controllerNamespace' => 'app\\controllers',
 
-    'accessLog' => dirname(__DIR__) . '/log/access.log',
-    'errorLog' => dirname(__DIR__) . '/log/error.log',
-    
     'components' => [
     ],
 
