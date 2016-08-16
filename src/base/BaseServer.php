@@ -79,9 +79,24 @@ abstract class BaseServer
     protected static function initSwooleServer()
     {
         $config = static::$config['swoole'];
+
+        if ($filename = $config['log_file']) {
+            static::initLogFile($filename);
+        }
+
         static::$swooleServer = new Server($config['host'], $config['port'], $config['mode'], $config['type']);
         unset($config['host'], $config['port'], $config['mode'], $config['type']);
         static::$swooleServer->set($config);
+
+    }
+
+    private static function initLogFile($filename)
+    {
+        $dirname = dirname($filename);
+        if (!file_exists($dirname)) {
+            mkdir($dirname, 0755, true);
+        }
+        file_put_contents($filename, '', FILE_APPEND);
     }
 
     public function onServerStart(Server $server)

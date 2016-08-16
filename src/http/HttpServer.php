@@ -190,5 +190,4 @@ class HttpServer extends BaseServer
     {
         echo __FILE__ . ' error occurred.';
     }
-
 }
