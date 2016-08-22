@@ -1,5 +1,5 @@
 <?php
-$serv = new swoole_server("0.0.0.0", 9502);
+$serv = new \Swoole\Server("0.0.0.0", 9502);
 $serv->set(array(
     'worker_num' => 4,   //工作进程数量
 //    'daemonize' => true, //是否作为守护进程

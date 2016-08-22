@@ -16,4 +16,6 @@ interface ApplicationInterface
     public function run();
     
     public function handleRequest(RequestInterface $request);
+
+    public function reload();
 }

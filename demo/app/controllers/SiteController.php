@@ -19,7 +19,7 @@ class SiteController extends Controller
     public function actionIndex()
     {
 //        throw new \Exception(__METHOD__);
-        return 'hello world';
+        return 'hello world!!';
     }
 
     public function actionTest()

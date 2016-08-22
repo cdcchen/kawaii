@@ -6,7 +6,7 @@ date_default_timezone_set('Asia/Shanghai');
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../src/Kawaii.php';
 
-$config = require(__DIR__ . '/../config/app.php');
+$config = __DIR__ . '/../config/app.php';
 $app = new kawaii\web\Application($config);
 
 //$app->hook(function (\kawaii\web\Context $context, callable $next) {
@@ -110,6 +110,6 @@ $app = new kawaii\web\Application($config);
 //    });
 
 
-$config = require(__DIR__ . '/../config/server.php');
+$config = __DIR__ . '/../config/server.php';
 $server = new \kawaii\http\HttpServer($config);
-$server->run($app);
+$server->listen(9502)->listen(9503, '127.0.0.1')->listen(9504)->run($app);

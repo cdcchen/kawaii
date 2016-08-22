@@ -10,7 +10,7 @@ return [
     'reactor_num' => 4,
     //    'worker_num' => 4,
     'max_conn' => 1000,
-    //    'task_worker_num' => 2,
+    'task_worker_num' => 2,
 
     'log_file' => dirname(__DIR__) . '/log/server.log',
     'log_level' => 4,

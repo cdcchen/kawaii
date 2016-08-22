@@ -36,16 +36,13 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      */
     protected $middlewareStack;
 
-    /**
-     * Application constructor.
-     * @param array $appConfig Application config
-     */
-    public function __construct($appConfig = [])
+    protected function init()
     {
-        Kawaii::$app = $this;
-        parent::__construct($appConfig);
+        $seedMiddleware = function (Context $context) {
+            return $context;
+        };
+        $this->middlewareStack = (new MiddlewareStack())->add($seedMiddleware);
 
-        $this->middlewareStack = (new MiddlewareStack())->add(static::buildSeedMiddleware());
         $this->router = new Router();
     }
 
@@ -64,11 +61,39 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     }
 
     /**
-     * @return bool
+     * @param RequestInterface $request
+     * @return Context|mixed
      */
-    protected function beforeRun()
+    public function handleRequest(RequestInterface $request)
     {
-        return true;
+        $beginTime = microtime(true);
+
+        $context = new Context($request, new Response());
+        try {
+            $context = $this->middlewareStack->handle($context);
+        } catch (HttpException $e) {
+            $context->response = $context->response->withStatus($e->statusCode)->write($e->getMessage());
+        } catch (UserException $e) {
+            $context->response = $context->response->withStatus(500)->write($e->getMessage());
+        } catch (Exception $e) {
+            $context->response = $context->response->withStatus(500)->write($e->getMessage());
+        } catch (\Exception $e) {
+            $context->response = $context->response->withStatus(500)->write('Server error');
+        }
+        finally {
+            $finishedTime = microtime(true);
+            echo 'Processing the request. time: ', ($finishedTime - $beginTime), PHP_EOL;
+        }
+
+        return $context;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addRoute($method, $path, callable $handler, $strict = false, $suffix = '')
+    {
+        return $this->router->addRoute($method, $path, $handler, $strict, $suffix);
     }
 
     /**
@@ -89,14 +114,34 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         return $this->router;
     }
 
+    public function reload()
+    {
+        parent::reload();
+
+        $this->loadRoutes();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function beforeRun()
+    {
+        return true;
+    }
+
     /**
      * load routes from routes config file.
      */
     private function loadRoutes()
     {
         $filename = Kawaii::getAlias($this->routesFile);
-        $routes = include($filename);
+        if (empty($filename)) {
+            return;
+        } elseif (!file_exists($filename)) {
+            throw new \InvalidArgumentException("Routes file: $filename is not exist.");
+        }
 
+        $routes = include($filename);
         $routes = array_filter((array)$routes);
         foreach ($routes as $path => $route) {
             $ruleConfig = [];
@@ -120,14 +165,6 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
             $this->router->addRoute($method, $rule->path, $this->buildHandlerByRoute($rule->route), $rule->strict,
                 $rule->suffix);
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function addRoute($method, $path, callable $handler, $strict = false, $suffix = '')
-    {
-        return $this->router->addRoute($method, $path, $handler, $strict, $suffix);
     }
 
     /**
@@ -164,44 +201,6 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
             $context->response->write((string)$output . $result);
 
-            return $context;
-        };
-    }
-
-    /**
-     * @param RequestInterface $request
-     * @return Context|mixed
-     */
-    public function handleRequest(RequestInterface $request)
-    {
-        $beginTime = microtime(true);
-
-        $context = new Context($request, new Response());
-        try {
-            $context = $this->middlewareStack->handle($context);
-        } catch (HttpException $e) {
-            $context->response = $context->response->withStatus($e->statusCode)->write($e->getMessage());
-        } catch (UserException $e) {
-            $context->response = $context->response->withStatus(500)->write($e->getMessage());
-        } catch (Exception $e) {
-            $context->response = $context->response->withStatus(500)->write($e->getMessage());
-        } catch (\Exception $e) {
-            $context->response = $context->response->withStatus(500)->write('Server error');
-        }
-        finally {
-            $finishedTime = microtime(true);
-            echo 'Processing the request. time: ', ($finishedTime - $beginTime), PHP_EOL;
-        }
-
-        return $context;
-    }
-
-    /**
-     * Build seed middleware
-     */
-    private static function buildSeedMiddleware()
-    {
-        return function (Context $context) {
             return $context;
         };
     }

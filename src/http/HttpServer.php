@@ -44,7 +44,6 @@ class HttpServer extends BaseServer
         static::$swooleServer->on('PipeMessage', [$this, 'onPipeMessage']);
         static::$swooleServer->on('Task', [$this, 'onTask']);
         static::$swooleServer->on('Finish', [$this, 'onFinish']);
-        static::$swooleServer->on('WorkerError', [$this, 'onWorkerError']);
     }
 
     /**
@@ -178,16 +177,5 @@ class HttpServer extends BaseServer
     public function onFinish(Server $server, $taskId, $data)
     {
 
-    }
-
-    /**
-     * @param Server $server
-     * @param int $workerId
-     * @param int $workerPid
-     * @param int $exitCode
-     */
-    public function onWorkerError(Server $server, $workerId, $workerPid, $exitCode)
-    {
-        echo __FILE__ . ' error occurred.';
     }
 }

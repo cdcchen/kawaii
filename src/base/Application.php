@@ -67,6 +67,15 @@ abstract class Application extends ServiceLocator
     /**
      * @var string
      */
+    protected static $configFile;
+    /**
+     * @var array
+     */
+    protected static $config = [];
+
+    /**
+     * @var string
+     */
     private $basePath;
     /**
      * @var string
@@ -80,14 +89,43 @@ abstract class Application extends ServiceLocator
 
     /**
      * Application constructor.
+     * @param string $configFile
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct($configFile, array $config = [])
     {
-        $this->preInit($config);
-        $this->registerErrorHandler($config);
+        Kawaii::$app = $this;
 
-        parent::__construct($config);
+        static::$configFile = $configFile;
+        $this->loadConfig();
+
+        parent::__construct(array_merge(static::$config, $config));
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    protected function loadConfig()
+    {
+        if (empty(static::$configFile)) {
+            return;
+        }
+
+        if (file_exists(static::$configFile)) {
+            static::$config = require(static::$configFile);
+        } else {
+            $configFile = static::$configFile;
+            throw new InvalidConfigException("Config file: {$configFile} is not exist.");
+        }
+
+        $this->preInit(static::$config);
+
+        $this->registerErrorHandler(static::$config);
+    }
+
+    public function reload()
+    {
+        $this->loadConfig();
     }
 
     /**
@@ -121,12 +159,6 @@ abstract class Application extends ServiceLocator
         } elseif (!ini_get('date.timezone')) {
             $this->setTimeZone('UTC');
         }
-    }
-
-    protected function init()
-    {
-        parent::init();
-        $this->bootstrap();
     }
 
     protected function bootstrap()
