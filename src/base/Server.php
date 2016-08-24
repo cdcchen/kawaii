@@ -10,13 +10,13 @@ namespace kawaii\base;
 
 
 use Kawaii;
-use Swoole\Server;
+use Swoole\Server as SwooleServer;
 
 /**
- * Class BaseServer
+ * Class Server
  * @package kawaii\base
  */
-abstract class BaseServer extends Object
+abstract class Server extends Object
 {
     /**
      * @var ServerListener[]
@@ -39,11 +39,6 @@ abstract class BaseServer extends Object
      * @var array
      */
     protected static $config = [];
-
-    /**
-     * @var \kawaii\web\Request[]
-     */
-    protected static $requests = [];
 
     /**
      * @var \Swoole\Server
@@ -83,7 +78,6 @@ abstract class BaseServer extends Object
      */
     public function run(ApplicationInterface $app)
     {
-        $app->run();
         static::initSwooleServer();
 
         static::$swooleServer->on('Start', [$this, 'onMasterStart']);
@@ -95,8 +89,14 @@ abstract class BaseServer extends Object
         static::$swooleServer->on('WorkerError', [$this, 'onWorkerError']);
         static::$swooleServer->on('Connect', [$this, 'onConnect']);
         static::$swooleServer->on('Close', [$this, 'onClose']);
+        static::$swooleServer->on('Task', [$this, 'onTask']);
+        static::$swooleServer->on('Finish', [$this, 'onFinish']);
+        static::$swooleServer->on('PipeMessage', [$this, 'onPipeMessage']);
 
         $this->bindCallback();
+
+        $app->run();
+
         return static::$swooleServer->start();
     }
 
@@ -130,7 +130,7 @@ abstract class BaseServer extends Object
         // init swoole_server
         $listeners = static::$listeners;
         $listener = empty($listeners) ? static::getDefaultListener() : $listeners[0];
-        static::$swooleServer = new Server($listener->host, $listener->port, SWOOLE_PROCESS, $listener->type);
+        static::$swooleServer = new SwooleServer($listener->host, $listener->port, SWOOLE_PROCESS, $listener->type);
         for ($i = 1; $i < count($listeners); $i++) {
             $listener = $listeners[$i];
             static::$swooleServer->addlistener($listener->host, $listener->port, $listener->type);
@@ -215,20 +215,20 @@ abstract class BaseServer extends Object
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      */
-    public function onMasterStart(Server $server)
+    public function onMasterStart(SwooleServer $server)
     {
         file_put_contents(static::getPidFile(), $server->master_pid);
-        static::setProcessName('Master');
+        static::setProcessName('master process');
 
         echo "Server pid: {$server->master_pid} starting...\n";
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      */
-    public function onMasterStop(Server $server)
+    public function onMasterStop(SwooleServer $server)
     {
         unlink(static::getPidFile());
 
@@ -236,76 +236,118 @@ abstract class BaseServer extends Object
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      */
-    public function onManagerStart(Server $server)
+    public function onManagerStart(SwooleServer $server)
     {
-        static::setProcessName('Manager');
+        static::setProcessName('manager');
 
         echo "Manager pid: {$server->manager_pid} starting...\n";
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      */
-    public function onManagerStop(Server $server)
+    public function onManagerStop(SwooleServer $server)
     {
         echo "Manager pid: {$server->manager_pid} stopped...\n";
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      * @param int $workId
      */
-    public function onWorkerStart(Server $server, $workId)
+    public function onWorkerStart(SwooleServer $server, $workId)
     {
-        static::setProcessName($server->taskworker ? 'Task' : 'Worker');
+        static::setProcessName($server->taskworker ? 'task' : 'worker');
 
         static::loadConfig();
         Kawaii::$app->reload();
 
-        echo ($server->taskworker ? 'Task' : 'Worker') . ": $workId starting...\n";
+        echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      * @param int $workId
      */
-    public function onWorkerStop(Server $server, $workId)
+    public function onWorkerStop(SwooleServer $server, $workId)
     {
         echo "Worker: $workId stopped...\n";
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      * @param int $workerId
      * @param int $workerPid
      * @param int $exitCode
      */
-    public function onWorkerError(Server $server, $workerId, $workerPid, $exitCode)
+    public function onWorkerError(SwooleServer $server, $workerId, $workerPid, $exitCode)
     {
         echo __FILE__ . ' error occurred.';
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      * @param int $clientId
      * @param int $fromId
      */
-    public function onConnect(Server $server, $clientId, $fromId)
+    public function onConnect(SwooleServer $server, $clientId, $fromId)
     {
         echo "Client: $clientId connected.\n";
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      * @param int $clientId
      * @param int $fromId
      */
-    public function onClose(Server $server, $clientId, $fromId)
+    public function onClose(SwooleServer $server, $clientId, $fromId)
     {
-        unset(static::$requests[$clientId]);
         $memory = memory_get_usage() . '/' . memory_get_usage(true) . ' - ' . memory_get_peak_usage() . '/' . memory_get_peak_usage(true);
         echo "Client: $clientId disconnected.\n{$memory}\n-----------------------------\n";
+    }
+
+    /**
+     * @param string SwooleServer $server
+     * @param int $taskId
+     * @param int $fromId
+     * @param mixed $data
+     * @return mixed
+     */
+    public function onTask(SwooleServer $server, $taskId, $fromId, $data)
+    {
+        if ($data instanceof BaseTask) {
+            $data->handle($server, $taskId);
+        }
+
+//        $dataText = var_export($data->getData(), true);
+//        echo "Task: $taskId starting...\n Data: $dataText";
+    }
+
+    /**
+     * @param SwooleServer $server
+     * @param int $taskId
+     * @param mixed $data
+     */
+    public function onFinish(SwooleServer $server, $taskId, $data)
+    {
+        if ($data instanceof BaseTask) {
+            $data->completed();
+        }
+
+//        $dataText = var_export($data->result, true);
+//        echo "Task: $taskId finished. \nData: $dataText";
+    }
+
+
+    /**
+     * @param SwooleServer $server
+     * @param int $fromWorkerId
+     * @param string $data
+     */
+    public function onPipeMessage(SwooleServer $server, $fromWorkerId, $data)
+    {
+
     }
 }

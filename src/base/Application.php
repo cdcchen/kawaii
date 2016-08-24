@@ -77,14 +77,6 @@ abstract class Application extends ServiceLocator
      * @var string
      */
     private $basePath;
-    /**
-     * @var string
-     */
-    private $viewPath;
-    /**
-     * @var string
-     */
-    private $layoutPath;
 
 
     /**

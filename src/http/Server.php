@@ -10,16 +10,15 @@ namespace kawaii\http;
 
 
 use Kawaii;
-use kawaii\base\BaseServer;
 use kawaii\web\Request;
 use kawaii\web\Response;
-use Swoole\Server;
+use Swoole\Server as SwooleServer;
 
 /**
- * Class HttpServer
+ * Class Server
  * @package kawaii\base
  */
-class HttpServer extends BaseServer
+class Server extends \kawaii\base\Server
 {
     /**
      * Http head max length
@@ -41,18 +40,15 @@ class HttpServer extends BaseServer
     protected function bindCallback()
     {
         static::$swooleServer->on('Receive', [$this, 'onReceive']);
-        static::$swooleServer->on('PipeMessage', [$this, 'onPipeMessage']);
-        static::$swooleServer->on('Task', [$this, 'onTask']);
-        static::$swooleServer->on('Finish', [$this, 'onFinish']);
     }
 
     /**
-     * @param Server $server
+     * @param SwooleServer $server
      * @param int $clientId
      * @param int $fromId
      * @param string $data
      */
-    public function onReceive(Server $server, $clientId, $fromId, $data)
+    public function onReceive(SwooleServer $server, $clientId, $fromId, $data)
     {
         try {
             if (isset(static::$buffers[$clientId])) {
@@ -146,36 +142,5 @@ class HttpServer extends BaseServer
         }
 
         return self::TRANSFER_FINISHED;
-    }
-
-
-    /**
-     * @param Server $server
-     * @param int $fromWorkerId
-     * @param string $data
-     */
-    public function onPipeMessage(Server $server, $fromWorkerId, $data)
-    {
-
-    }
-
-    /**
-     * @param string Server $server
-     * @param int $taskId
-     * @param int $fromId
-     * @param mixed $data
-     */
-    public function onTask(Server $server, $taskId, $fromId, $data)
-    {
-    }
-
-    /**
-     * @param Server $server
-     * @param int $taskId
-     * @param mixed $data
-     */
-    public function onFinish(Server $server, $taskId, $data)
-    {
-
     }
 }

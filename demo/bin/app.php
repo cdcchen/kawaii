@@ -111,5 +111,5 @@ $app = new kawaii\web\Application($config);
 
 
 $config = __DIR__ . '/../config/server.php';
-$server = new \kawaii\http\HttpServer($config);
+$server = new \kawaii\http\Server($config);
 $server->listen(9502)->listen(9503, '127.0.0.1')->listen(9504)->run($app);

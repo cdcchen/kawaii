@@ -36,6 +36,15 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      */
     protected $middlewareStack;
 
+    /**
+     * @var string
+     */
+    private $viewPath;
+    /**
+     * @var string
+     */
+    private $layoutPath;
+
     protected function init()
     {
         $seedMiddleware = function (Context $context) {
@@ -72,17 +81,25 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         try {
             $context = $this->middlewareStack->handle($context);
         } catch (HttpException $e) {
-            $context->response = $context->response->withStatus($e->statusCode)->write($e->getMessage());
+            $statusCode = $e->statusCode;
+            $context->response->write($e->getMessage());
         } catch (UserException $e) {
-            $context->response = $context->response->withStatus(500)->write($e->getMessage());
+            $statusCode = 500;
+            $context->response->write($e->getMessage());
         } catch (Exception $e) {
-            $context->response = $context->response->withStatus(500)->write($e->getMessage());
+            $statusCode = 500;
+            $context->response->write($e->getMessage());
         } catch (\Exception $e) {
-            $context->response = $context->response->withStatus(500)->write('Server error');
+            $statusCode = 500;
+            $context->response->write($e->getMessage());
         }
         finally {
             $finishedTime = microtime(true);
             echo 'Processing the request. time: ', ($finishedTime - $beginTime), PHP_EOL;
+        }
+
+        if (isset($statusCode)) {
+            $context->response = $context->response->withStatus($statusCode);
         }
 
         return $context;

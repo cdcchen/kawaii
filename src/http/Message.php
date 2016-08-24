@@ -21,7 +21,7 @@ class Message implements MessageInterface
     /**
      * The header and the body of the separator
      */
-    const HTTP_EOF        = "\r\n\r\n";
+    const HTTP_EOF = "\r\n\r\n";
     /**
      * Header line eol
      */

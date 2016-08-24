@@ -7,9 +7,9 @@
 
 namespace kawaii\di;
 
+use Kawaii;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
-use Kawaii;
 use ReflectionClass;
 
 /**
@@ -523,7 +523,7 @@ class Container extends Object
                     unset($params[$name]);
                 } elseif (!$associative && isset($params[0]) && $params[0] instanceof $className) {
                     $args[] = array_shift($params);
-                } elseif (isset(Kawaii::$app) && Kawaii::$app->has($name) && ($obj = Kawaii::$app->get($name)) instanceof $className) {
+                } elseif (isset(Kawaii::$app) && Kawaii::$app->hasComponent($name) && ($obj = Kawaii::$app->getComponent($name)) instanceof $className) {
                     $args[] = $obj;
                 } else {
                     $args[] = $this->get($className);
