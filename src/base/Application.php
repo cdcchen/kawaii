@@ -46,7 +46,7 @@ abstract class Application extends ServiceLocator
     /**
      * @var
      */
-    public $layout;
+    public $layout = 'main';
     /**
      * @var array
      */
@@ -77,6 +77,17 @@ abstract class Application extends ServiceLocator
      * @var string
      */
     private $basePath;
+
+    /**
+     * @var string the root directory that contains view files for this module
+     */
+    private $viewPath;
+    /**
+     * @var string the root directory that contains layout view files for this module.
+     */
+    private $layoutPath;
+
+    private $vendorPath;
 
 
     /**
@@ -135,6 +146,14 @@ abstract class Application extends ServiceLocator
             unset($config['basePath']);
         } else {
             throw new InvalidConfigException('The "basePath" configuration for the Application is required.');
+        }
+
+        if (isset($config['vendorPath'])) {
+            $this->setVendorPath($config['vendorPath']);
+            unset($config['vendorPath']);
+        } else {
+            // set "@vendor"
+            $this->getVendorPath();
         }
 
         if (isset($config['runtimePath'])) {
@@ -213,6 +232,76 @@ abstract class Application extends ServiceLocator
         $this->_runtimePath = Kawaii::getAlias($path);
         Kawaii::setAlias('@runtime', $this->_runtimePath);
     }
+
+    /**
+     * Returns the directory that contains the view files for this module.
+     * @return string the root directory of view files. Defaults to "[[basePath]]/views".
+     */
+    public function getViewPath()
+    {
+        if ($this->viewPath === null) {
+            $this->viewPath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'views';
+        }
+        return $this->viewPath;
+    }
+
+    /**
+     * Sets the directory that contains the view files.
+     * @param string $path the root directory of view files.
+     * @throws InvalidParamException if the directory is invalid
+     */
+    public function setViewPath($path)
+    {
+        $this->viewPath = Kawaii::getAlias($path);
+    }
+
+    /**
+     * Returns the directory that contains layout view files for this module.
+     * @return string the root directory of layout files. Defaults to "[[viewPath]]/layouts".
+     */
+    public function getLayoutPath()
+    {
+        if ($this->layoutPath === null) {
+            $this->layoutPath = $this->getViewPath() . DIRECTORY_SEPARATOR . 'layouts';
+        }
+
+        return $this->layoutPath;
+    }
+
+    /**
+     * Sets the directory that contains the layout files.
+     * @param string $path the root directory or path alias of layout files.
+     * @throws InvalidParamException if the directory is invalid
+     */
+    public function setLayoutPath($path)
+    {
+        $this->layoutPath = Kawaii::getAlias($path);
+    }
+
+    /**
+     * Returns the directory that stores vendor files.
+     * @return string the directory that stores vendor files.
+     * Defaults to "vendor" directory under [[basePath]].
+     */
+    public function getVendorPath()
+    {
+        if ($this->vendorPath === null) {
+            $this->setVendorPath($this->getBasePath() . DIRECTORY_SEPARATOR . 'vendor');
+        }
+
+        return $this->vendorPath;
+    }
+
+    /**
+     * Sets the directory that stores vendor files.
+     * @param string $path the directory that stores vendor files.
+     */
+    public function setVendorPath($path)
+    {
+        $this->vendorPath = Kawaii::getAlias($path);
+        Kawaii::setAlias('@vendor', $this->vendorPath);
+    }
+
 
     /**
      * Returns the time zone used by this application.

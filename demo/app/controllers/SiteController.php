@@ -8,7 +8,6 @@
 
 namespace app\controllers;
 
-use app\tasks\TestTask;
 use kawaii\web\Controller;
 
 /**
@@ -19,10 +18,11 @@ class SiteController extends Controller
 {
     public function actionIndex()
     {
+//        print_r(\Kawaii::$aliases);
 //        throw new \Exception(__METHOD__);
 //        $task = new TestTask(__CLASS__);
 //        \Kawaii::$server->addTask($task);
-        return 'hello world!!';
+        return $this->render('index', ['hello' => 'Hello world!!']);
     }
 
     public function actionTest()

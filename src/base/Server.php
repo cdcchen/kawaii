@@ -158,6 +158,14 @@ abstract class Server extends Object
     }
 
     /**
+     * reload server config
+     */
+    protected static function reload()
+    {
+        static::loadConfig();
+    }
+
+    /**
      * @return array
      */
     private static function getSwooleConfig()
@@ -261,7 +269,7 @@ abstract class Server extends Object
     {
         static::setProcessName($server->taskworker ? 'task' : 'worker');
 
-        static::loadConfig();
+        static::reload();
         Kawaii::$app->reload();
 
         echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
@@ -336,8 +344,6 @@ abstract class Server extends Object
             $data->completed();
         }
 
-//        $dataText = var_export($data->result, true);
-//        echo "Task: $taskId finished. \nData: $dataText";
     }
 
 

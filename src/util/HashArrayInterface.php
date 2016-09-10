@@ -6,14 +6,14 @@
  * Time: 16:53
  */
 
-namespace kawaii\base;
+namespace kawaii\util;
 
 
 /**
- * Interface MapInterface
+ * Interface HashArrayInterface
  * @package kawaii\base
  */
-interface MapInterface extends \Countable
+interface HashArrayInterface extends \Countable
 {
     /**
      * Remove all
@@ -33,7 +33,7 @@ interface MapInterface extends \Countable
     public function containsValue($value);
 
     /**
-     * @param MapInterface $map
+     * @param HashArrayInterface $map
      * @return bool
      */
     public function equals($map);

@@ -20,11 +20,6 @@ use Swoole\Server as SwooleServer;
  */
 class Server extends \kawaii\base\Server
 {
-    /**
-     * Http head max length
-     */
-    const HTTP_HEAD_MAX_LENGTH = 8192;
-
     const TRANSFER_ERROR    = -1;
     const TRANSFER_WAIT     = 1;
     const TRANSFER_FINISHED = 2;
@@ -68,7 +63,7 @@ class Server extends \kawaii\base\Server
             unset(static::$buffers[$clientId]);
             unset($context, $result);
         } catch (\Exception $e) {
-            $response = (new Response(500))->withBody(StreamHelper::createStream($e->getMessage()));
+            $response = (new Response(500, null, $e->getMessage()));
 
             $server->send($clientId, (string)$response);
             unset($response);

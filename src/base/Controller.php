@@ -12,11 +12,15 @@ namespace kawaii\base;
 use Kawaii;
 use kawaii\web\Context;
 
-class Controller extends Object
+class Controller extends Object implements ViewContextInterface
 {
     public $id;
     public $defaultAction;
-    public $layout;
+    public $layout = 'main';
+
+    /**
+     * @var Action
+     */
     public $action;
 
     private $view;
@@ -24,6 +28,12 @@ class Controller extends Object
 
     private $context;
 
+    /**
+     * Controller constructor.
+     * @param array $id
+     * @param Context $context
+     * @param array $config
+     */
     public function __construct($id, Context $context, $config = [])
     {
         $this->id = $id;
@@ -31,11 +41,19 @@ class Controller extends Object
         parent::__construct($config);
     }
 
+    /**
+     * @return \kawaii\web\Request|\Psr\Http\Message\RequestInterface
+     */
     public function getRequest()
     {
         return $this->context->request;
     }
 
+    /**
+     * @param $id
+     * @return mixed|null
+     * @throws InvalidRouteException
+     */
     public function runAction($id)
     {
         $this->action = $this->createAction($id);
@@ -56,12 +74,19 @@ class Controller extends Object
 
     }
 
+    /**
+     * @param $route
+     * @return mixed|null
+     */
     public function run($route)
     {
         $action = $route;
         return $this->runAction($action);
     }
 
+    /**
+     * @return array
+     */
     public function actions()
     {
         return [];
@@ -93,124 +118,165 @@ class Controller extends Object
         return null;
     }
 
+    /**
+     * @param $action
+     * @return bool
+     */
     public function beforeAction($action)
     {
-//        $event = new ActionEvent($action);
-//        $this->trigger(self::EVENT_BEFORE_ACTION, $event);
-//        return $event->isValid;
         return true;
     }
 
+    /**
+     * @param $action
+     * @param $result
+     * @return mixed
+     */
     public function afterAction($action, $result)
     {
-//        $event = new ActionEvent($action);
-//        $event->result = $result;
-//        $this->trigger(self::EVENT_AFTER_ACTION, $event);
-//        return $event->result;
         return $result;
     }
 
+    /**
+     * @param $action
+     * @param $params
+     * @return array
+     */
     public function bindActionParams($action, $params)
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     public function getUniqueId()
     {
         return $this->id;
     }
 
+    /**
+     * Get the route of current action
+     */
     public function getRoute()
     {
-//        return $this->action !== null ? $this->action->getUniqueId() : $this->getUniqueId();
+        return $this->action !== null ? $this->action->getUniqueId() : $this->getUniqueId();
     }
 
+    /**
+     * @param string $view
+     * @param array $params
+     * @return string
+     */
     public function render($view, $params = [])
     {
-//        $content = $this->getView()->render($view, $params, $this);
-//        return $this->renderContent($content);
+        $content = $this->getView()->render($view, $params, $this);
+        return $this->renderContent($content);
     }
 
+    /**
+     * @param string $content
+     * @return string
+     */
     public function renderContent($content)
     {
-//        $layoutFile = $this->findLayoutFile($this->getView());
-//        if ($layoutFile !== false) {
-//            return $this->getView()->renderFile($layoutFile, ['content' => $content], $this);
-//        } else {
-//            return $content;
-//        }
+        $layoutFile = $this->findLayoutFile($this->getView());
+        if ($layoutFile !== false) {
+            return $this->getView()->renderFile($layoutFile, ['content' => $content], $this);
+        } else {
+            return $content;
+        }
     }
 
+    /**
+     * @param string $view
+     * @param array $params
+     * @return string
+     */
     public function renderPartial($view, $params = [])
     {
-//        return $this->getView()->render($view, $params, $this);
+        return $this->getView()->render($view, $params, $this);
     }
 
+    /**
+     * @param string $file
+     * @param array $params
+     * @return string
+     */
     public function renderFile($file, $params = [])
     {
-//        return $this->getView()->renderFile($file, $params, $this);
+        return $this->getView()->renderFile($file, $params, $this);
     }
 
+
+    /**
+     * @return View
+     */
     public function getView()
     {
         if ($this->view === null) {
-//            $this->view = Kawaii::$app->getView();
+            $this->view = Kawaii::createObject(View::className());
         }
         return $this->view;
     }
 
+    /**
+     * @param string $view
+     */
     public function setView($view)
     {
         $this->view = $view;
     }
 
+    /**
+     * @return string
+     */
     public function getViewPath()
     {
         if ($this->viewPath === null) {
-//            $this->viewPath = $this->module->getViewPath() . DIRECTORY_SEPARATOR . $this->id;
+            $this->viewPath = Kawaii::$app->getViewPath() . DIRECTORY_SEPARATOR . $this->id;
         }
         return $this->viewPath;
     }
 
+    /**
+     * @param string $path
+     */
     public function setViewPath($path)
     {
-//        $this->_viewPath = Kawaii::getAlias($path);
+        $this->viewPath = Kawaii::getAlias($path);
     }
 
+    /**
+     * @param View $view
+     * @return bool|string
+     */
     public function findLayoutFile($view)
     {
-//        $module = $this->module;
-//        if (is_string($this->layout)) {
-//            $layout = $this->layout;
-//        } elseif ($this->layout === null) {
-//            while ($module !== null && $module->layout === null) {
-//                $module = $module->module;
-//            }
-//            if ($module !== null && is_string($module->layout)) {
-//                $layout = $module->layout;
-//            }
-//        }
-//
-//        if (!isset($layout)) {
-//            return false;
-//        }
-//
-//        if (strncmp($layout, '@', 1) === 0) {
-//            $file = Kawaii::getAlias($layout);
-//        } elseif (strncmp($layout, '/', 1) === 0) {
-//            $file = Kawaii::$app->getLayoutPath() . DIRECTORY_SEPARATOR . substr($layout, 1);
-//        } else {
+        if (is_string($this->layout) && $this->layout !== '') {
+            $layout = $this->layout;
+        } else {
+            return false;
+        }
+
+        if (strncmp($layout, '@', 1) === 0) {
+            $file = Kawaii::getAlias($layout);
+        } elseif (strncmp($layout, '/', 1) === 0) {
+            $file = Kawaii::$app->getLayoutPath() . DIRECTORY_SEPARATOR . ltrim($layout);
+        } else {
+            $file = Kawaii::$app->getLayoutPath() . DIRECTORY_SEPARATOR . ltrim($layout);
+            // @todo if use module
 //            $file = $module->getLayoutPath() . DIRECTORY_SEPARATOR . $layout;
-//        }
-//
-//        if (pathinfo($file, PATHINFO_EXTENSION) !== '') {
-//            return $file;
-//        }
-//        $path = $file . '.' . $view->defaultExtension;
-//        if ($view->defaultExtension !== 'php' && !is_file($path)) {
-//            $path = $file . '.php';
-//        }
-//
-//        return $path;
+        }
+
+        if (pathinfo($file, PATHINFO_EXTENSION) !== '') {
+            return $file;
+        }
+        $path = $file . '.' . $view->defaultExtension;
+        if ($view->defaultExtension !== 'php' && !is_file($path)) {
+            $path = $file . '.php';
+        }
+
+        return $path;
     }
 }

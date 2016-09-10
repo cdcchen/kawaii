@@ -36,14 +36,6 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      */
     protected $middlewareStack;
 
-    /**
-     * @var string
-     */
-    private $viewPath;
-    /**
-     * @var string
-     */
-    private $layoutPath;
 
     protected function init()
     {
@@ -57,7 +49,6 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
     /**
      * Run server
-     * @return bool
      */
     public function run()
     {

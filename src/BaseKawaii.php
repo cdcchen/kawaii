@@ -12,6 +12,7 @@ namespace kawaii;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\InvalidParamException;
 use kawaii\base\Object;
+use kawaii\base\Server;
 use kawaii\base\UnknownClassException;
 use kawaii\di\Container;
 use kawaii\http\HttpServer;
@@ -78,7 +79,7 @@ class BaseKawaii extends Object
      */
     public static $app;
     /**
-     * @var HttpServer
+     * @var Server
      */
     public static $server;
 
@@ -91,22 +92,22 @@ class BaseKawaii extends Object
         return $object;
     }
 
-//    public static function createObject($type, array $params = [])
-//    {
-//        if (is_string($type)) {
-//            return static::$container->get($type, $params);
-//        } elseif (is_array($type) && isset($type['class'])) {
-//            $class = $type['class'];
-//            unset($type['class']);
-//            return static::$container->get($class, $params, $type);
-//        } elseif (is_callable($type, true)) {
-//            return call_user_func($type, $params);
-//        } elseif (is_array($type)) {
-//            throw new InvalidConfigException('Object configuration must be an array containing a "class" element.');
-//        } else {
-//            throw new InvalidConfigException('Unsupported configuration type: ' . gettype($type));
-//        }
-//    }
+    public static function createObject($type, array $params = [])
+    {
+        if (is_string($type)) {
+            return static::$container->get($type, $params);
+        } elseif (is_array($type) && isset($type['class'])) {
+            $class = $type['class'];
+            unset($type['class']);
+            return static::$container->get($class, $params, $type);
+        } elseif (is_callable($type, true)) {
+            return static::$container->invoke($type, $params);
+        } elseif (is_array($type)) {
+            throw new InvalidConfigException('Object configuration must be an array containing a "class" element.');
+        } else {
+            throw new InvalidConfigException('Unsupported configuration type: ' . gettype($type));
+        }
+    }
 
     /**
      * Translates a path alias into an actual path.
@@ -286,21 +287,6 @@ class BaseKawaii extends Object
         }
     }
 
-    public static function createObject($type, array $params = [])
-    {
-        if (is_string($type)) {
-            return static::$container->get($type, $params);
-        } elseif (is_array($type) && isset($type['class'])) {
-            $class = $type['class'];
-            unset($type['class']);
-            return static::$container->get($class, $params, $type);
-        } elseif (is_callable($type, true)) {
-            return static::$container->invoke($type, $params);
-        } elseif (is_array($type)) {
-            throw new InvalidConfigException('Object configuration must be an array containing a "class" element.');
-        } else {
-            throw new InvalidConfigException('Unsupported configuration type: ' . gettype($type));
-        }
-    }
+
 }
 

@@ -9,15 +9,15 @@
 namespace kawaii\base;
 
 
+    /**
+     * Class ServerListener
+     * @package kawaii\base
+     */
 /**
  * Class ServerListener
  * @package kawaii\base
  */
-/**
- * Class ServerListener
- * @package kawaii\base
- */
-class ServerListener
+class ServerListener extends Object
 {
     /**
      * @var string
@@ -42,12 +42,15 @@ class ServerListener
      * @param string $host
      * @param int $type
      * @param int $mode
+     * @param array $config
      */
-    public function __construct($port, $host, $type = SWOOLE_SOCK_TCP, $mode = SWOOLE_PROCESS)
+    public function __construct($port, $host, $type = SWOOLE_SOCK_TCP, $mode = SWOOLE_PROCESS, $config = [])
     {
         $this->host = $host;
         $this->port = $port;
         $this->type = $type;
         $this->mode = $mode;
+
+        parent::__construct($config);
     }
 }

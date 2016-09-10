@@ -6,22 +6,22 @@
  * Time: 16:58
  */
 
-namespace kawaii\base;
+namespace kawaii\util;
 
 
     /**
-     * Class HashMap
+     * Class HashArray
+     * @package kawaii\base
+     */
+    /**
+     * Class HashArray
      * @package kawaii\base
      */
 /**
- * Class HashMap
+ * Class HashArray
  * @package kawaii\base
  */
-/**
- * Class HashMap
- * @package kawaii\base
- */
-class HashMap implements MapInterface, \IteratorAggregate, \ArrayAccess, \Serializable, \JsonSerializable
+class HashArray implements HashArrayInterface, \IteratorAggregate, \ArrayAccess, \Serializable, \JsonSerializable
 {
     /**
      * @var array
@@ -29,7 +29,7 @@ class HashMap implements MapInterface, \IteratorAggregate, \ArrayAccess, \Serial
     private $items = [];
 
     /**
-     * HashMap constructor.
+     * HashArray constructor.
      * @param \Traversable|array $items
      */
     public function __construct($items)
@@ -229,9 +229,44 @@ class HashMap implements MapInterface, \IteratorAggregate, \ArrayAccess, \Serial
     /**
      * @inheritdoc
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return json_encode($this->items, 320);
+    }
+
+    public function key()
+    {
+        return key($this->items);
+    }
+
+    public function current()
+    {
+        return current($this->items);
+    }
+
+    public function next()
+    {
+        return next($this->items);
+    }
+
+    public function pre()
+    {
+        return prev($this->items);
+    }
+
+    public function first()
+    {
+        return reset($this->items);
+    }
+
+    public function end()
+    {
+        return end($this->items);
+    }
+
+    public function each()
+    {
+        return each($this->items);
     }
 
     /**

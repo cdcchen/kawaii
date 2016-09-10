@@ -17,6 +17,7 @@ return [
     'sourceLanguage' => 'zh-CN',
     'timeZone' => 'Asia/Shanghai',
     'controllerNamespace' => 'app\\controllers',
+    'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
 
     'components' => [
     ],
