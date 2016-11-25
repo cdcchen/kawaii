@@ -6,23 +6,27 @@
  * Time: 21:03
  */
 
-$serv = new \Swoole\WebSocket\Server("localhost", 9503);
+$server = new swoole_websocket_server("0.0.0.0", 9503);
 
-$serv->on('Open', function(\Swoole\WebSocket\Server $server, $req) {
-    echo "connection open: ".$req->fd;
-    var_dump($server->connection_info($req->fd));
+$server->on('open', function (swoole_websocket_server $server, $request) {
+    echo "server: handshake success with fd{$request->fd}\n";
 });
 
-$serv->on('Message', function(\Swoole\WebSocket\Server $server, $frame) {
-    echo "message: ".$frame->data;
-    $server->push($frame->fd, json_encode(["hello", "world"]));
-    $server->tick(1000, function () use ($server, $frame) {
-        $server->push($frame->fd, json_encode(["hello", "world"]));
+$server->on('request', function ($request, $response) {
+    $response->end(file_get_contents(__DIR__ . '/index.html'));
+});
+
+$server->on('message', function (swoole_websocket_server $server, $frame) {
+    echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
+
+    $server->push($frame->fd, "this is server");
+    swoole_timer_tick(1000, function ($timerId) use ($server, $frame) {
+        $server->push($frame->fd, microtime(true));
     });
 });
 
-$serv->on('Close', function(\Swoole\WebSocket\Server $server, $fd) {
-    echo "connection close: ".$fd;
+$server->on('close', function ($ser, $fd) {
+    echo "client {$fd} closed\n";
 });
 
-$serv->start();
+$server->start();
