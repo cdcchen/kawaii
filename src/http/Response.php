@@ -9,13 +9,14 @@
 namespace kawaii\http;
 
 
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class Response
  * @package kawaii\http
  */
-class Response extends Message implements ResponseInterface
+class Response extends Message implements ResponseInterface, StatusCodeInterface
 {
     /**
      * @var string
@@ -25,74 +26,71 @@ class Response extends Message implements ResponseInterface
     /**
      * @var int
      */
-    protected $statusCode = HTTP::STATUS_OK;
+    protected $statusCode = self::STATUS_OK;
 
     /**
      * @var array Map of standard HTTP status code/reason reasonPhrases
      */
     public static $reasonPhrases = [
-        100 => 'Continue',
-        101 => 'Switching Protocols',
-        102 => 'Processing',
-        200 => 'OK',
-        201 => 'Created',
-        202 => 'Accepted',
-        203 => 'Non-Authoritative Information',
-        204 => 'No Content',
-        205 => 'Reset Content',
-        206 => 'Partial Content',
-        207 => 'Multi-status',
-        208 => 'Already Reported',
-        226 => 'Im used',
-        300 => 'Multiple Choices',
-        301 => 'Moved Permanently',
-        302 => 'Found',
-        303 => 'See Other',
-        304 => 'Not Modified',
-        305 => 'Use Proxy',
-        306 => 'Switch Proxy',
-        307 => 'Temporary Redirect',
-        308 => 'Permanent Redirect',
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        402 => 'Payment Required',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        406 => 'Not Acceptable',
-        407 => 'Proxy Authentication Required',
-        408 => 'Request Time-out',
-        409 => 'Conflict',
-        410 => 'Gone',
-        411 => 'Length Required',
-        412 => 'Precondition Failed',
-        413 => 'Request Entity Too Large',
-        414 => 'Request-URI Too Large',
-        415 => 'Unsupported Media Type',
-        416 => 'Requested range not satisfiable',
-        417 => 'Expectation Failed',
-        418 => 'I\'m a teapot',
-        422 => 'Unprocessable Entity',
-        423 => 'Locked',
-        424 => 'Failed Dependency',
-        425 => 'Unordered Collection',
-        426 => 'Upgrade Required',
-        428 => 'Precondition Required',
-        429 => 'Too Many Requests',
-        431 => 'Request Header Fields Too Large',
-        451 => 'Unavailable For Legal Reasons',
-        500 => 'Internal Server Error',
-        501 => 'Not Implemented',
-        502 => 'Bad Gateway',
-        503 => 'Service Unavailable',
-        504 => 'Gateway Time-out',
-        505 => 'HTTP Version not supported',
-        506 => 'Variant Also Negotiates',
-        507 => 'Insufficient Storage',
-        508 => 'Loop Detected',
-        509 => 'bandwidth limit exceeded',
-        510 => 'not extended',
-        511 => 'Network Authentication Required',
+        self::STATUS_CONTINUE => 'Continue',
+        self::STATUS_SWITCHING_PROTOCOLS => 'Switching Protocols',
+        self::STATUS_PROCESSING => 'Processing',
+        self::STATUS_OK => 'OK',
+        self::STATUS_CREATED => 'Created',
+        self::STATUS_ACCEPTED => 'Accepted',
+        self::STATUS_NON_AUTHORITATIVE_INFORMATION => 'Non-Authoritative Information',
+        self::STATUS_NO_CONTENT => 'No Content',
+        self::STATUS_RESET_CONTENT => 'Reset Content',
+        self::STATUS_PARTIAL_CONTENT => 'Partial Content',
+        self::STATUS_MULTI_STATUS => 'Multi-status',
+        self::STATUS_ALREADY_REPORTED => 'Already Reported',
+        self::STATUS_IM_USED => 'Im used',
+        self::STATUS_MULTIPLE_CHOICES => 'Multiple Choices',
+        self::STATUS_MOVED_PERMANENTLY => 'Moved Permanently',
+        self::STATUS_FOUND => 'Found',
+        self::STATUS_SEE_OTHER => 'See Other',
+        self::STATUS_NOT_MODIFIED => 'Not Modified',
+        self::STATUS_USE_PROXY => 'Use Proxy',
+        self::STATUS_RESERVED => 'Switch Proxy',
+        self::STATUS_TEMPORARY_REDIRECT => 'Temporary Redirect',
+        self::STATUS_PERMANENT_REDIRECT => 'Permanent Redirect',
+        self::STATUS_BAD_REQUEST => 'Bad Request',
+        self::STATUS_UNAUTHORIZED => 'Unauthorized',
+        self::STATUS_PAYMENT_REQUIRED => 'Payment Required',
+        self::STATUS_FORBIDDEN => 'Forbidden',
+        self::STATUS_NOT_FOUND => 'Not Found',
+        self::STATUS_METHOD_NOT_ALLOWED => 'Method Not Allowed',
+        self::STATUS_NOT_ACCEPTABLE => 'Not Acceptable',
+        self::STATUS_PROXY_AUTHENTICATION_REQUIRED => 'Proxy Authentication Required',
+        self::STATUS_REQUEST_TIMEOUT => 'Request Time-out',
+        self::STATUS_CONFLICT => 'Conflict',
+        self::STATUS_GONE => 'Gone',
+        self::STATUS_LENGTH_REQUIRED => 'Length Required',
+        self::STATUS_PRECONDITION_FAILED => 'Precondition Failed',
+        self::STATUS_PAYLOAD_TOO_LARGE => 'Request Entity Too Large',
+        self::STATUS_URI_TOO_LONG => 'Request-URI Too Large',
+        self::STATUS_UNSUPPORTED_MEDIA_TYPE => 'Unsupported Media Type',
+        self::STATUS_RANGE_NOT_SATISFIABLE => 'Requested range not satisfiable',
+        self::STATUS_EXPECTATION_FAILED => 'Expectation Failed',
+        self::STATUS_UNPROCESSABLE_ENTITY => 'Unprocessable Entity',
+        self::STATUS_LOCKED => 'Locked',
+        self::STATUS_FAILED_DEPENDENCY => 'Failed Dependency',
+        self::STATUS_UPGRADE_REQUIRED => 'Upgrade Required',
+        self::STATUS_PRECONDITION_REQUIRED => 'Precondition Required',
+        self::STATUS_TOO_MANY_REQUESTS => 'Too Many Requests',
+        self::STATUS_REQUEST_HEADER_FIELDS_TOO_LARGE => 'Request Header Fields Too Large',
+        self::STATUS_UNAVAILABLE_FOR_LEGAL_REASONS => 'Unavailable For Legal Reasons',
+        self::STATUS_INTERNAL_SERVER_ERROR => 'Internal Server Error',
+        self::STATUS_NOT_IMPLEMENTED => 'Not Implemented',
+        self::STATUS_BAD_GATEWAY => 'Bad Gateway',
+        self::STATUS_SERVICE_UNAVAILABLE => 'Service Unavailable',
+        self::STATUS_GATEWAY_TIMEOUT => 'Gateway Time-out',
+        self::STATUS_VERSION_NOT_SUPPORTED => 'HTTP Version not supported',
+        self::STATUS_VARIANT_ALSO_NEGOTIATES => 'Variant Also Negotiates',
+        self::STATUS_INSUFFICIENT_STORAGE => 'Insufficient Storage',
+        self::STATUS_LOOP_DETECTED => 'Loop Detected',
+        self::STATUS_NOT_EXTENDED => 'not extended',
+        self::STATUS_NETWORK_AUTHENTICATION_REQUIRED => 'Network Authentication Required',
     ];
 
 
@@ -105,7 +103,7 @@ class Response extends Message implements ResponseInterface
      * @param null|string $reason
      */
     public function __construct(
-        $status = 200,
+        $status = self::STATUS_OK,
         HeaderCollection $headers = null,
         $body = null,
         $version = null,
@@ -122,10 +120,8 @@ class Response extends Message implements ResponseInterface
             $this->protocol = $version;
         }
 
-        if (empty($reason) && isset(static::$reasonPhrases[$this->statusCode])) {
-            $this->reasonPhrase = static::$reasonPhrases[$this->statusCode];
-        } else {
-            $this->reasonPhrase = (string)$reason;
+        if (empty($this->reasonPhrase = $reason)) {
+            $this->reasonPhrase = static::defaultReasonPhrase($this->statusCode);
         }
 
         $this->init();
@@ -155,10 +151,9 @@ class Response extends Message implements ResponseInterface
     {
         $new = clone $this;
         $new->statusCode = (int)$code;
-        if (empty($reasonPhrase) && isset(static::$reasonPhrases[$new->statusCode])) {
-            $reasonPhrase = static::$reasonPhrases[$new->statusCode];
+        if (empty($this->reasonPhrase = $reasonPhrase)) {
+            $this->reasonPhrase = static::defaultReasonPhrase($new->statusCode);
         }
-        $new->reasonPhrase = $reasonPhrase;
         return $new;
     }
 
@@ -168,5 +163,13 @@ class Response extends Message implements ResponseInterface
     public function getReasonPhrase()
     {
         return $this->reasonPhrase;
+    }
+
+    protected static function defaultReasonPhrase($statusCode)
+    {
+        if (isset(static::$reasonPhrases[$statusCode])) {
+            return static::$reasonPhrases[$statusCode];
+        }
+        return '';
     }
 }

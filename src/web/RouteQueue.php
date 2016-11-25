@@ -12,11 +12,11 @@ namespace kawaii\web;
 class RouteQueue implements \Countable
 {
     /**
-     * @var Route[]
+     * @var Route[][]
      */
     protected $staticRoutes = [];
     /**
-     * @var Route[]
+     * @var Route[][]
      */
     protected $variableRoutes = [];
 

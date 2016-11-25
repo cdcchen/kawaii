@@ -9,7 +9,33 @@
 namespace kawaii\util;
 
 
-class ArraySet
+/**
+ * Class CSet
+ * @package kawaii\util
+ */
+class CSet extends CBaseList
 {
+    /**
+     * @param mixed $value
+     * @return $this
+     */
+    public function add($value)
+    {
+        if (!in_array($value, $this->container)) {
+            $this->container[] = $value;
+        }
 
+        return $this;
+    }
+
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        if (!in_array($value, $this->container)) {
+            $this->container[] = $value;
+        }
+    }
 }

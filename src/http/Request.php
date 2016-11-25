@@ -9,6 +9,7 @@
 namespace kawaii\http;
 
 
+use Fig\Http\Message\RequestMethodInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -16,7 +17,7 @@ use Psr\Http\Message\UriInterface;
  * Class Request
  * @package kawaii\http
  */
-class Request extends Message implements RequestInterface
+class Request extends Message implements RequestInterface, RequestMethodInterface
 {
     /**
      * @var string
@@ -128,11 +129,13 @@ class Request extends Message implements RequestInterface
         if ($uri === $this->uri) {
             return $this;
         }
+
         $new = clone $this;
         $new->uri = $uri;
         if (!$preserveHost) {
             $new->updateHostFromUri();
         }
+
         return $new;
     }
 

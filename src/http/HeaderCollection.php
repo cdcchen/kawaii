@@ -218,8 +218,9 @@ class HeaderCollection implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     private function filterHeaderValues(array $values)
     {
-        return array_map(function ($values) {
-            return trim($values, " \t");
-        }, $values);
+        array_walk($values, function (&$value) {
+            $value = trim($value, " \t");
+        });
+        return $values;
     }
 }

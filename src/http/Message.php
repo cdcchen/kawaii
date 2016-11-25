@@ -99,7 +99,12 @@ class Message implements MessageInterface
      */
     public function getHeaderLine($name)
     {
-        return implode(', ', $this->getHeader($name));
+        $header = $this->getHeader($name);
+        if ($header) {
+            return implode(', ', $header);
+        } else {
+            return '';
+        }
     }
 
     /**
@@ -176,7 +181,6 @@ class Message implements MessageInterface
 
         $new = clone $this;
         $new->stream = $body;
-
         return $new;
     }
 

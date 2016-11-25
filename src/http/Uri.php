@@ -256,7 +256,7 @@ class Uri implements UriInterface
     public static function isDefaultPort(UriInterface $uri)
     {
         return $uri->getPort() === null
-        || (isset(self::$defaultPorts[$uri->getScheme()]) && $uri->getPort() === self::$defaultPorts[$uri->getScheme()]);
+            || (isset(self::$defaultPorts[$uri->getScheme()]) && $uri->getPort() === self::$defaultPorts[$uri->getScheme()]);
     }
 
     /**
@@ -310,9 +310,9 @@ class Uri implements UriInterface
     public static function isAbsolutePathReference(UriInterface $uri)
     {
         return $uri->getScheme() === ''
-        && $uri->getAuthority() === ''
-        && isset($uri->getPath()[0])
-        && $uri->getPath()[0] === '/';
+            && $uri->getAuthority() === ''
+            && isset($uri->getPath()[0])
+            && $uri->getPath()[0] === '/';
     }
 
     /**
@@ -328,8 +328,8 @@ class Uri implements UriInterface
     public static function isRelativePathReference(UriInterface $uri)
     {
         return $uri->getScheme() === ''
-        && $uri->getAuthority() === ''
-        && (!isset($uri->getPath()[0]) || $uri->getPath()[0] !== '/');
+            && $uri->getAuthority() === ''
+            && (!isset($uri->getPath()[0]) || $uri->getPath()[0] !== '/');
     }
 
     /**
@@ -350,9 +350,9 @@ class Uri implements UriInterface
         if ($base !== null) {
             $uri = UriResolver::resolve($base, $uri);
             return ($uri->getScheme() === $base->getScheme())
-            && ($uri->getAuthority() === $base->getAuthority())
-            && ($uri->getPath() === $base->getPath())
-            && ($uri->getQuery() === $base->getQuery());
+                && ($uri->getAuthority() === $base->getAuthority())
+                && ($uri->getPath() === $base->getPath())
+                && ($uri->getQuery() === $base->getQuery());
         }
         return $uri->getScheme() === '' && $uri->getAuthority() === '' && $uri->getPath() === '' && $uri->getQuery() === '';
     }
