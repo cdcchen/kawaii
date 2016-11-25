@@ -33,4 +33,4 @@ phpunit.phar
 # node modules
 /node_modules
 
-/demo/log
+tests/_output/*
