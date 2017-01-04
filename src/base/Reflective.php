@@ -9,15 +9,19 @@
 namespace kawaii\base;
 
 
+/**
+ * Interface Reflective
+ * @package kawaii\base
+ */
 interface Reflective
 {
     /**
      * @return \ReflectionClass
      */
-    public function getClass();
+    public function getReflectionClass();
 
     /**
      * @return \ReflectionObject
      */
-    public function getObject();
+    public function getReflectionObject();
 }

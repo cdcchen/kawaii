@@ -18,6 +18,9 @@ return [
     'timeZone' => 'Asia/Shanghai',
     'controllerNamespace' => 'app\\controllers',
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
+    'staticPath' => [
+        __DIR__ . '/../public'
+    ],
 
     'components' => [
     ],

@@ -108,7 +108,7 @@ $app = new kawaii\web\Application($config);
 //        $context->response->getBody()->write('Hello world!');
 //        return $context;
 //    });
-
+var_dump(getopt('a:b:cf::', ['dd:', 'ee:']));
 
 $config = __DIR__ . '/../config/server.php';
 $server = new \kawaii\http\Server($config);

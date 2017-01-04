@@ -13,6 +13,7 @@ use Kawaii;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\UserException;
+use kawaii\http\Stream;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
 
@@ -26,15 +27,17 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
     public $routesFile = '@project/config/routes.php';
 
+    public $staticPath = [];
+
     /**
      * @var Router
      */
     protected $router;
 
     /**
-     * @var MiddlewareStack
+     * @var Middleware
      */
-    protected $middlewareStack;
+    protected $middleware;
 
 
     protected function init()
@@ -42,7 +45,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         $seedMiddleware = function (Context $context) {
             return $context;
         };
-        $this->middlewareStack = (new MiddlewareStack())->add($seedMiddleware);
+        $this->middleware = (new Middleware())->add($seedMiddleware);
 
         $this->router = new Router();
     }
@@ -70,7 +73,18 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
         $context = new Context($request, new Response());
         try {
-            $context = $this->middlewareStack->handle($context);
+            foreach ((array)Kawaii::$app->staticPath as $path) {
+                $filename = $path . '/' . ltrim($request->getUri()->getPath());
+                clearstatcache(true, $filename);
+                if (is_file($filename) && is_readable($filename)) {
+                    $stream = new Stream(fopen($filename, 'r+'));
+                    $context->response = $context->response->withBody($stream);
+
+                    return $context;
+                }
+            }
+
+            $context = $this->middleware->handle($context);
         } catch (HttpException $e) {
             $statusCode = $e->statusCode;
             $context->response->write($e->getMessage());
@@ -110,7 +124,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      */
     public function hook(callable $callable)
     {
-        $this->middlewareStack->add($callable);
+        $this->middleware->add($callable);
         return $this;
     }
 

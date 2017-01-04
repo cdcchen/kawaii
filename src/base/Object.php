@@ -78,15 +78,6 @@ use Kawaii;
 class Object implements Configurable, Reflective
 {
     /**
-     * Returns the fully qualified name of this class.
-     * @return string the fully qualified name of this class.
-     */
-    public static function className()
-    {
-        return PHP_VERSION >= '5.5' ? static::class : get_called_class();
-    }
-
-    /**
      * Constructor.
      * The default implementation does two things:
      *
@@ -303,21 +294,21 @@ class Object implements Configurable, Reflective
      */
     public function equals($obj)
     {
-        return $this === $obj;
+        return $this->getHash() === spl_object_hash($obj);
     }
 
     /**
      * @return \ReflectionClass
      */
-    public function getClass()
+    public function getReflectionClass()
     {
-        return new \ReflectionClass(static::className());
+        return new \ReflectionClass(static::class);
     }
 
     /**
      * @return \ReflectionObject
      */
-    public function getObject()
+    public function getReflectionObject()
     {
         return new \ReflectionObject($this);
     }

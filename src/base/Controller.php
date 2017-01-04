@@ -215,7 +215,7 @@ class Controller extends Object implements ViewContextInterface
     public function getView()
     {
         if ($this->view === null) {
-            $this->view = Kawaii::createObject(View::className());
+            $this->view = Kawaii::createObject(View::class);
         }
         return $this->view;
     }

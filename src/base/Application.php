@@ -330,7 +330,7 @@ abstract class Application extends ServiceLocator
 
     protected function registerErrorHandler(&$config)
     {
-
+        // @todo registerErrorHandler
     }
 
     /**
