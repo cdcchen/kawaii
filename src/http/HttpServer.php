@@ -11,6 +11,7 @@ namespace kawaii\http;
 
 use Kawaii;
 use kawaii\base\Server1;
+use kawaii\web\Request;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 
@@ -39,7 +40,7 @@ class HttpServer extends Server1
     public function onRequest(SwooleRequest $req, SwooleResponse $res)
     {
         try {
-            $request = new ServerRequest(
+            $request = new Request(
                 $req->server['request_method'],
                 $req->server['request_uri'],
                 new HeaderCollection(empty($req->header) ? [] : $req->header),
