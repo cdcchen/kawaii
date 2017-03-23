@@ -87,14 +87,12 @@ abstract class Server extends Object
         static::$swooleServer->on('WorkerStart', [$this, 'onWorkerStart']);
         static::$swooleServer->on('WorkerStop', [$this, 'onWorkerStop']);
         static::$swooleServer->on('WorkerError', [$this, 'onWorkerError']);
-        static::$swooleServer->on('Connect', [$this, 'onConnect']);
         static::$swooleServer->on('Close', [$this, 'onClose']);
         static::$swooleServer->on('Task', [$this, 'onTask']);
         static::$swooleServer->on('Finish', [$this, 'onFinish']);
         static::$swooleServer->on('PipeMessage', [$this, 'onPipeMessage']);
 
         $this->bindCallback();
-
         $app->run();
 
         return static::$swooleServer->start();
@@ -116,6 +114,8 @@ abstract class Server extends Object
      */
     abstract protected function bindCallback();
 
+    abstract static protected function createSwooleServer(ServerListener $listener);
+
     /**
      * Init swoole server log file
      */
@@ -128,11 +128,10 @@ abstract class Server extends Object
         }
 
         // init swoole_server
-        $listeners = static::$listeners;
-        $listener = empty($listeners) ? static::getDefaultListener() : $listeners[0];
-        static::$swooleServer = new SwooleServer($listener->host, $listener->port, SWOOLE_PROCESS, $listener->type);
-        for ($i = 1; $i < count($listeners); $i++) {
-            $listener = $listeners[$i];
+        $listener = empty(static::$listeners) ? static::defaultListener() : static::$listeners[0];
+        static::$swooleServer = static::createSwooleServer($listener);
+        for ($i = 1; $i < count(static::$listeners); $i++) {
+            $listener = static::$listeners[$i];
             static::$swooleServer->addlistener($listener->host, $listener->port, $listener->type);
         }
 
@@ -176,7 +175,7 @@ abstract class Server extends Object
     /**
      * @return ServerListener
      */
-    private static function getDefaultListener()
+    private static function defaultListener()
     {
         return new ServerListener(self::DEFAULT_PORT, self::DEFAULT_HOST, self::DEFAULT_TYPE, self::DEFAULT_MODE);
     }
@@ -186,9 +185,9 @@ abstract class Server extends Object
      */
     private static function initSwooleLogFile($filename)
     {
-        $dirname = dirname($filename);
-        if (!file_exists($dirname)) {
-            mkdir($dirname, 0644, true);
+        $dir = dirname($filename);
+        if (!file_exists($dir)) {
+            mkdir($dir, 0644, true);
         }
 
         if ($handle = fopen($filename, 'a')) {
@@ -293,16 +292,6 @@ abstract class Server extends Object
     public function onWorkerError(SwooleServer $server, $workerId, $workerPid, $exitCode)
     {
         echo __FILE__ . ' error occurred.';
-    }
-
-    /**
-     * @param SwooleServer $server
-     * @param int $clientId
-     * @param int $fromId
-     */
-    public function onConnect(SwooleServer $server, $clientId, $fromId)
-    {
-        echo "Client: $clientId connected.\n";
     }
 
     /**

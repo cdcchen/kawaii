@@ -9,9 +9,10 @@
 namespace kawaii\web;
 
 
-use kawaii\http\CookieParser;
-use kawaii\http\HeaderParser;
-use kawaii\http\ServerRequest;
+
+use cdcchen\psr7\CookieParser;
+use cdcchen\psr7\HeaderParser;
+use cdcchen\psr7\ServerRequest;
 
 class Request extends ServerRequest
 {

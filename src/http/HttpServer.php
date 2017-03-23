@@ -9,21 +9,26 @@
 namespace kawaii\http;
 
 
+use cdcchen\psr7\HeaderCollection;
 use Kawaii;
-use kawaii\base\Server1;
+use kawaii\base\Server;
+use kawaii\base\ServerListener;
 use kawaii\web\Request;
+use kawaii\web\Response;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Swoole\Http\Server as SwooleHttpServer;
 
 /**
  * Class HttpServer
  * @package kawaii\base
  */
-class HttpServer extends Server1
+class HttpServer extends Server
 {
-    const TRANSFER_ERROR    = -1;
-    const TRANSFER_WAIT     = 1;
-    const TRANSFER_FINISHED = 2;
+    static protected function createSwooleServer(ServerListener $listener)
+    {
+        return new SwooleHttpServer($listener->host, $listener->port);
+    }
 
     /**
      * @inheritdoc
@@ -62,7 +67,7 @@ class HttpServer extends Server1
         foreach ($response->getHeaders() as $name => $value) {
             $res->header($name, $value);
         }
-        /* @var \kawaii\http\Cookie $cookie */
+        /* @var \cdcchen\psr7\Cookie $cookie */
         foreach ($response->getCookies() as $cookie) {
             $res->cookie($cookie->name, $cookie->name, $cookie->expires, $cookie->path, $cookie->domain,
                 $cookie->secure, $cookie->httpOnly);

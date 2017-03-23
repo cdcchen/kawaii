@@ -10,6 +10,7 @@ namespace kawaii\http;
 
 
 use Kawaii;
+use kawaii\base\ServerListener;
 use kawaii\web\Request;
 use kawaii\web\Response;
 use Swoole\Server as SwooleServer;
@@ -29,12 +30,29 @@ class Server extends \kawaii\base\Server
      */
     private static $buffers = [];
 
+    static protected function createSwooleServer(ServerListener $listener)
+    {
+        return new SwooleServer($listener->host, $listener->port, SWOOLE_PROCESS, $listener->type);
+    }
+
+
     /**
      * @inheritdoc
      */
     protected function bindCallback()
     {
+        static::$swooleServer->on('Connect', [$this, 'onConnect']);
         static::$swooleServer->on('Receive', [$this, 'onReceive']);
+    }
+
+    /**
+     * @param SwooleServer $server
+     * @param int $clientId
+     * @param int $fromId
+     */
+    public function onConnect(SwooleServer $server, $clientId, $fromId)
+    {
+        echo "Client: $clientId connected.\n";
     }
 
     /**

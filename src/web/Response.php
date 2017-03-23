@@ -8,15 +8,15 @@
 
 namespace kawaii\web;
 
+use cdcchen\psr7\Cookie;
+use cdcchen\psr7\CookieCollection;
 
-use kawaii\http\Cookie;
-use kawaii\http\CookieCollection;
 
 /**
  * Class Response
  * @package kawaii\web
  */
-class Response extends \kawaii\http\Response
+class Response extends \cdcchen\psr7\Response
 {
     const FORMAT_RAW   = 'raw';
     const FORMAT_HTML  = 'html';

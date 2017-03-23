@@ -11,7 +11,7 @@ namespace kawaii\web;
 
 class RouteParser
 {
-    const VARIABLE_REGEX         = <<<'REGEX'
+    const VARIABLE_REGEX = <<<'REGEX'
 \{
     \s* ([a-zA-Z_][a-zA-Z0-9_-]*) \s*
     (?:
@@ -19,6 +19,7 @@ class RouteParser
     )?
 \}
 REGEX;
+
     const DEFAULT_DISPATCH_REGEX = '[^/]+';
 
     public static function parse($route)
@@ -56,7 +57,7 @@ REGEX;
         ) {
             return [$route];
         }
-        
+
         $offset = 0;
         $routeData = [];
         foreach ($matches as $set) {

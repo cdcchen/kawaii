@@ -114,4 +114,4 @@ $server = new \kawaii\http\HttpServer($config);
 $server->listen(9512)
        ->listen(9513, '127.0.0.1')
        ->listen(9514)
-       ->start($app);
+       ->run($app);
