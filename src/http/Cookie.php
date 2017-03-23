@@ -13,6 +13,16 @@ use kawaii\base\Object;
 
 class Cookie extends Object
 {
+    /**
+     * Cookie constructor.
+     * @param string $name
+     * @param string $value
+     * @param int $expires
+     * @param string $path
+     * @param string $domain
+     * @param bool $secure
+     * @param bool $httpOnly
+     */
     public function __construct(
         $name,
         $value = '',
