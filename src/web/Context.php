@@ -54,6 +54,6 @@ class Context extends Object
      */
     public function getRouteParam($name, $defaultValue = null)
     {
-        return isset($this->routeParams) ? $this->routeParams[$name] : $defaultValue;
+        return isset($this->routeParams[$name]) ? $this->routeParams[$name] : $defaultValue;
     }
 }

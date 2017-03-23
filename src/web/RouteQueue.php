@@ -59,8 +59,8 @@ class RouteQueue implements \Countable
      */
     public function getStatic($method, $path)
     {
-        $method = strtoupper($method);
-        return $this->staticRoutes[$method][$path] ?: $this->staticRoutes['*'][$path];
+        $routes = $this->getStatics($method);
+        return empty($routes[$path]) ? null : $routes[$path];
     }
 
     /**
@@ -70,7 +70,14 @@ class RouteQueue implements \Countable
     public function getStatics($method)
     {
         $method = strtoupper($method);
-        return ($this->staticRoutes[$method] ?: $this->staticRoutes['*']) ?: [];
+        $routes = [];
+        if (isset($this->staticRoutes[$method])) {
+            $routes = $this->staticRoutes[$method];
+        } elseif (isset($this->staticRoutes['*'])) {
+            $routes = $this->staticRoutes['*'];
+        }
+
+        return $routes;
     }
 
     /**

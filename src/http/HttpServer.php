@@ -40,21 +40,22 @@ class HttpServer extends Server1
     {
         try {
             $request = new ServerRequest(
-                $req->server['REQUEST_METHOD'], $req->server['REQUEST_URI'],
-                new HeaderCollection($req->header),
+                $req->server['request_method'],
+                $req->server['request_uri'],
+                new HeaderCollection(empty($req->header) ? [] : $req->header),
                 $req->rawContent(),
                 '1.1',
                 $req->server
             );
+            $request = $request->withQueryParams(empty($req->get) ? [] : $req->get)
+                               ->withCookieParams(empty($req->cookie) ? [] : $req->cookie);
             $context = Kawaii::$app->handleRequest($request);
             $response = $context->response;
 
         } catch (\Exception $e) {
             $response = (new Response(500, null, $e->getMessage()));
-
             echo "Exception occurred: {$e->getMessage()}\n";
         }
-
 
         $res->status($response->getStatusCode());
         foreach ($response->getHeaders() as $name => $value) {
