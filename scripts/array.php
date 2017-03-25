@@ -10,7 +10,7 @@ date_default_timezone_set('Asia/Shanghai');
 require __DIR__ . '/../vendor/autoload.php';
 
 
-$list = new \kawaii\util\CArray();
+$list = new \kawaii\util\KArray();
 
 $list[] = 'xx';
 $list[] = 'yy';
@@ -53,7 +53,7 @@ echo "\n======================\n";
 //$stack->insert(333);
 //print_r(iterator_to_array($stack));
 
-$set = new \kawaii\util\CSet();
+$set = new \kawaii\util\KSet();
 $set->insert(1111);
 $set->insert(2222);
 $set->insert(3333);

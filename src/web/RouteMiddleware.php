@@ -9,6 +9,7 @@
 namespace kawaii\web;
 
 
+use Kawaii;
 use kawaii\base\InvalidRouteException;
 use kawaii\base\InvalidValueException;
 use kawaii\server\MiddlewareInterface;
@@ -26,27 +27,26 @@ class RouteMiddleware implements MiddlewareInterface
      * @return mixed|ResponseInterface
      * @throws InvalidRouteException
      */
-    public function __invoke(Context $context, callable $next)
+    public function __invoke(Context $context, callable $next): Context
     {
         /* @var Context $context */
         $context = $next($context);
-        $request = $context->request;
 
-        $path = ltrim($request->getUri()->getPath(), '/');
-        $result = \Kawaii::$app->getRouter()->dispatch($request->getMethod(), $path);
-        if ($result[0] === Router::ROUTE_NOT_FOUND) {
+        $path = $context->request->getUri()->getPath();
+        $result = Kawaii::$app->getRouter()->dispatch($context->request->getMethod(), $path);
+        if ($result === false) {
             $context->response = $context->response->withStatus(404);
             return $context;
         }
 
-        $callable = $result[1];
-        if (is_callable($callable)) {
-            if ($result[2]) {
-                $context->routeParams = $result[2];
-                $params = array_merge($context->routeParams, $request->getQueryParams());
-                $context->request = $request->withQueryParams($params);
+        if (is_callable($callable = $result[0])) {
+            if ($routeParams = $result[1]) {
+                $context->routeParams = $routeParams;
+                $params = array_merge($routeParams, $context->request->getQueryParams());
+                $context->request = $context->request->withQueryParams($params);
             }
-            $context = call_user_func($result[1], $context, $next);
+
+            $context = call_user_func($callable, $context, $next);
             if (!($context instanceof Context)) {
                 throw new InvalidValueException('The return value of a route middleware must be the instance of Context.');
             }

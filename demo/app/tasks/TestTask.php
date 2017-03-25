@@ -13,26 +13,17 @@ use kawaii\base\BaseTask;
 
 class TestTask extends BaseTask
 {
-    protected function onTask($data)
+    protected function onTasking($data)
     {
-        echo "Receive a task...\n";
-        $this->setSuccess(true);
+        echo "Receive a task: {$this->getTaskId()}, data: \n";
+        var_dump($data);
+        echo "\n";
 
         return 'OK';
     }
 
-    protected function onSuccess($result)
+    protected function onDone($result)
     {
-        echo "Task execute success...\nData: $result \n";
-    }
-
-    protected function onFailed($result)
-    {
-        echo "Task execute failed...\nData: $result \n";
-    }
-
-    protected function onFinished($result)
-    {
-        echo "Task execute finished...\nData: $result \n";
+        echo "Task: {$this->getTaskId()} execute finished...\nData: $result \n";
     }
 }

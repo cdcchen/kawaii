@@ -10,7 +10,7 @@ date_default_timezone_set('Asia/Shanghai');
 require __DIR__ . '/../vendor/autoload.php';
 
 
-$list = new \kawaii\util\CList();
+$list = new \kawaii\util\KList();
 
 $list[] = 'xx';
 $list[] = 'yy';

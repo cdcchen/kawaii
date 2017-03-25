@@ -23,6 +23,10 @@ use Swoole\Http\Server as SwooleHttpServer;
  */
 class HttpServer extends Base
 {
+    /**
+     * @param Listener $listener
+     * @return SwooleHttpServer
+     */
     static protected function createSwooleServer(Listener $listener)
     {
         return new SwooleHttpServer($listener->host, $listener->port);

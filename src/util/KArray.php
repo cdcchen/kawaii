@@ -17,7 +17,7 @@ namespace kawaii\util;
  * Class CArray
  * @package kawaii\util
  */
-class CArray implements \Countable, \ArrayAccess, \IteratorAggregate
+class KArray implements \Countable, \ArrayAccess, \IteratorAggregate
 {
     /**
      * @var array

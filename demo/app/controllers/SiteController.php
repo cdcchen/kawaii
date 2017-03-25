@@ -8,6 +8,7 @@
 
 namespace app\controllers;
 
+use app\tasks\TestTask;
 use kawaii\web\Controller;
 
 /**
@@ -20,8 +21,9 @@ class SiteController extends Controller
     {
 //        print_r(\Kawaii::$aliases);
 //        throw new \Exception(__METHOD__);
-//        $task = new TestTask(__CLASS__);
-//        \Kawaii::$server->addTask($task);
+        $task = new TestTask();
+        $task->setData($this->className());
+        \Kawaii::$server->asyncTask($task);
         return $this->render('index', ['hello' => 'Hello world!!']);
     }
 
@@ -46,11 +48,11 @@ class SiteController extends Controller
     public function actionAaa()
     {
         echo __FILE__, PHP_EOL;
-        echo $this->getClass(), PHP_EOL;
+        echo get_class($this), PHP_EOL;
         echo $this->getHash(), PHP_EOL;
         var_dump($this->equals($this));
         echo PHP_EOL;
-        echo $this->getClass()->getDocComment(), PHP_EOL;
+        echo $this->getReflectionClass()->getDocComment(), PHP_EOL;
 
         return __METHOD__;
     }

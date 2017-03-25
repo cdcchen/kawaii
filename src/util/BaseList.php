@@ -13,7 +13,7 @@ namespace kawaii\util;
  * Class CBaseList
  * @package kawaii\util
  */
-abstract class CBaseList implements \Countable, \IteratorAggregate, \ArrayAccess
+abstract class BaseList implements \Countable, \IteratorAggregate, \ArrayAccess
 {
     /**
      * @var array

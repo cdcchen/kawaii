@@ -62,6 +62,10 @@ abstract class Application extends ServiceLocator
     /**
      * @var array
      */
+    public $routes = [];
+    /**
+     * @var array
+     */
     public $params = [];
 
     /**

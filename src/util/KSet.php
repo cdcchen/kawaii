@@ -13,7 +13,7 @@ namespace kawaii\util;
  * Class CSet
  * @package kawaii\util
  */
-class CSet extends CBaseList
+class KSet extends BaseList
 {
     /**
      * @param mixed $value

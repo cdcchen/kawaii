@@ -59,7 +59,7 @@ class Router extends Object
             $path .= '.' . ltrim($suffix, '.');
         }
 
-        $routeData = RouteParser::parse(ltrim($path, '/'));
+        $routeData = RouteParser::parse($path);
 //        print_r($routeData);
         foreach ($routeData as $item) {
             foreach ($methods as $method) {
@@ -88,7 +88,7 @@ class Router extends Object
     {
         if ($this->routes->hasStatic($method, $path)) {
             $route = $this->routes->getStatic($method, $path);
-            return [self::ROUTE_FOUND, $route->handler, []];
+            return [$route->handler, []];
         }
 
         if ($this->routes->hasVariable($method)) {
@@ -105,7 +105,7 @@ class Router extends Object
                     $params[$varName] = $matches[++$i];
                 }
 
-                return [self::ROUTE_FOUND, $route->handler, $params];
+                return [$route->handler, $params];
             }
         }
 
@@ -114,7 +114,7 @@ class Router extends Object
             return [self::ROUTE_FOUND, $route->handler, []];
         }
 
-        return [self::ROUTE_NOT_FOUND];
+        return false;
     }
 
     /**

@@ -13,6 +13,7 @@ use cdcchen\psr7\Stream;
 use Kawaii;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
+use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
@@ -24,8 +25,6 @@ use RuntimeException;
 class Application extends \kawaii\base\Application implements ApplicationInterface
 {
     use RouterTrait;
-
-    public $routesFile = '@project/config/routes.php';
 
     public $staticPath = [];
 
@@ -73,6 +72,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
         $context = new Context($request, new Response());
         try {
+            // @todo static files process
             foreach ((array)Kawaii::$app->staticPath as $path) {
                 $filename = $path . '/' . ltrim($request->getUri()->getPath());
                 clearstatcache(true, $filename);
@@ -156,15 +156,13 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      */
     private function loadRoutes()
     {
-        $filename = Kawaii::getAlias($this->routesFile);
-        if (empty($filename)) {
+        if (empty(static::$config['routes'])) {
             return;
-        } elseif (!file_exists($filename)) {
-            throw new \InvalidArgumentException("Routes file: $filename is not exist.");
+        } elseif (!is_array(static::$config['routes'])) {
+            throw new InvalidConfigException('Routes config value must be an array.');
         }
 
-        $routes = include($filename);
-        $routes = array_filter((array)$routes);
+        $routes = array_filter(static::$config['routes']);
         foreach ($routes as $path => $route) {
             $ruleConfig = [];
             if (is_array($route)) {

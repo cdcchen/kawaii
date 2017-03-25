@@ -24,6 +24,7 @@ return [
 
     'components' => [
     ],
+    'routes' => include(__DIR__ . '/routes.php'),
 
     'params' => [
         'email' => 'admin@cdc.com',

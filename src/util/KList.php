@@ -13,7 +13,7 @@ namespace kawaii\util;
  * Class CList
  * @package kawaii\util
  */
-class CList extends CBaseList
+class KList extends BaseList
 {
     /**
      * @param mixed $value
