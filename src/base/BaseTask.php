@@ -33,7 +33,7 @@ abstract class BaseTask extends Object
      */
     private $success;
     /**
-     * @var Base
+     * @var Server
      */
     private $server;
     /**
@@ -78,7 +78,7 @@ abstract class BaseTask extends Object
     }
 
     /**
-     * @param Base $server
+     * @param Server $server
      * @param int $taskId
      */
     public function handle(Server $server, $taskId)
