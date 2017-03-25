@@ -118,6 +118,10 @@ abstract class Base extends Object
      */
     abstract protected function bindCallback();
 
+    /**
+     * @param Listener $listener
+     * @return mixed
+     */
     abstract static protected function createSwooleServer(Listener $listener);
 
     /**
@@ -200,6 +204,9 @@ abstract class Base extends Object
         }
     }
 
+    /**
+     * @return string
+     */
     protected static function getPidFile()
     {
         if (isset(static::$config['pid_file'])) {
@@ -209,12 +216,18 @@ abstract class Base extends Object
         }
     }
 
+    /**
+     * @return string
+     */
     protected static function getProcessName()
     {
         global $argv;
         return "php {$argv[0]}";
     }
 
+    /**
+     * @param string $extra
+     */
     protected static function setProcessName($extra)
     {
         $title = static::getProcessName() . ' - ' . $extra;
@@ -224,6 +237,38 @@ abstract class Base extends Object
             swoole_set_process_name($title);
         }
     }
+
+    /**
+     * @param BaseTask $task
+     * @param int $workerId
+     * @return bool
+     */
+    public function asyncTask(BaseTask $task, $workerId = -1)
+    {
+        return static::$swooleServer->task($task, $workerId);
+    }
+
+    /**
+     * @param BaseTask $task
+     * @param float $timeout
+     * @param int $workerId
+     * @return string
+     */
+    public function syncTask(BaseTask $task, float $timeout = 0.5, $workerId = -1)
+    {
+        return static::$swooleServer->taskwait($task, $timeout, $workerId);
+    }
+
+    /**
+     * @param array $tasks
+     * @param float $timeout
+     * @return mixed
+     */
+    public function syncTaskMulti(array $tasks, float $timeout = 0.5)
+    {
+        return static::$swooleServer->taskWaitMulti($tasks, $timeout);
+    }
+
 
     /**
      * @param SwooleServer $server
@@ -334,7 +379,7 @@ abstract class Base extends Object
     public function onFinish(SwooleServer $server, $taskId, $data)
     {
         if ($data instanceof BaseTask) {
-            $data->completed();
+            $data->done();
         }
 
     }
