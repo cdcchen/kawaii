@@ -75,7 +75,7 @@ use Kawaii;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class Object implements Configurable, Reflective
+class Object implements Configurable
 {
     /**
      * Constructor.
@@ -283,9 +283,14 @@ class Object implements Configurable, Reflective
     /**
      * @return string
      */
-    public function getHash()
+    public function hash()
     {
         return spl_object_hash($this);
+    }
+
+    public function className()
+    {
+        return static::class;
     }
 
     /**
@@ -294,22 +299,6 @@ class Object implements Configurable, Reflective
      */
     public function equals($obj)
     {
-        return $this->getHash() === spl_object_hash($obj);
-    }
-
-    /**
-     * @return \ReflectionClass
-     */
-    public function getReflectionClass()
-    {
-        return new \ReflectionClass(static::class);
-    }
-
-    /**
-     * @return \ReflectionObject
-     */
-    public function getReflectionObject()
-    {
-        return new \ReflectionObject($this);
+        return spl_object_hash($this) === spl_object_hash($obj);
     }
 }
