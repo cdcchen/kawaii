@@ -22,7 +22,7 @@ class TestTask extends BaseTask
         return 'OK';
     }
 
-    protected function onDone($result)
+    protected function onDone($result): void
     {
         echo "Task: {$this->getTaskId()} execute finished...\nData: $result \n";
     }

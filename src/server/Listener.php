@@ -46,7 +46,7 @@ class Listener extends Object
      * @param int $mode
      * @param array $config
      */
-    public function __construct($port, $host, $type = SWOOLE_SOCK_TCP, $mode = SWOOLE_PROCESS, $config = [])
+    public function __construct(int $port, string $host, int $type = SWOOLE_SOCK_TCP, int $mode = SWOOLE_PROCESS, array $config = [])
     {
         $this->host = $host;
         $this->port = $port;

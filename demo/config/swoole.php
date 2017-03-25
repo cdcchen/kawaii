@@ -7,7 +7,7 @@ return [
     'type' => SWOOLE_TCP,
     'daemonize' => 0,
 
-    'reactor_num' => 4,
+//    'reactor_num' => 4,
     //    'worker_num' => 4,
     'max_conn' => 200,
     'task_worker_num' => 2,

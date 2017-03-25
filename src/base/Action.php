@@ -31,7 +31,7 @@ class Action extends Object
      * @param Controller $controller
      * @param array $config
      */
-    public function __construct($id, $controller, array $config)
+    public function __construct(string $id, Controller $controller, array $config)
     {
         $this->id = $id;
         $this->controller = $controller;
@@ -41,7 +41,7 @@ class Action extends Object
     /**
      * @return string
      */
-    public function getUniqueId()
+    public function getUniqueId(): string
     {
         return $this->controller->getUniqueId() . '/' . $this->id;
     }
@@ -51,7 +51,7 @@ class Action extends Object
      * @return mixed|null
      * @throws InvalidConfigException
      */
-    public function runWithParams($params)
+    public function runWithParams(array $params)
     {
         if (!method_exists($this, 'run')) {
             throw new InvalidConfigException(get_class($this) . ' must define a "run()" method.');
@@ -71,12 +71,15 @@ class Action extends Object
     /**
      * @return bool whether to run the action.
      */
-    protected function beforeRun()
+    protected function beforeRun(): bool
     {
         return true;
     }
 
-    protected function afterRun()
+    /**
+     * After run
+     */
+    protected function afterRun(): void
     {
     }
 }

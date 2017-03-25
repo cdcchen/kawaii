@@ -9,18 +9,17 @@
 namespace kawaii\server;
 
 
-use kawaii\base\Base;
-use kawaii\base\ServerListener;
+use Swoole\Server as SwooleServer;
 
 class WebsocketServer extends Base
 {
 
-    protected function bindCallback()
+    protected function bindCallback(): void
     {
         // TODO: Implement bindCallback() method.
     }
 
-    static protected function createSwooleServer(ServerListener $listener)
+    static protected function createSwooleServer(Listener $listener): SwooleServer
     {
         // TODO: Implement createSwooleServer() method.
     }

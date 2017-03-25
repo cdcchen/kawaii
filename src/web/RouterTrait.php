@@ -16,21 +16,21 @@ namespace kawaii\web;
 trait RouterTrait
 {
     /**
-     * @param string|array $methods
+     * @param string $methods
      * @param string $path
      * @param callable $handler
      * @param bool $strict
      * @param string $suffix
-     * @return $this
+     * @return $this|static
      */
-    abstract public function addRoute($methods, $path, callable $handler, $strict = false, $suffix = '');
+    abstract public function addRoute(string $methods, string $path, callable $handler, bool $strict = false, string $suffix = '');
 
     /**
      * @param string $path
      * @param callable $handler
      * @return $this
      */
-    public function all($path, $handler)
+    public function all(string $path, callable $handler)
     {
         return $this->addRoute('*', $path, $handler);
     }
@@ -40,7 +40,7 @@ trait RouterTrait
      * @param callable $handler
      * @return $this
      */
-    public function get($path, $handler)
+    public function get(string $path, callable $handler)
     {
         return $this->addRoute('GET', $path, $handler);
     }
@@ -50,7 +50,7 @@ trait RouterTrait
      * @param callable $handler
      * @return $this
      */
-    public function post($path, $handler)
+    public function post(string $path, callable $handler)
     {
         return $this->addRoute('POST', $path, $handler);
     }
@@ -60,7 +60,7 @@ trait RouterTrait
      * @param callable $handler
      * @return $this
      */
-    public function put($path, $handler)
+    public function put(string $path, callable $handler)
     {
         return $this->addRoute('PUT', $path, $handler);
     }
@@ -70,7 +70,7 @@ trait RouterTrait
      * @param callable $handler
      * @return $this
      */
-    public function head($path, $handler)
+    public function head(string $path, callable $handler)
     {
         return $this->addRoute('HEAD', $path, $handler);
     }
@@ -80,7 +80,7 @@ trait RouterTrait
      * @param callable $handler
      * @return $this
      */
-    public function delete($path, $handler)
+    public function delete(string $path, callable $handler)
     {
         return $this->addRoute('DELETE', $path, $handler);
     }
@@ -90,7 +90,7 @@ trait RouterTrait
      * @param callable $handler
      * @return $this
      */
-    public function options($path, $handler)
+    public function options(string $path, callable $handler)
     {
         return $this->addRoute('OPTIONS', $path, $handler);
     }
@@ -100,7 +100,7 @@ trait RouterTrait
      * @param callable $handler
      * @return $this
      */
-    public function patch($path, $handler)
+    public function patch(string $path, callable $handler)
     {
         return $this->addRoute('PATCH', $path, $handler);
     }

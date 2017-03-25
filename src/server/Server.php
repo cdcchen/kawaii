@@ -30,7 +30,7 @@ class Server extends Base
      */
     private static $buffers = [];
 
-    static protected function createSwooleServer(Listener $listener)
+    static protected function createSwooleServer(Listener $listener): SwooleServer
     {
         return new SwooleServer($listener->host, $listener->port, SWOOLE_PROCESS, $listener->type);
     }
@@ -39,7 +39,7 @@ class Server extends Base
     /**
      * @inheritdoc
      */
-    protected function bindCallback()
+    protected function bindCallback(): void
     {
         static::$swooleServer->on('Connect', [$this, 'onConnect']);
         static::$swooleServer->on('Receive', [$this, 'onReceive']);
@@ -50,7 +50,7 @@ class Server extends Base
      * @param int $clientId
      * @param int $fromId
      */
-    public function onConnect(SwooleServer $server, $clientId, $fromId)
+    public function onConnect(SwooleServer $server, int $clientId, int $fromId): void
     {
         echo "Client: $clientId connected.\n";
     }
@@ -61,7 +61,7 @@ class Server extends Base
      * @param int $fromId
      * @param string $data
      */
-    public function onReceive(SwooleServer $server, $clientId, $fromId, $data)
+    public function onReceive(SwooleServer $server, int $clientId, int $fromId, $data): void
     {
         try {
             if (isset(static::$buffers[$clientId])) {
@@ -97,7 +97,7 @@ class Server extends Base
      * @param int $clientId
      * @return int|Request
      */
-    private static function validateRequest($clientId)
+    private static function validateRequest(int $clientId)
     {
         $result = static::validateHeader($clientId);
         if ($result !== true) {
@@ -119,7 +119,7 @@ class Server extends Base
      * @param int $clientId
      * @return bool|int
      */
-    private static function validateHeader($clientId)
+    private static function validateHeader(int $clientId)
     {
         $data = static::$buffers[$clientId];
         if (strpos($data, Request::HTTP_EOF) === false) {
@@ -134,7 +134,7 @@ class Server extends Base
      * @param Request $request
      * @return int
      */
-    private static function validatePost($clientId, Request $request)
+    private static function validatePost(int $clientId, Request $request): int
     {
         if ($request->getMethod() === 'POST') {
             $contentLength = (int)$request->getContentLength();
