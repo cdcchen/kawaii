@@ -21,35 +21,30 @@ use Swoole\Server;
 abstract class BaseTask extends Object
 {
     /**
-     * @var mixed
-     */
-    private $data;
-    /**
-     * @var mixed
-     */
-    private $result;
-    /**
-     * @var bool
-     */
-    private $success;
-    /**
      * @var Server
      */
     private $server;
     /**
+     * @var mixed
+     */
+    private $data;
+    /**
      * @var int
      */
     private $taskId;
+    /**
+     * @var mixed
+     */
+    private $result;
 
     /**
-     * BaseTask constructor.
-     * @param array $data
-     * @param array $config
+     * @param mixed $data
+     * @return mixed
      */
-    public function __construct($data, $config = [])
+    public function setData($data)
     {
         $this->data = $data;
-        parent::__construct($config);
+        return $this;
     }
 
     /**
@@ -61,20 +56,11 @@ abstract class BaseTask extends Object
     }
 
     /**
-     * @return mixed mixed
+     * @return int
      */
     public function getTaskId()
     {
         return $this->taskId;
-    }
-
-    /**
-     * @param mixed $data
-     */
-    public function finish($data)
-    {
-        $this->result = $data;
-        $this->server->finish($this);
     }
 
     /**
@@ -86,56 +72,22 @@ abstract class BaseTask extends Object
         $this->server = $server;
         $this->taskId = $taskId;
 
-        $result = $this->onTask($this->data);
-        if ($result !== null) {
-            $this->finish($result);
-        }
+        $this->result = $this->onTasking($this->data);
+        $this->server->finish($this);
     }
 
     /**
-     * The callback of task execute completed
+     * execute when $this->finish() executed
      */
-    public function completed()
+    public function done()
     {
-        if ($this->success === true) {
-            $this->onSuccess($this->result);
-        } elseif ($this->success === false) {
-            $this->onFailed($this->result);
-        }
-
-        $this->onFinished($this->result);
-    }
-
-
-    /**
-     * @param bool $flag
-     * @return $this
-     */
-    protected function setSuccess($flag = true)
-    {
-        $this->success = (bool)$flag;
-        return $this;
+        $this->onDone($this->result);
     }
 
     /**
      * @param mixed $result
      */
-    protected function onSuccess($result)
-    {
-    }
-
-    /**
-     * @param mixed $result
-     */
-    protected function onFailed($result)
-    {
-    }
-
-
-    /**
-     * @param mixed $result
-     */
-    protected function onFinished($result)
+    protected function onDone($result)
     {
     }
 
@@ -143,5 +95,5 @@ abstract class BaseTask extends Object
      * @param mixed $data
      * @return mixed
      */
-    abstract protected function onTask($data);
+    abstract protected function onTasking($data);
 }
