@@ -9,11 +9,11 @@
 namespace kawaii\web;
 
 
+use cdcchen\psr7\Stream;
 use Kawaii;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\UserException;
-use kawaii\http\Stream;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
 

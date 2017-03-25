@@ -10,7 +10,7 @@ namespace kawaii\web;
 
 
 use kawaii\base\Object;
-use kawaii\http\MiddlewareStackInterface;
+use kawaii\server\MiddlewareStackInterface;
 
 /**
  * Class Middleware

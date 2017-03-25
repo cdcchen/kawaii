@@ -9,13 +9,12 @@
 namespace kawaii;
 
 
+use kawaii\server\Base;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\InvalidParamException;
 use kawaii\base\Object;
-use kawaii\base\Server;
 use kawaii\base\UnknownClassException;
 use kawaii\di\Container;
-use kawaii\http\HttpServer;
 use kawaii\web\Application;
 
 /**
@@ -79,7 +78,7 @@ class BaseKawaii extends Object
      */
     public static $app;
     /**
-     * @var Server
+     * @var Base
      */
     public static $server;
 

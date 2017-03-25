@@ -11,7 +11,7 @@ namespace kawaii\web;
 
 use kawaii\base\InvalidRouteException;
 use kawaii\base\InvalidValueException;
-use kawaii\http\MiddlewareInterface;
+use kawaii\server\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**

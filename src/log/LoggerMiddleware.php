@@ -10,7 +10,7 @@ namespace kawaii\log;
 
 
 use kawaii\base\Object;
-use kawaii\http\MiddlewareInterface;
+use kawaii\server\MiddlewareInterface;
 use kawaii\web\Context;
 use Psr\Log\LoggerAwareTrait;
 
