@@ -131,6 +131,24 @@ abstract class Application extends ServiceLocator
     }
 
     /**
+     * Run server
+     */
+    public function run(): void
+    {
+        if (!$this->beforeRun()) {
+            throw new \RuntimeException('Application::beforeRun must return true or false.');
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function beforeRun(): bool
+    {
+        return true;
+    }
+
+    /**
      * Reload config
      */
     public function reload(): void
@@ -430,7 +448,7 @@ abstract class Application extends ServiceLocator
      * @return null|Controller
      * @throws InvalidConfigException
      */
-    public function createControllerById(string $id, Context $context) :? Controller
+    public function createControllerById(string $id, Context $context):? Controller
     {
         $pos = strrpos($id, '/');
         if ($pos === false) {

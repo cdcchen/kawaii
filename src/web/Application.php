@@ -10,13 +10,13 @@ namespace kawaii\web;
 
 
 use cdcchen\psr7\Stream;
+use Closure;
 use Kawaii;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use Psr\Http\Message\RequestInterface;
-use RuntimeException;
 
 /**
  * Class Application
@@ -52,14 +52,12 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     /**
      * Run server
      */
-    public function run(): void
+    protected function beforeRun(): bool
     {
-        if (!$this->beforeRun()) {
-            throw new RuntimeException('Application::beforeRun must return true or false.');
-        }
-
         $this->loadRoutes();
         $this->hook(new RouteMiddleware());
+
+        return true;
     }
 
     /**
@@ -141,16 +139,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     public function reload(): void
     {
         parent::reload();
-
         $this->loadRoutes();
-    }
-
-    /**
-     * @return bool
-     */
-    protected function beforeRun(): bool
-    {
-        return true;
     }
 
     /**
@@ -193,7 +182,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      * @param string $route
      * @return \Closure
      */
-    private function buildHandlerByRoute(string $route): \Closure
+    private function buildHandlerByRoute(string $route): Closure
     {
         return function (Context $context, callable $next) use ($route) {
             /* @var Context $context */

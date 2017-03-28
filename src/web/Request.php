@@ -9,59 +9,82 @@
 namespace kawaii\web;
 
 
-
-use cdcchen\psr7\CookieParser;
-use cdcchen\psr7\HeaderParser;
 use cdcchen\psr7\ServerRequest;
 
+/**
+ * Class Request
+ * @package kawaii\web
+ */
 class Request extends ServerRequest
 {
     /**
-     * @param string $data
-     * @return static
+     * @return bool
      */
-    public static function create($data)
+    public function isGet(): bool
     {
-        list($header, $body) = explode(self::HTTP_EOF, $data);
-
-        $headerLines = explode(self::HEADER_LINE_EOF, $header);
-        list($method, $uri, $version) = explode(' ', trim($headerLines[0]));
-        unset($headerLines[0]);
-        $headers = HeaderParser::parse($headerLines);
-        $serverParams = ServerParams::create(); // @todo 暂用
-
-        $uri = '/' . ltrim($uri, '/');
-        $serverRequest = new static($method, $uri, $headers, $body, $version, $serverParams);
-
-        if (function_exists('mb_parse_str')) {
-            mb_parse_str($serverRequest->getUri()->getQuery(), $queryParams);
-            mb_parse_str($serverRequest->getBody(), $parsedBody);
-        } else {
-            parse_str($serverRequest->getUri()->getQuery(), $queryParams);
-            parse_str((string)$serverRequest->getBody(), $parsedBody);
-        }
-        $cookieParams = CookieParser::parse($serverRequest->getHeaderLine('cookie'));
-        $uploadedFiles = [];
-
-        return $serverRequest->withCookieParams($cookieParams)
-                             ->withQueryParams($queryParams)
-                             ->withParsedBody($parsedBody)
-                             ->withUploadedFiles($uploadedFiles);
+        return $this->getMethod() === 'GET';
     }
 
-    ################### Get header short methods ######################
-
-    public function getIsPost()
+    /**
+     * @return bool
+     */
+    public function isPost(): bool
     {
         return $this->getMethod() === 'POST';
     }
 
-    public function getContentLength()
+    /**
+     * @return bool
+     */
+    public function isPut(): bool
+    {
+        return $this->getMethod() === 'PUT';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDelete(): bool
+    {
+        return $this->getMethod() === 'DELETE';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHead(): bool
+    {
+        return $this->getMethod() === 'HEAD';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPatch(): bool
+    {
+        return $this->getMethod() === 'PATCH';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOptions(): bool
+    {
+        return $this->getMethod() === 'OPTIONS';
+    }
+
+    /**
+     * @return string
+     */
+    public function getContentLength(): string
     {
         return $this->getHeader('Content-Length');
     }
 
-    public function getContentType()
+    /**
+     * @return string
+     */
+    public function getContentType(): string
     {
         return $this->getHeader('Content-Type');
     }
@@ -70,50 +93,32 @@ class Request extends ServerRequest
      * @return string
      * @todo 返回值不正确,此处应该只返回原始数据中的请求路径,可能不包括host
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return (string)$this->getUri();
     }
 
-    public function getPath()
+    /**
+     * @return string
+     */
+    public function getPath(): string
     {
         return $this->getUri()->getPath();
     }
 
-    public function getQueryString()
+    /**
+     * @return string
+     */
+    public function getQueryString(): string
     {
         return $this->getUri()->getQuery();
     }
 
-    public function getHost()
+    /**
+     * @return string
+     */
+    public function getHost(): string
     {
         return $this->getUri()->getHost();
-    }
-
-    private static function filterParams($params)
-    {
-        $filterParams = [];
-        foreach ($params as $key => $param) {
-            $key = strtolower(trim($key));
-            $filterParams[$key] = $param;
-        }
-
-        return $filterParams;
-    }
-
-
-    private function parseParams($str)
-    {
-        $params = [];
-        $blocks = explode(';', $str);
-        foreach ($blocks as $block) {
-            $param = explode('=', $block, 2);
-            array_walk($param, function (&$value, $key) {
-                $value = trim($value);
-            });
-            $params[$param[0]] = $param[1];
-        }
-
-        return $params;
     }
 }

@@ -109,7 +109,7 @@ $app = new kawaii\web\Application($config);
 //});
 
 $config = __DIR__ . '/../config/server.php';
-$server = new \kawaii\server\HttpServer($config);
+$server = new \kawaii\server\HttpServer2($config);
 $server->listen(9512)
        ->listen(9513, '127.0.0.1')
        ->listen(9514)

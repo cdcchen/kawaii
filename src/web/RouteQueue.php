@@ -20,7 +20,7 @@ class RouteQueue implements \Countable
      */
     protected $variableRoutes = [];
 
-    public function add(Route $route)
+    public function add(Route $route): void
     {
         if ($route->isStatic()) {
             $this->addStatic($route);
@@ -29,24 +29,24 @@ class RouteQueue implements \Countable
         }
     }
 
-    private function addStatic(Route $route)
+    private function addStatic(Route $route): void
     {
         $path = $route->data[0];
         $this->staticRoutes[$route->method][$path] = $route;
     }
 
-    private function addVariable(Route $route)
+    private function addVariable(Route $route): void
     {
         $this->variableRoutes[$route->method][$route->getRegex()] = $route;
     }
 
-    public function hasStatic($method, $path)
+    public function hasStatic(string $method, string $path): bool
     {
         $method = strtoupper($method);
         return isset($this->staticRoutes[$method][$path]) || isset($this->staticRoutes['*'][$path]);
     }
 
-    public function hasVariable($method)
+    public function hasVariable(string $method): bool
     {
         $method = strtoupper($method);
         return isset($this->variableRoutes[$method]) || isset($this->variableRoutes['*']);
@@ -57,7 +57,7 @@ class RouteQueue implements \Countable
      * @param string $path
      * @return Route|null
      */
-    public function getStatic($method, $path)
+    public function getStatic(string $method, string $path): ?Route
     {
         $routes = $this->getStatics($method);
         return empty($routes[$path]) ? null : $routes[$path];
@@ -67,7 +67,7 @@ class RouteQueue implements \Countable
      * @param string $method
      * @return Route[]|array
      */
-    public function getStatics($method)
+    public function getStatics(string $method): array
     {
         $method = strtoupper($method);
         $routes = $this->staticRoutes[$method] ?? [];
@@ -82,7 +82,7 @@ class RouteQueue implements \Countable
      * @param string $method
      * @return Route[]|array
      */
-    public function getVariables($method)
+    public function getVariables(string $method): array
     {
         $method = strtoupper($method);
         $routes = $this->variableRoutes[$method] ?? [];
@@ -97,7 +97,7 @@ class RouteQueue implements \Countable
      * @return int
      * @todo 计算方式不正确
      */
-    public function count()
+    public function count(): int
     {
         return count($this->staticRoutes) + count($this->variableRoutes);
     }

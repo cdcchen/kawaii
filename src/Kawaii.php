@@ -8,6 +8,9 @@
 
 use kawaii\di\Container;
 
+/**
+ * Class Kawaii
+ */
 class Kawaii extends \kawaii\BaseKawaii
 {
 }

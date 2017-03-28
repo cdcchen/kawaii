@@ -1,32 +1,14 @@
+#!/usr/bin/env php
+
 <?php
-/**
- * Created by PhpStorm.
- * User: chendong
- * Date: 16/8/11
- * Time: 21:03
- */
 
-$server = new swoole_websocket_server("0.0.0.0", 9503);
+date_default_timezone_set('Asia/Shanghai');
+require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/../../src/Kawaii.php';
 
-$server->on('open', function (swoole_websocket_server $server, $request) {
-    echo "server: handshake success with fd{$request->fd}\n";
-});
+$config = __DIR__ . '/../config/app.php';
+$app = new kawaii\web\Application($config);
 
-$server->on('request', function ($request, $response) {
-    $response->end(file_get_contents(__DIR__ . '/index.html'));
-});
-
-$server->on('message', function (swoole_websocket_server $server, $frame) {
-    echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
-
-    $server->push($frame->fd, "this is server");
-    swoole_timer_tick(1000, function ($timerId) use ($server, $frame) {
-        $server->push($frame->fd, microtime(true));
-    });
-});
-
-$server->on('close', function ($ser, $fd) {
-    echo "client {$fd} closed\n";
-});
-
-$server->start();
+$config = __DIR__ . '/../config/server.php';
+$server = new \kawaii\server\SocketServer('127.0.0.1', 9512);
+$server->run($app);
