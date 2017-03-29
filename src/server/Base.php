@@ -31,7 +31,7 @@ abstract class Base extends Object
      * Default server listener
      */
     const DEFAULT_HOST = 'localhost';
-    const DEFAULT_PORT = '0.0.0.0';
+    const DEFAULT_PORT = 9527;
     const DEFAULT_MODE = SWOOLE_PROCESS;
     const DEFAULT_TYPE = SWOOLE_SOCK_TCP;
 
@@ -70,9 +70,9 @@ abstract class Base extends Object
      * @param int $type
      * @return static|self
      */
-    public function listen(int $port, string $host = '0.0.0.0', int $type = SWOOLE_SOCK_TCP): self
+    public function listen(string $host = '0.0.0.0', int $port, int $type = SWOOLE_SOCK_TCP): self
     {
-        static::$listeners[] = new Listener($port, $host, $type);
+        static::$listeners[] = new Listener($host, $port, $type);
         return $this;
     }
 
@@ -185,7 +185,7 @@ abstract class Base extends Object
      */
     private static function defaultListener(): Listener
     {
-        return new Listener(self::DEFAULT_PORT, self::DEFAULT_HOST, self::DEFAULT_TYPE, self::DEFAULT_MODE);
+        return new Listener(self::DEFAULT_HOST, self::DEFAULT_PORT, self::DEFAULT_TYPE, self::DEFAULT_MODE);
     }
 
     /**

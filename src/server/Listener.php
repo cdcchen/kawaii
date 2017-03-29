@@ -40,15 +40,15 @@ class Listener extends Object
 
     /**
      * ServerListener constructor.
-     * @param int $port
      * @param string $host
+     * @param int $port
      * @param int $type
      * @param int $mode
      * @param array $config
      */
     public function __construct(
-        int $port,
         string $host,
+        int $port,
         int $type = SWOOLE_SOCK_TCP,
         int $mode = SWOOLE_PROCESS,
         array $config = []
