@@ -12,14 +12,9 @@ namespace kawaii\server;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\InvalidConfigException;
 
-/**
- * Class WebsocketServer
- * @package kawaii\server
- */
-class WebSocketServer extends \Swoole\WebSocket\Server
-{
-    use SwooleHttpServerTrait;
 
+class WebsocketServer extends Base
+{
     /**
      * @var callable
      */
@@ -60,5 +55,14 @@ class WebSocketServer extends \Swoole\WebSocket\Server
         $app->run();
 
         return $this;
+    }
+    protected function bindCallback(): void
+    {
+        // TODO: Implement bindCallback() method.
+    }
+
+    static protected function createSwooleServer(Listener $listener): SwooleServer
+    {
+        // TODO: Implement createSwooleServer() method.
     }
 }
