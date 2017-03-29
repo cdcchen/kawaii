@@ -108,5 +108,7 @@ $app = new kawaii\web\Application($config);
 //    return $context;
 //});
 
-$server = new \kawaii\server\HttpServer('127.0.0.1', 9512);
+
+$server = new \kawaii\server\HttpServer('127.0.0.1', 9527);
+$server->set(['task_worker_num' => 2]);
 $server->run($app);

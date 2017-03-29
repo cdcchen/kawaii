@@ -25,7 +25,7 @@ class EventHandle
         file_put_contents($server->getPidFile(), $server->master_pid);
         Base::setProcessName('master process');
 
-        echo "SwooleServer pid: {$server->master_pid} starting...\n";
+        echo "Master {$server->master_pid} started.\n";
     }
 
     /**
@@ -35,7 +35,7 @@ class EventHandle
     {
         unlink($server->getPidFile());
 
-        echo "SwooleServer pid: {$server->master_pid} shutdown...\n";
+        echo "Master {$server->master_pid} stopped.\n";
     }
 
     /**
@@ -45,7 +45,7 @@ class EventHandle
     {
         Base::setProcessName('manager');
 
-        echo "Manager pid: {$server->manager_pid} starting...\n";
+        echo "Manager {$server->manager_pid} started.\n";
     }
 
     /**
@@ -53,7 +53,7 @@ class EventHandle
      */
     public static function onManagerStop(SwooleServer $server): void
     {
-        echo "Manager pid: {$server->manager_pid} stopped...\n";
+        echo "Manager {$server->manager_pid} stopped...\n";
     }
 
     /**
@@ -64,7 +64,7 @@ class EventHandle
     {
         Base::setProcessName($server->taskworker ? 'task' : 'worker');
 
-        echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
+        echo ($server->taskworker ? 'Task' : 'Worker') . "{$workId} {$server->worker_pid} started.\n";
     }
 
     /**
@@ -73,7 +73,7 @@ class EventHandle
      */
     public static function onWorkerStop(SwooleServer $server, int $workId): void
     {
-        echo "Worker: $workId stopped...\n";
+        echo ($server->taskworker ? 'Task' : 'Worker') . "{$workId} {$server->worker_pid} stopped.\n";
     }
 
     /**
@@ -84,7 +84,7 @@ class EventHandle
      */
     public static function onWorkerError(SwooleServer $server, int $workerId, int $workerPid, int $exitCode): void
     {
-        echo __FILE__ . ' error occurred.';
+        echo ($server->taskworker ? 'Task' : 'Worker') . "$workerId {$workerPid} error.\n";
     }
 
     /**
@@ -94,7 +94,7 @@ class EventHandle
      */
     public static function onConnect(SwooleServer $server, int $clientId, int $fromId): void
     {
-        echo "Client: $clientId connected.\n";
+        echo "Client {$clientId} connected.\n";
     }
 
     /**
@@ -105,7 +105,7 @@ class EventHandle
     public static function onClose(SwooleServer $server, int $clientId, int $fromId): void
     {
         $memory = memory_get_usage() . '/' . memory_get_usage(true) . ' - ' . memory_get_peak_usage() . '/' . memory_get_peak_usage(true);
-        echo "Client: $clientId disconnected.\n{$memory}\n-----------------------------\n";
+        echo "Client {$clientId} disconnected.\n{$memory}\n-----------------------------\n";
     }
 
     /**
@@ -135,7 +135,6 @@ class EventHandle
         if ($data instanceof BaseTask) {
             $data->done();
         }
-
     }
 
     /**
@@ -148,6 +147,16 @@ class EventHandle
     {
         echo "Received data: {$data}\n";
         $server->send($clientId, "Server received your data: {$data}\n");
+    }
+
+    public function onPacket(SwooleServer $server, string $data, array $clientInfo)
+    {
+        echo "Received data: {$data}\n";
+
+        $fd = unpack('L', pack('N', ip2long($clientInfo['address'])))[1];
+        $reactorId = ($clientInfo['server_socket'] << 16) + $clientInfo['port'];
+
+        $server->send($fd, "Server received your data: {$data}\n", $reactorId);
     }
 
     /**
@@ -178,6 +187,7 @@ class EventHandle
      */
     public static function onMessage(WebSocketServer $server, Frame $frame): void
     {
-        echo "Receive message: {$frame->data}\n";
+        echo "Receive message: {
+        $frame->data}\n";
     }
 }

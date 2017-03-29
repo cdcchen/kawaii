@@ -29,6 +29,7 @@ trait SwooleServerTrait
     public $onTask         = [EventHandle::class, 'onTask'];
     public $onFinish       = [EventHandle::class, 'onFinish'];
     public $onReceive      = [EventHandle::class, 'onReceive'];
+    public $onPacket       = [EventHandle::class, 'onPacket'];
     public $onPipeMessage  = [EventHandle::class, 'onPipeMessage'];
     public $onConnect      = [EventHandle::class, 'onConnect'];
     public $onClose        = [EventHandle::class, 'onClose'];
@@ -88,12 +89,17 @@ trait SwooleServerTrait
         if (is_callable($this->onReceive)) {
             $this->on('Receive', $this->onReceive);
         }
+        if (is_callable($this->onPacket)) {
+            $this->on('Packet', $this->onPacket);
+        }
     }
 
-    protected function beforeRun(): void
+    /**
+     * @return bool
+     */
+    protected function beforeRun(): bool
     {
-        $this->init();
-        $this->bindCallback();
+        return true;
     }
 
     /**
@@ -101,10 +107,18 @@ trait SwooleServerTrait
      */
     public function run(ApplicationInterface $app)
     {
-        $app->run();
+        Kawaii::$server = $this;
 
-        $this->beforeRun();
-        $this->start();
+        $this->init();
+        $this->bindCallback();
+
+        if ($this->beforeRun()) {
+            $app->run();
+            $this->start();
+        } else {
+            echo 'beforeRun should be return false.';
+            exit(1);
+        }
     }
 
 
