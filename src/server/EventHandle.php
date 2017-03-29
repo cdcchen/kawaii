@@ -173,19 +173,19 @@ class EventHandle
     #################### websocket default callback ##############################
 
     /**
-     * @param WebSocketServer $server
+     * @param WebsocketServer1 $server
      * @param SwooleHttpRequest $request
      */
-    public static function onOpen(WebSocketServer $server, SwooleHttpRequest $request): void
+    public static function onOpen(WebsocketServer1 $server, SwooleHttpRequest $request): void
     {
         echo "Websocket client connected\n";
     }
 
     /**
-     * @param WebSocketServer $server
+     * @param WebsocketServer1 $server
      * @param Frame $frame
      */
-    public static function onMessage(WebSocketServer $server, Frame $frame): void
+    public static function onMessage(WebsocketServer1 $server, Frame $frame): void
     {
         echo "Receive message: {
         $frame->data}\n";
