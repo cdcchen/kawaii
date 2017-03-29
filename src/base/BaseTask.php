@@ -41,7 +41,7 @@ abstract class BaseTask extends Object
      * @param mixed $data
      * @return mixed
      */
-    public function setData($data): self
+    public function setData($data)
     {
         $this->data = $data;
         return $this;
@@ -58,7 +58,7 @@ abstract class BaseTask extends Object
     /**
      * @return int
      */
-    public function getTaskId(): int
+    public function getTaskId()
     {
         return $this->taskId;
     }
@@ -67,7 +67,7 @@ abstract class BaseTask extends Object
      * @param Server $server
      * @param int $taskId
      */
-    public function handle(Server $server, int $taskId)
+    public function handle(Server $server, $taskId)
     {
         $this->server = $server;
         $this->taskId = $taskId;
@@ -79,7 +79,7 @@ abstract class BaseTask extends Object
     /**
      * execute when $this->finish() executed
      */
-    public function done(): void
+    public function done()
     {
         $this->onDone($this->result);
     }
@@ -87,7 +87,7 @@ abstract class BaseTask extends Object
     /**
      * @param mixed $result
      */
-    protected function onDone($result): void
+    protected function onDone($result)
     {
     }
 

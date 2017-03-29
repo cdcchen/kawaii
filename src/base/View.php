@@ -97,7 +97,7 @@ class View extends Object
     /**
      * Initializes the view component.
      */
-    public function init(): void
+    public function init()
     {
         parent::init();
         if (is_array($this->theme)) {
@@ -134,7 +134,7 @@ class View extends Object
      * @throws InvalidParamException if the view cannot be resolved or the view file does not exist.
      * @see renderFile()
      */
-    public function render(string $view, array $params = [], $context = null): string
+    public function render($view, $params = [], $context = null)
     {
         $viewFile = $this->findViewFile($view, $context);
         return $this->renderFile($viewFile, $params, $context);
@@ -151,7 +151,7 @@ class View extends Object
      * @throws InvalidCallException if a relative view name is given while there is no active context to
      * determine the corresponding view file.
      */
-    protected function findViewFile(string $view, $context = null): string
+    protected function findViewFile($view, $context = null)
     {
         if (strncmp($view, '@', 1) === 0) {
             // e.g. "@app/views/main"
@@ -204,7 +204,7 @@ class View extends Object
      * @return string the rendering result
      * @throws InvalidParamException if the view file does not exist
      */
-    public function renderFile(string $viewFile, array $params = [], $context = null): string
+    public function renderFile($viewFile, $params = [], $context = null)
     {
         $viewFile = Kawaii::getAlias($viewFile);
 
@@ -250,7 +250,7 @@ class View extends Object
     /**
      * @return string|boolean the view file currently being rendered. False if no view file is being rendered.
      */
-    public function getViewFile(): string
+    public function getViewFile()
     {
         return end($this->_viewFiles);
     }
@@ -263,9 +263,8 @@ class View extends Object
      * @param array $params the parameter array passed to the [[render()]] method.
      * @return boolean whether to continue rendering the view file.
      */
-    public function beforeRender(string $viewFile, array $params): bool
+    public function beforeRender($viewFile, $params)
     {
-        // @todo beforeRender 待实现
 //        $event = new ViewEvent([
 //            'viewFile' => $viewFile,
 //            'params' => $params,
@@ -285,7 +284,7 @@ class View extends Object
      * @param string $output the rendering result of the view file. Updates to this parameter
      * will be passed back and returned by [[renderFile()]].
      */
-    public function afterRender(string $viewFile, array $params, string &$output): void
+    public function afterRender($viewFile, $params, &$output)
     {
 //        if ($this->hasEventHandlers(self::EVENT_AFTER_RENDER)) {
 //            $event = new ViewEvent([
@@ -307,16 +306,16 @@ class View extends Object
      *
      * This method should mainly be called by view renderer or [[renderFile()]].
      *
-     * @param string $file_ the view file.
-     * @param array $params_ the parameters (name-value pairs) that will be extracted and made available in the view file.
+     * @param string $_file_ the view file.
+     * @param array $_params_ the parameters (name-value pairs) that will be extracted and made available in the view file.
      * @return string the rendering result
      */
-    public function renderPhpFile(string $file_, array $params_ = []): string
+    public function renderPhpFile($_file_, $_params_ = [])
     {
         ob_start();
         ob_implicit_flush(false);
-        extract($params_, EXTR_OVERWRITE);
-        require($file_);
+        extract($_params_, EXTR_OVERWRITE);
+        require($_file_);
 
         return ob_get_clean();
     }
@@ -330,7 +329,7 @@ class View extends Object
      * @return string the placeholder of the dynamic content, or the dynamic content if there is no
      * active content cache currently.
      */
-    public function renderDynamic(string $statements): string
+    public function renderDynamic($statements)
     {
         if (!empty($this->cacheStack)) {
             $n = count($this->dynamicPlaceholders);
@@ -349,7 +348,7 @@ class View extends Object
      * @param string $placeholder the placeholder name
      * @param string $statements the PHP statements for generating the dynamic content
      */
-    public function addDynamicPlaceholder(string $placeholder, string $statements)
+    public function addDynamicPlaceholder($placeholder, $statements)
     {
         foreach ($this->cacheStack as $cache) {
             $cache->dynamicPlaceholders[$placeholder] = $statements;
@@ -363,7 +362,7 @@ class View extends Object
      * @param string $statements the PHP statements to be evaluated.
      * @return mixed the return value of the PHP statements.
      */
-    public function evaluateDynamicContent(string $statements)
+    public function evaluateDynamicContent($statements)
     {
         return eval($statements);
     }
@@ -376,7 +375,6 @@ class View extends Object
      * Defaults to false, meaning the captured block will not be displayed.
      * @return Block the Block widget instance
      */
-    // @todo beginBlock and endBlock 待实现
 //    public function beginBlock($id, $renderInPlace = false)
 //    {
 //        return Block::begin([
@@ -411,7 +409,6 @@ class View extends Object
      * @return ContentDecorator the ContentDecorator widget instance
      * @see ContentDecorator
      */
-    // @todo beginContent and endContent 待实现
 //    public function beginContent($viewFile, $params = [])
 //    {
 //        return ContentDecorator::begin([
@@ -448,7 +445,6 @@ class View extends Object
      * @return boolean whether you should generate the content for caching.
      * False if the cached version is available.
      */
-    // @todo beginCache and endCache 待实现
 //    public function beginCache($id, $properties = [])
 //    {
 //        $properties['id'] = $id;
@@ -475,8 +471,7 @@ class View extends Object
     /**
      * Marks the beginning of a page.
      */
-    // @todo beginPage and endPage 待优化
-    public function beginPage(): void
+    public function beginPage()
     {
         ob_start();
         ob_implicit_flush(false);
@@ -487,7 +482,7 @@ class View extends Object
     /**
      * Marks the ending of a page.
      */
-    public function endPage(): void
+    public function endPage()
     {
 //        $this->trigger(self::EVENT_END_PAGE);
         ob_end_flush();

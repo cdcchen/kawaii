@@ -9,7 +9,6 @@
 namespace kawaii\web;
 
 
-use kawaii\base\Action;
 use kawaii\base\InlineAction;
 
 class Controller extends \kawaii\base\Controller
@@ -21,12 +20,7 @@ class Controller extends \kawaii\base\Controller
      */
     public $actionParams = [];
 
-    /**
-     * @param Action $action
-     * @param array $params
-     * @return array
-     */
-    public function bindActionParams(Action $action, array $params): array
+    public function bindActionParams($action, $params)
     {
         if ($action instanceof InlineAction) {
             $method = new \ReflectionMethod($this, $action->actionMethod);

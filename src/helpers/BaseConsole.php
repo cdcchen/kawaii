@@ -795,7 +795,7 @@ class BaseConsole
         } elseif ($options['validator'] &&
             !call_user_func_array($options['validator'], [$input, &$error])
         ) {
-            static::output($error ?? $options['error']);
+            static::output(isset($error) ? $error : $options['error']);
             goto top;
         }
 

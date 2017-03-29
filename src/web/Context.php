@@ -39,7 +39,7 @@ class Context extends Object
      * @param ResponseInterface $response
      * @param array $config
      */
-    public function __construct(RequestInterface $request, ResponseInterface $response, array $config = [])
+    public function __construct($request, $response, $config = [])
     {
         $this->request = $request;
         $this->response = $response;
@@ -52,8 +52,8 @@ class Context extends Object
      * @param mixed $defaultValue
      * @return mixed|null
      */
-    public function getRouteParam(string $name, $defaultValue = null)
+    public function getRouteParam($name, $defaultValue = null)
     {
-        return $this->routeParams[$name] ?? $defaultValue;
+        return isset($this->routeParams[$name]) ? $this->routeParams[$name] : $defaultValue;
     }
 }

@@ -11,26 +11,11 @@ namespace kawaii\base;
 
 use Kawaii;
 use kawaii\web\Context;
-use kawaii\web\RequestParserInterface;
-use Psr\Http\Message\RequestInterface;
 
-/**
- * Class Controller
- * @package kawaii\base
- */
 class Controller extends Object implements ViewContextInterface
 {
-    /**
-     * @var array
-     */
     public $id;
-    /**
-     * @var string
-     */
     public $defaultAction;
-    /**
-     * @var string
-     */
     public $layout = 'main';
 
     /**
@@ -38,27 +23,18 @@ class Controller extends Object implements ViewContextInterface
      */
     public $action;
 
-    /**
-     * @var string
-     */
     private $view;
-    /**
-     * @var string
-     */
     private $viewPath;
 
-    /**
-     * @var Context
-     */
     private $context;
 
     /**
      * Controller constructor.
-     * @param string $id
+     * @param array $id
      * @param Context $context
      * @param array $config
      */
-    public function __construct(string $id, Context $context, array $config = [])
+    public function __construct($id, Context $context, $config = [])
     {
         $this->id = $id;
         $this->context = $context;
@@ -66,20 +42,19 @@ class Controller extends Object implements ViewContextInterface
     }
 
     /**
-     * @return \kawaii\web\Request|RequestInterface
+     * @return \kawaii\web\Request|\Psr\Http\Message\RequestInterface
      */
-    public function getRequest(): RequestInterface
+    public function getRequest()
     {
         return $this->context->request;
     }
 
     /**
-     * @param string $id
-     * @param array $params
+     * @param $id
      * @return mixed|null
      * @throws InvalidRouteException
      */
-    public function runAction(string $id, $params = [])
+    public function runAction($id)
     {
         $this->action = $this->createAction($id);
         if ($this->action === null) {
@@ -87,8 +62,10 @@ class Controller extends Object implements ViewContextInterface
         }
 
         $result = null;
+
         if ($this->beforeAction($this->action)) {
             // run the action
+            $params = $this->context->request->getQueryParams();
             $result = $this->action->runWithParams($params);
             $result = $this->afterAction($this->action, $result);
         }
@@ -98,11 +75,10 @@ class Controller extends Object implements ViewContextInterface
     }
 
     /**
-     * @param string $route
-     * @param array $params
+     * @param $route
      * @return mixed|null
      */
-    public function run(string $route, array $params = [])
+    public function run($route, $params)
     {
         $pos = strpos($route, '/');
         if ($pos === false) {
@@ -118,16 +94,16 @@ class Controller extends Object implements ViewContextInterface
     /**
      * @return array
      */
-    public function actions(): array
+    public function actions()
     {
         return [];
     }
 
     /**
-     * @param string $id
+     * @param $id
      * @return Action
      */
-    public function createAction(string $id): Action
+    public function createAction($id)
     {
         if ($id === '') {
             $id = $this->defaultAction;
@@ -150,39 +126,38 @@ class Controller extends Object implements ViewContextInterface
     }
 
     /**
-     * @param Action $action
+     * @param $action
      * @return bool
      */
-    public function beforeAction(Action $action): bool
+    public function beforeAction($action)
     {
         return true;
     }
 
     /**
-     * @param Action $action
-     * @param mixed $result
+     * @param $action
+     * @param $result
      * @return mixed
-     * @todo afterAction 待完善
      */
-    public function afterAction(Action $action, $result)
+    public function afterAction($action, $result)
     {
         return $result;
     }
 
     /**
-     * @param Action $action
-     * @param array $params
+     * @param $action
+     * @param $params
      * @return array
      */
-    public function bindActionParams(Action $action, array $params): array
+    public function bindActionParams($action, $params)
     {
         return [];
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getUniqueId(): string
+    public function getUniqueId()
     {
         return $this->id;
     }
@@ -190,7 +165,7 @@ class Controller extends Object implements ViewContextInterface
     /**
      * Get the route of current action
      */
-    public function getRoute(): string
+    public function getRoute()
     {
         return $this->action !== null ? $this->action->getUniqueId() : $this->getUniqueId();
     }
@@ -200,7 +175,7 @@ class Controller extends Object implements ViewContextInterface
      * @param array $params
      * @return string
      */
-    public function render(string $view, array $params = []): string
+    public function render($view, $params = [])
     {
         $content = $this->getView()->render($view, $params, $this);
         return $this->renderContent($content);
@@ -210,7 +185,7 @@ class Controller extends Object implements ViewContextInterface
      * @param string $content
      * @return string
      */
-    public function renderContent(string $content): string
+    public function renderContent($content)
     {
         $layoutFile = $this->findLayoutFile($this->getView());
         if ($layoutFile !== false) {
@@ -225,7 +200,7 @@ class Controller extends Object implements ViewContextInterface
      * @param array $params
      * @return string
      */
-    public function renderPartial(string $view, array $params = []): string
+    public function renderPartial($view, $params = [])
     {
         return $this->getView()->render($view, $params, $this);
     }
@@ -235,7 +210,7 @@ class Controller extends Object implements ViewContextInterface
      * @param array $params
      * @return string
      */
-    public function renderFile(string $file, array $params = []): string
+    public function renderFile($file, $params = [])
     {
         return $this->getView()->renderFile($file, $params, $this);
     }
@@ -244,7 +219,7 @@ class Controller extends Object implements ViewContextInterface
     /**
      * @return View
      */
-    public function getView(): View
+    public function getView()
     {
         if ($this->view === null) {
             $this->view = Kawaii::createObject(View::class);
@@ -255,7 +230,7 @@ class Controller extends Object implements ViewContextInterface
     /**
      * @param string $view
      */
-    public function setView(string $view): void
+    public function setView($view)
     {
         $this->view = $view;
     }
@@ -263,7 +238,7 @@ class Controller extends Object implements ViewContextInterface
     /**
      * @return string
      */
-    public function getViewPath(): string
+    public function getViewPath()
     {
         if ($this->viewPath === null) {
             $this->viewPath = Kawaii::$app->getViewPath() . DIRECTORY_SEPARATOR . $this->id;
@@ -274,7 +249,7 @@ class Controller extends Object implements ViewContextInterface
     /**
      * @param string $path
      */
-    public function setViewPath(string $path): void
+    public function setViewPath($path)
     {
         $this->viewPath = Kawaii::getAlias($path);
     }
@@ -283,7 +258,7 @@ class Controller extends Object implements ViewContextInterface
      * @param View $view
      * @return bool|string
      */
-    public function findLayoutFile(View $view)
+    public function findLayoutFile($view)
     {
         if (is_string($this->layout) && $this->layout !== '') {
             $layout = $this->layout;

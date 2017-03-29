@@ -101,7 +101,7 @@ abstract class Application extends ServiceLocator
      * @param string $configFile
      * @param array $config
      */
-    public function __construct(string $configFile, array $config = [])
+    public function __construct($configFile, array $config = [])
     {
         Kawaii::$app = $this;
 
@@ -114,7 +114,7 @@ abstract class Application extends ServiceLocator
     /**
      * @throws InvalidConfigException
      */
-    protected function loadConfig(): void
+    protected function loadConfig()
     {
         if (empty(static::$configFile)) {
             return;
@@ -159,10 +159,10 @@ abstract class Application extends ServiceLocator
     }
 
     /**
-     * @param array $config
+     * @param $config
      * @throws InvalidConfigException
      */
-    protected function preInit(array &$config): void
+    protected function preInit(&$config)
     {
         if (!isset($config['id'])) {
             throw new InvalidConfigException('The "id" configuration for the Application is required.');
@@ -199,15 +199,15 @@ abstract class Application extends ServiceLocator
         }
     }
 
-    protected function bootstrap(): void
+    protected function bootstrap()
     {
 
     }
 
     /**
-     * @param string $path
+     * @param $path
      */
-    public function setBasePath(string $path): void
+    public function setBasePath($path)
     {
         $path = Kawaii::getAlias($path);
         $p = strncmp($path, 'phar://', 7) === 0 ? $path : realpath($path);
@@ -217,13 +217,14 @@ abstract class Application extends ServiceLocator
             throw new InvalidParamException("The directory does not exist: $path");
         }
 
+        Kawaii::setAlias('@project', $this->getBasePath());
         Kawaii::setAlias('@app', $this->getBasePath() . '/app');
     }
 
     /**
      * @return string
      */
-    public function getBasePath(): string
+    public function getBasePath()
     {
         if ($this->basePath === null) {
             $class = new \ReflectionClass($this);
@@ -240,7 +241,7 @@ abstract class Application extends ServiceLocator
      * @return string the directory that stores runtime files.
      * Defaults to the "runtime" subdirectory under [[basePath]].
      */
-    public function getRuntimePath(): string
+    public function getRuntimePath()
     {
         if ($this->_runtimePath === null) {
             $this->setRuntimePath($this->getBasePath() . DIRECTORY_SEPARATOR . 'runtime');
@@ -253,7 +254,7 @@ abstract class Application extends ServiceLocator
      * Sets the directory that stores runtime files.
      * @param string $path the directory that stores runtime files.
      */
-    public function setRuntimePath(string $path): void
+    public function setRuntimePath($path)
     {
         $this->_runtimePath = Kawaii::getAlias($path);
         Kawaii::setAlias('@runtime', $this->_runtimePath);
@@ -263,7 +264,7 @@ abstract class Application extends ServiceLocator
      * Returns the directory that contains the view files for this module.
      * @return string the root directory of view files. Defaults to "[[basePath]]/views".
      */
-    public function getViewPath(): string
+    public function getViewPath()
     {
         if ($this->viewPath === null) {
             $this->viewPath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'views';
@@ -276,7 +277,7 @@ abstract class Application extends ServiceLocator
      * @param string $path the root directory of view files.
      * @throws InvalidParamException if the directory is invalid
      */
-    public function setViewPath(string $path): void
+    public function setViewPath($path)
     {
         $this->viewPath = Kawaii::getAlias($path);
     }
@@ -285,7 +286,7 @@ abstract class Application extends ServiceLocator
      * Returns the directory that contains layout view files for this module.
      * @return string the root directory of layout files. Defaults to "[[viewPath]]/layouts".
      */
-    public function getLayoutPath(): string
+    public function getLayoutPath()
     {
         if ($this->layoutPath === null) {
             $this->layoutPath = $this->getViewPath() . DIRECTORY_SEPARATOR . 'layouts';
@@ -299,7 +300,7 @@ abstract class Application extends ServiceLocator
      * @param string $path the root directory or path alias of layout files.
      * @throws InvalidParamException if the directory is invalid
      */
-    public function setLayoutPath(string $path): void
+    public function setLayoutPath($path)
     {
         $this->layoutPath = Kawaii::getAlias($path);
     }
@@ -309,7 +310,7 @@ abstract class Application extends ServiceLocator
      * @return string the directory that stores vendor files.
      * Defaults to "vendor" directory under [[basePath]].
      */
-    public function getVendorPath(): string
+    public function getVendorPath()
     {
         if ($this->vendorPath === null) {
             $this->setVendorPath($this->getBasePath() . DIRECTORY_SEPARATOR . 'vendor');
@@ -322,7 +323,7 @@ abstract class Application extends ServiceLocator
      * Sets the directory that stores vendor files.
      * @param string $path the directory that stores vendor files.
      */
-    public function setVendorPath(string $path): void
+    public function setVendorPath($path)
     {
         $this->vendorPath = Kawaii::getAlias($path);
         Kawaii::setAlias('@vendor', $this->vendorPath);
@@ -337,7 +338,7 @@ abstract class Application extends ServiceLocator
      * @return string the time zone used by this application.
      * @see http://php.net/manual/en/function.date-default-timezone-get.php
      */
-    public function getTimeZone(): string
+    public function getTimeZone()
     {
         return date_default_timezone_get();
     }
@@ -349,15 +350,12 @@ abstract class Application extends ServiceLocator
      * @param string $value the time zone used by this application.
      * @see http://php.net/manual/en/function.date-default-timezone-set.php
      */
-    public function setTimeZone(string $value): void
+    public function setTimeZone($value)
     {
         date_default_timezone_set($value);
     }
 
-    /**
-     * @param array $config
-     */
-    protected function registerErrorHandler(array &$config): void
+    protected function registerErrorHandler(&$config)
     {
         // @todo registerErrorHandler
     }
@@ -367,32 +365,32 @@ abstract class Application extends ServiceLocator
      * @param mixed $defaultValue
      * @return mixed|null
      */
-    public function getParam(string $name, $defaultValue = null)
+    public function getParam($name, $defaultValue = null)
     {
-        return $this->params[$name] ?? $defaultValue;
+        return isset($this->params[$name]) ? $this->params[$name] : $defaultValue;
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getUniqueId(): string
+    public function getUniqueId()
     {
         return $this->id;
     }
 
     /**
-     * @param string $route
+     * @param $route
      * @param Context $context
      * @return mixed|null
      * @throws InvalidRouteException
      */
-    public function runAction(string $route, Context $context)
+    public function runAction($route, Context $context)
     {
         $parts = $this->createController($route, $context);
         if (is_array($parts)) {
             /* @var $controller Controller */
             list($controller, $actionId) = $parts;
-            $result = $controller->runAction($actionId, $context->request->getQueryParams());
+            $result = $controller->runAction($actionId);
 
             return $result;
         } else {
@@ -401,7 +399,7 @@ abstract class Application extends ServiceLocator
     }
 
     /**
-     * @param string $route
+     * @param $route
      * @param Context $context
      * @return array|bool
      */
@@ -426,7 +424,9 @@ abstract class Application extends ServiceLocator
 
         // module and controller map take precedence
         if (isset($this->controllerMap[$id])) {
-            $controller = Kawaii::createObject($this->controllerMap[$id], [$id, $context]);
+//            $controller = Kawaii::createObject($this->controllerMap[$id], [$id, $this]);
+            $className = $this->controllerMap[$id];
+            $controller = new $className($id, $context);
             return [$controller, $route];
         }
 
@@ -475,7 +475,8 @@ abstract class Application extends ServiceLocator
         }
 
         if (is_subclass_of($className, 'kawaii\base\Controller')) {
-            $controller = Kawaii::createObject($className, [$id, $context]);
+//            $controller = Kawaii::createObject($className, [$id, $this]);
+            $controller = new $className($id, $context);
             return get_class($controller) === $className ? $controller : null;
         } elseif (KAWAII_DEBUG) {
             throw new InvalidConfigException("Controller class must extend from \\kawaii\\base\\Controller.");

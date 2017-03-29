@@ -39,7 +39,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     protected $middleware;
 
 
-    protected function init(): void
+    protected function init()
     {
         $seedMiddleware = function (Context $context) {
             return $context;
@@ -52,7 +52,11 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     /**
      * Run server
      */
+<<<<<<< HEAD
     protected function beforeRun(): bool
+=======
+    public function run()
+>>>>>>> parent of 5f7c377... 添加方法和函数类型约束
     {
         $this->loadRoutes();
         $this->hook(new RouteMiddleware());
@@ -62,9 +66,9 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
     /**
      * @param RequestInterface $request
-     * @return Context
+     * @return Context|mixed
      */
-    public function handleRequest(RequestInterface $request): Context
+    public function handleRequest(RequestInterface $request)
     {
         $beginTime = microtime(true);
 
@@ -89,7 +93,10 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         } catch (UserException $e) {
             $statusCode = 500;
             $context->response->write($e->getMessage());
-        } catch (Exception | \Exception $e) {
+        } catch (Exception $e) {
+            $statusCode = 500;
+            $context->response->write($e->getMessage());
+        } catch (\Exception $e) {
             $statusCode = 500;
             $context->response->write($e->getMessage());
         }
@@ -108,21 +115,16 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     /**
      * @inheritdoc
      */
-    public function addRoute(
-        string $methods,
-        string $path,
-        callable $handler,
-        bool $strict = false,
-        string $suffix = ''
-    ): Router {
-        return $this->router->addRoute($methods, $path, $handler, $strict, $suffix);
+    public function addRoute($method, $path, callable $handler, $strict = false, $suffix = '')
+    {
+        return $this->router->addRoute($method, $path, $handler, $strict, $suffix);
     }
 
     /**
      * @param callable $callable
-     * @return $this|self
+     * @return $this
      */
-    public function hook(callable $callable): self
+    public function hook(callable $callable)
     {
         $this->middleware->add($callable);
         return $this;
@@ -131,21 +133,32 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     /**
      * @return Router
      */
-    public function getRouter(): Router
+    public function getRouter()
     {
         return $this->router;
     }
 
-    public function reload(): void
+    public function reload()
     {
         parent::reload();
         $this->loadRoutes();
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * @return bool
+     */
+    protected function beforeRun()
+    {
+        return true;
+    }
+
+    /**
+>>>>>>> parent of 5f7c377... 添加方法和函数类型约束
      * load routes from routes config file.
      */
-    private function loadRoutes(): void
+    private function loadRoutes()
     {
         if (empty(static::$config['routes'])) {
             return;
@@ -170,7 +183,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     /**
      * @param RouteRule $rule
      */
-    private function addRouteRule(RouteRule $rule): void
+    private function addRouteRule(RouteRule $rule)
     {
         foreach ($rule->method as $method) {
             $this->router->addRoute($method, $rule->path, $this->buildHandlerByRoute($rule->route), $rule->strict,
@@ -182,7 +195,11 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      * @param string $route
      * @return \Closure
      */
+<<<<<<< HEAD
     private function buildHandlerByRoute(string $route): Closure
+=======
+    private function buildHandlerByRoute($route)
+>>>>>>> parent of 5f7c377... 添加方法和函数类型约束
     {
         return function (Context $context, callable $next) use ($route) {
             /* @var Context $context */
@@ -199,6 +216,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
             }
 
             try {
+
                 ob_start();
                 ob_implicit_flush(false);
                 $result = $this->runAction($route, $context);

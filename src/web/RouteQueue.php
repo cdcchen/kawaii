@@ -70,7 +70,7 @@ class RouteQueue implements \Countable
     public function getStatics(string $method): array
     {
         $method = strtoupper($method);
-        $routes = $this->staticRoutes[$method] ?? [];
+        $routes = isset($this->staticRoutes[$method]) ? $this->staticRoutes[$method] : [];
         if (isset($this->staticRoutes['*'])) {
             $routes = array_merge($this->staticRoutes['*'], $routes);
         }
@@ -85,7 +85,7 @@ class RouteQueue implements \Countable
     public function getVariables(string $method): array
     {
         $method = strtoupper($method);
-        $routes = $this->variableRoutes[$method] ?? [];
+        $routes = isset($this->variableRoutes[$method]) ? $this->variableRoutes[$method] : [];
         if (isset($this->variableRoutes['*'])) {
             $routes = array_merge($this->variableRoutes['*'], $routes);
         }

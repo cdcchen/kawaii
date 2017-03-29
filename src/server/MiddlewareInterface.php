@@ -22,7 +22,7 @@ interface MiddlewareInterface
      * @param Context $context
      * @param callable $next
      *
-     * @return Context
+     * @return Context|mixed
      */
-    public function __invoke(Context $context, callable $next): Context;
+    public function __invoke(Context $context, callable $next);
 }

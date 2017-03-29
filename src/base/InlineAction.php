@@ -19,7 +19,7 @@ class InlineAction extends Action
      * @param string $actionMethod the controller method that this inline action is associated with
      * @param array $config name-value pairs that will be used to initialize the object properties
      */
-    public function __construct(string $id, Controller $controller, string $actionMethod, array $config = [])
+    public function __construct($id, $controller, $actionMethod, $config = [])
     {
         $this->actionMethod = $actionMethod;
         parent::__construct($id, $controller, $config);
@@ -31,7 +31,7 @@ class InlineAction extends Action
      * @param array $params action parameters
      * @return mixed the result of the action
      */
-    public function runWithParams(array $params)
+    public function runWithParams($params)
     {
         $args = $this->controller->bindActionParams($this, $params);
         return call_user_func_array([$this->controller, $this->actionMethod], $args);

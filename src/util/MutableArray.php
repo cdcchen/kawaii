@@ -304,7 +304,7 @@ class MutableArray implements \Countable, \ArrayAccess, \IteratorAggregate
     public function valueCount($value)
     {
         $counters = array_count_values($this->container);
-        return $counters[$value] ?? 0;
+        return isset($counters[$value]) ? $counters[$value] : 0;
     }
 
     /**

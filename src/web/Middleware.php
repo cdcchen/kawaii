@@ -22,9 +22,9 @@ class Middleware extends Object implements MiddlewareStackInterface
 
     /**
      * @param callable $callback
-     * @return $this|self
+     * @return $this
      */
-    public function add(callable $callback): self
+    public function add(callable $callback)
     {
         if (!is_callable(static::$middleware)) {
             static::$middleware = $callback;
@@ -44,7 +44,7 @@ class Middleware extends Object implements MiddlewareStackInterface
      * @param Context $context
      * @return Context|mixed
      */
-    public function handle(Context $context): Context
+    public function handle(Context $context)
     {
         if (is_callable(static::$middleware)) {
             return call_user_func(static::$middleware, $context);

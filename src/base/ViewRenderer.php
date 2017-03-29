@@ -26,5 +26,5 @@ abstract class ViewRenderer extends Object
      * @param array $params the parameters to be passed to the view file.
      * @return string the rendering result
      */
-    abstract public function render(View $view, string $file, array $params): string ;
+    abstract public function render($view, $file, $params);
 }

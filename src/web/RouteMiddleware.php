@@ -39,9 +39,8 @@ class RouteMiddleware implements MiddlewareInterface
             return $context;
         }
 
-        [$callable, $routeParams] = $result;
-        if (is_callable($callable)) {
-            if ($routeParams) {
+        if (is_callable($callable = $result[0])) {
+            if ($routeParams = $result[1]) {
                 $context->routeParams = $routeParams;
                 $params = array_merge($routeParams, $context->request->getQueryParams());
                 $context->request = $context->request->withQueryParams($params);

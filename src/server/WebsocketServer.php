@@ -12,6 +12,8 @@ namespace kawaii\server;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\InvalidConfigException;
 
+use kawaii\base\Base;
+use kawaii\base\ServerListener;
 
 class WebsocketServer extends Base
 {
@@ -61,7 +63,7 @@ class WebsocketServer extends Base
         // TODO: Implement bindCallback() method.
     }
 
-    static protected function createSwooleServer(Listener $listener): SwooleServer
+    static protected function createSwooleServer(ServerListener $listener)
     {
         // TODO: Implement createSwooleServer() method.
     }

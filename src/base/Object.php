@@ -91,7 +91,7 @@ class Object implements Configurable
      *
      * @param array $config name-value pairs that will be used to initialize the object properties
      */
-    public function __construct(array $config = [])
+    public function __construct($config = [])
     {
         if (!empty($config)) {
             Kawaii::configure($this, $config);
@@ -104,7 +104,7 @@ class Object implements Configurable
      * This method is invoked at the end of the constructor after the object is initialized with the
      * given configuration.
      */
-    protected function init(): void
+    protected function init()
     {
     }
 
@@ -226,7 +226,7 @@ class Object implements Configurable
      * @see canGetProperty()
      * @see canSetProperty()
      */
-    public function hasProperty(string $name, $checkVars = true): bool
+    public function hasProperty($name, $checkVars = true)
     {
         return $this->canGetProperty($name, $checkVars) || $this->canSetProperty($name, false);
     }
@@ -244,7 +244,7 @@ class Object implements Configurable
      * @return boolean whether the property can be read
      * @see canSetProperty()
      */
-    public function canGetProperty(string $name, $checkVars = true): bool
+    public function canGetProperty($name, $checkVars = true)
     {
         return method_exists($this, 'get' . $name) || $checkVars && property_exists($this, $name);
     }
@@ -262,7 +262,7 @@ class Object implements Configurable
      * @return boolean whether the property can be written
      * @see canGetProperty()
      */
-    public function canSetProperty(string $name, $checkVars = true): bool
+    public function canSetProperty($name, $checkVars = true)
     {
         return method_exists($this, 'set' . $name) || $checkVars && property_exists($this, $name);
     }
@@ -275,7 +275,7 @@ class Object implements Configurable
      * @param string $name the method name
      * @return boolean whether the method is defined
      */
-    public function hasMethod($name): bool
+    public function hasMethod($name)
     {
         return method_exists($this, $name);
     }
@@ -283,12 +283,12 @@ class Object implements Configurable
     /**
      * @return string
      */
-    public function hash(): string
+    public function hash()
     {
         return spl_object_hash($this);
     }
 
-    public function className(): string
+    public function className()
     {
         return static::class;
     }
@@ -297,7 +297,7 @@ class Object implements Configurable
      * @param mixed $obj
      * @return bool
      */
-    public function equals($obj): bool
+    public function equals($obj)
     {
         return spl_object_hash($this) === spl_object_hash($obj);
     }

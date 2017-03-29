@@ -34,7 +34,7 @@ interface MiddlewareStackInterface
      * stack to be reused for processing multiple requests in sequence.
      *
      * @param Context $context
-     * @return Context
+     * @return ResponseInterface
      */
-    public function handle(Context $context): Context;
+    public function handle(Context $context);
 }
