@@ -40,11 +40,11 @@ class RouteRule extends Object
 
     /**
      * RouteRule constructor.
-     * @param string $path
+     * @param array $path
      * @param string $route
      * @param array $config
      */
-    public function __construct(string $path, string $route, array $config = [])
+    public function __construct($path, $route, array $config = [])
     {
         $this->path = trim($path);
         $this->route = trim($route);

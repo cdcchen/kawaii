@@ -36,7 +36,7 @@ class Router extends Object
     /**
      * init after __construct
      */
-    protected function init()
+    protected function init(): void
     {
         $this->routes = new RouteQueue();
     }
@@ -44,7 +44,7 @@ class Router extends Object
     /**
      * @return RouteQueue
      */
-    public function getRoutes()
+    public function getRoutes(): RouteQueue
     {
         return $this->routes;
     }
@@ -52,9 +52,13 @@ class Router extends Object
     /**
      * @inheritdoc
      */
-    public function addRoute($methods, $path, callable $handler, $strict = false, $suffix = '')
-    {
-        $methods = (array)$methods;
+    public function addRoute(
+        string $methods,
+        string $path,
+        callable $handler,
+        bool $strict = false,
+        string $suffix = ''
+    ): self {
         if (!empty($suffix)) {
             $path .= '.' . ltrim($suffix, '.');
         }
@@ -62,6 +66,7 @@ class Router extends Object
         $routeData = RouteParser::parse($path);
 //        print_r($routeData);
         foreach ($routeData as $item) {
+            $methods = array_map('trim', explode(',', $methods));
             foreach ($methods as $method) {
                 $route = new Route($method, $handler, $item, $strict, $suffix);
                 $this->routes->add($route);
@@ -74,7 +79,7 @@ class Router extends Object
     /**
      * @param callable $handler
      */
-    public function addDefaultRoute(callable $handler)
+    public function addDefaultRoute(callable $handler): void
     {
         $this->addRoute('*', '{controller}/{action}', $handler);
     }
@@ -82,9 +87,9 @@ class Router extends Object
     /**
      * @param string $method
      * @param string $path
-     * @return array|int
+     * @return array|bool
      */
-    public function dispatch($method, $path)
+    public function dispatch(string $method, string $path)
     {
         if ($this->routes->hasStatic($method, $path)) {
             $route = $this->routes->getStatic($method, $path);
@@ -115,41 +120,5 @@ class Router extends Object
         }
 
         return false;
-    }
-
-    /**
-     * @param $path
-     */
-    public function route($path)
-    {
-
-    }
-
-
-    /**
-     * @param $name
-     * @param callable $callback
-     */
-    public function param($name, callable $callback)
-    {
-
-    }
-
-    /**
-     * @param $path
-     * @return array
-     */
-    protected function parsePath($path)
-    {
-        return RouteParser::parse($path);
-    }
-
-    /**
-     * @param $method
-     * @param $params
-     * @param $handler
-     */
-    protected function buildRoute($method, $params, $handler)
-    {
     }
 }

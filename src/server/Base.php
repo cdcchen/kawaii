@@ -10,13 +10,17 @@ namespace kawaii\server;
 
 
 use Kawaii;
+use kawaii\base\ApplicationInterface;
+use kawaii\base\BaseTask;
+use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
+use Swoole\Server as SwooleServer;
 
 /**
  * Class Server
  * @package kawaii\base
  */
-class Base extends Object
+abstract class Base extends Object
 {
     /**
      * @var Listener[]
@@ -50,7 +54,7 @@ class Base extends Object
      * @param null|string $configFile
      * @param array $config
      */
-    public function __construct($configFile = null, $config = [])
+    public function __construct(string $configFile = null, array $config = [])
     {
         Kawaii::$server = $this;
 
@@ -64,9 +68,9 @@ class Base extends Object
      * @param int $port
      * @param string $host
      * @param int $type
-     * @return $this
+     * @return static|self
      */
-    public function listen($port, $host = '0.0.0.0', $type = SWOOLE_SOCK_TCP)
+    public function listen(int $port, string $host = '0.0.0.0', int $type = SWOOLE_SOCK_TCP): self
     {
         static::$listeners[] = new Listener($port, $host, $type);
         return $this;
@@ -76,7 +80,7 @@ class Base extends Object
      * @param ApplicationInterface $app
      * @return bool
      */
-    public function run(ApplicationInterface $app)
+    public function run(ApplicationInterface $app): bool
     {
         static::initSwooleServer();
 
@@ -102,7 +106,7 @@ class Base extends Object
      * Restart Swoole server
      * @ todo 未完成
      */
-    protected static function restart()
+    protected static function restart(): void
     {
         static::$swooleServer->shutdown();
         static::loadConfig();
@@ -112,18 +116,18 @@ class Base extends Object
     /**
      * Bind Swoole server event callback
      */
-    abstract protected function bindCallback();
+    abstract protected function bindCallback(): void;
 
     /**
      * @param Listener $listener
      * @return mixed
      */
-    abstract static protected function createSwooleServer(Listener $listener);
+    abstract static protected function createSwooleServer(Listener $listener): SwooleServer;
 
     /**
      * Init swoole server log file
      */
-    private static function initSwooleServer()
+    private static function initSwooleServer(): void
     {
         $config = static::getSwooleConfig();
 
@@ -146,7 +150,7 @@ class Base extends Object
     /**
      * @throws InvalidConfigException
      */
-    protected static function loadConfig()
+    protected static function loadConfig(): void
     {
         if (empty(static::$configFile)) {
             return;
@@ -163,7 +167,7 @@ class Base extends Object
     /**
      * reload server config
      */
-    protected static function reload()
+    protected static function reload(): void
     {
         static::loadConfig();
     }
@@ -171,15 +175,15 @@ class Base extends Object
     /**
      * @return array
      */
-    private static function getSwooleConfig()
+    private static function getSwooleConfig(): array
     {
-        return isset(static::$config['swoole']) ? static::$config['swoole'] : [];
+        return static::$config['swoole'] ?? [];
     }
 
     /**
      * @return Listener
      */
-    private static function defaultListener()
+    private static function defaultListener(): Listener
     {
         return new Listener(self::DEFAULT_PORT, self::DEFAULT_HOST, self::DEFAULT_TYPE, self::DEFAULT_MODE);
     }
@@ -187,7 +191,7 @@ class Base extends Object
     /**
      * @param string $filename
      */
-    private static function initSwooleLogFile($filename)
+    private static function initSwooleLogFile(string $filename): void
     {
         $dir = dirname($filename);
         if (!file_exists($dir)) {
@@ -203,25 +207,24 @@ class Base extends Object
     /**
      * @return string
      */
-    protected static function getPidFile()
+    protected static function getPidFile(): string
     {
-        if (isset(static::$config['pid_file'])) {
-            return static::$config['pid_file'];
-        } else {
-            return sys_get_temp_dir() . '/kawaii.pid';
-        }
+        return static::$config['pid_file'] ?? (sys_get_temp_dir() . '/kawaii.pid');
     }
 
     /**
      * @return string
      */
-    protected static function getProcessName()
+    protected static function getProcessName(): string
     {
         global $argv;
         return "php {$argv[0]}";
     }
 
-    protected static function setProcessName($extra)
+    /**
+     * @param string $extra
+     */
+    protected static function setProcessName(string $extra): void
     {
         $title = static::getProcessName() . ' - ' . $extra;
         if (function_exists('cli_set_process_title')) {
@@ -245,15 +248,15 @@ class Base extends Object
      * @param BaseTask $task
      * @param float $timeout
      * @param int $workerId
-     * @return string
+     * @return mixed
      */
-    public function syncTask(BaseTask $task, float $timeout = 0.5, $workerId = -1)
+    public function syncTask(BaseTask $task, float $timeout = 0.5, int $workerId = -1)
     {
         return static::$swooleServer->taskwait($task, $timeout, $workerId);
     }
 
     /**
-     * @param array $tasks
+     * @param BaseTask[] $tasks
      * @param float $timeout
      * @return mixed
      */
@@ -266,7 +269,7 @@ class Base extends Object
     /**
      * @param SwooleServer $server
      */
-    public function onMasterStart(SwooleServer $server)
+    public function onMasterStart(SwooleServer $server): void
     {
         file_put_contents(static::getPidFile(), $server->master_pid);
         static::setProcessName('master process');
@@ -277,7 +280,7 @@ class Base extends Object
     /**
      * @param SwooleServer $server
      */
-    public function onMasterStop(SwooleServer $server)
+    public function onMasterStop(SwooleServer $server): void
     {
         unlink(static::getPidFile());
 
@@ -287,7 +290,7 @@ class Base extends Object
     /**
      * @param SwooleServer $server
      */
-    public function onManagerStart(SwooleServer $server)
+    public function onManagerStart(SwooleServer $server): void
     {
         static::setProcessName('manager');
 
@@ -297,7 +300,7 @@ class Base extends Object
     /**
      * @param SwooleServer $server
      */
-    public function onManagerStop(SwooleServer $server)
+    public function onManagerStop(SwooleServer $server): void
     {
         echo "Manager pid: {$server->manager_pid} stopped...\n";
     }
@@ -306,7 +309,7 @@ class Base extends Object
      * @param SwooleServer $server
      * @param int $workId
      */
-    public function onWorkerStart(SwooleServer $server, $workId)
+    public function onWorkerStart(SwooleServer $server, int $workId): void
     {
         static::setProcessName($server->taskworker ? 'task' : 'worker');
 
@@ -320,7 +323,7 @@ class Base extends Object
      * @param SwooleServer $server
      * @param int $workId
      */
-    public function onWorkerStop(SwooleServer $server, $workId)
+    public function onWorkerStop(SwooleServer $server, int $workId): void
     {
         echo "Worker: $workId stopped...\n";
     }
@@ -331,7 +334,7 @@ class Base extends Object
      * @param int $workerPid
      * @param int $exitCode
      */
-    public function onWorkerError(SwooleServer $server, $workerId, $workerPid, $exitCode)
+    public function onWorkerError(SwooleServer $server, int $workerId, int $workerPid, int $exitCode): void
     {
         echo __FILE__ . ' error occurred.';
     }
@@ -341,7 +344,7 @@ class Base extends Object
      * @param int $clientId
      * @param int $fromId
      */
-    public function onClose(SwooleServer $server, $clientId, $fromId)
+    public function onClose(SwooleServer $server, int $clientId, int $fromId): void
     {
         $memory = memory_get_usage() . '/' . memory_get_usage(true) . ' - ' . memory_get_peak_usage() . '/' . memory_get_peak_usage(true);
         echo "Client: $clientId disconnected.\n{$memory}\n-----------------------------\n";
@@ -354,7 +357,7 @@ class Base extends Object
      * @param mixed $data
      * @return mixed
      */
-    public function onTask(SwooleServer $server, $taskId, $fromId, $data)
+    public function onTask(SwooleServer $server, int $taskId, int $fromId, $data): void
     {
         if ($data instanceof BaseTask) {
             $data->handle($server, $taskId);
@@ -369,7 +372,7 @@ class Base extends Object
      * @param int $taskId
      * @param mixed $data
      */
-    public function onFinish(SwooleServer $server, $taskId, $data)
+    public function onFinish(SwooleServer $server, int $taskId, $data): void
     {
         if ($data instanceof BaseTask) {
             $data->done();
@@ -383,7 +386,7 @@ class Base extends Object
      * @param int $fromWorkerId
      * @param string $data
      */
-    public function onPipeMessage(SwooleServer $server, $fromWorkerId, $data)
+    public function onPipeMessage(SwooleServer $server, int $fromWorkerId, $data): void
     {
 
     }

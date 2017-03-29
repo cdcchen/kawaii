@@ -9,13 +9,28 @@
 namespace kawaii\base;
 
 
+use kawaii\web\Context;
 use Psr\Http\Message\RequestInterface;
 
+/**
+ * Interface ApplicationInterface
+ * @package kawaii\base
+ */
 interface ApplicationInterface
 {
-    public function run();
-    
-    public function handleRequest(RequestInterface $request);
+    /**
+     * @return mixed
+     */
+    public function run(): void;
 
-    public function reload();
+    /**
+     * @param RequestInterface $request
+     * @return Context
+     */
+    public function handleRequest(RequestInterface $request): Context;
+
+    /**
+     * Reload app config
+     */
+    public function reload(): void;
 }

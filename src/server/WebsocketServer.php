@@ -9,62 +9,65 @@
 namespace kawaii\server;
 
 
-use kawaii\base\ApplicationInterface;
-use kawaii\base\InvalidConfigException;
+use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Http\Response as SwooleHttpResponse;
+use Swoole\Server as SwooleServer;
+use Swoole\WebSocket\{
+    Frame, Server
+};
 
-use kawaii\base\Base;
-use kawaii\base\ServerListener;
-
-class WebsocketServer extends Base
+/**
+ * Class WebsocketServer
+ * @package kawaii\server
+ */
+class WebsocketServer extends HttpServer
 {
-    /**
-     * @var callable
-     */
-    public $onOpen = [EventHandle::class, 'onOpen'];
-    /**
-     * @var callable
-     */
-    public $onMessage = [EventHandle::class, 'onMessage'];
-    /**
-     * @var callable
-     */
-    public $onHandShake;
 
     /**
-     * bind swoole server event
+     *
      */
-    protected function setCallback(): void
-    {
-        if (is_callable($this->onOpen)) {
-            $this->on('Open', $this->onOpen);
-        }
-        if (is_callable($this->onMessage)) {
-            $this->on('Message', $this->onMessage);
-        } elseif (is_callable($this->onHandShake)) {
-            $this->on('HandShake', $this->onHandShake);
-        } else {
-            throw new InvalidConfigException('onMessage or onHandShake must be callable.');
-        }
-    }
-
-    /**
-     * @param ApplicationInterface $app
-     * @return WebsocketServer
-     */
-    public function http(ApplicationInterface $app): self
-    {
-        $this->bindHttpCallback();
-        $app->run();
-
-        return $this;
-    }
     protected function bindCallback(): void
     {
-        // TODO: Implement bindCallback() method.
+        parent::bindCallback();
+        static::$swooleServer->on('Open', [$this, 'onOpen']);
+        static::$swooleServer->on('Message', [$this, 'onMessage']);
+//        static::$swooleServer->on('HandShake', [$this, 'onHandShake']);
     }
 
-    static protected function createSwooleServer(ServerListener $listener)
+    /**
+     * @param Listener $listener
+     * @return SwooleServer
+     */
+    static protected function createSwooleServer(Listener $listener): SwooleServer
     {
-        // TODO: Implement createSwooleServer() method.
+        return new Server($listener->host, $listener->port);
+    }
+
+    /**
+     * @param Server $server
+     * @param SwooleHttpRequest $request
+     */
+    public function onOpen(Server $server, SwooleHttpRequest $request): void
+    {
+        echo "Websocket client connected\n";
+    }
+
+    /**
+     * @param SwooleServer $server
+     * @param Frame $frame
+     */
+    public function onMessage(SwooleServer $server, Frame $frame): void
+    {
+        echo "Receive message: {$frame->data}\n";
+    }
+
+    /**
+     * @param SwooleHttpRequest $request
+     * @param SwooleHttpResponse $response
+     * @return bool
+     */
+    public function onHandShake(SwooleHttpRequest $request, SwooleHttpResponse $response): bool
+    {
+
     }
 }

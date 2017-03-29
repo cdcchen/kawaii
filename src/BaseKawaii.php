@@ -9,14 +9,12 @@
 namespace kawaii;
 
 
+use kawaii\server\Base;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\InvalidParamException;
 use kawaii\base\Object;
 use kawaii\base\UnknownClassException;
 use kawaii\di\Container;
-use kawaii\server\HttpServer;
-use kawaii\server\SwooleServerTrait;
-use kawaii\server\WebsocketServer;
 use kawaii\web\Application;
 
 /**
@@ -60,9 +58,6 @@ defined('KAWAII_ENABLE_ERROR_HANDLER') or define('KAWAII_ENABLE_ERROR_HANDLER', 
  */
 class BaseKawaii extends Object
 {
-    /**
-     * @var string
-     */
     public static $version = 'Kawaii/1.0.0';
 
     public static $classMap = [];
@@ -79,20 +74,15 @@ class BaseKawaii extends Object
     public static $container;
 
     /**
-     * @var \kawaii\base\Application|\kawaii\web\Application
+     * @var Application
      */
     public static $app;
     /**
-     * @var SwooleServerTrait|HttpServer|WebsocketServer
+     * @var Base
      */
     public static $server;
 
-    /**
-     * @param object $object
-     * @param array $properties
-     * @return object
-     */
-    public static function configure($object, array $properties)
+    public static function configure($object, $properties)
     {
         foreach ($properties as $name => $value) {
             $object->$name = $value;
@@ -101,12 +91,6 @@ class BaseKawaii extends Object
         return $object;
     }
 
-    /**
-     * @param mixed $type
-     * @param array $params
-     * @return mixed|object
-     * @throws InvalidConfigException
-     */
     public static function createObject($type, array $params = [])
     {
         if (is_string($type)) {
@@ -154,7 +138,7 @@ class BaseKawaii extends Object
      * @throws InvalidParamException if the alias is invalid while $throwException is true.
      * @see setAlias()
      */
-    public static function getAlias(string $alias, bool $throwException = true)
+    public static function getAlias($alias, $throwException = true)
     {
         if (strncmp($alias, '@', 1)) {
             // not an alias
@@ -190,7 +174,7 @@ class BaseKawaii extends Object
      * @param string $alias the alias
      * @return string|boolean the root alias, or false if no root alias is found
      */
-    public static function getRootAlias(string $alias)
+    public static function getRootAlias($alias)
     {
         $pos = strpos($alias, '/');
         $root = $pos === false ? $alias : substr($alias, 0, $pos);
@@ -238,7 +222,7 @@ class BaseKawaii extends Object
      * @throws InvalidParamException if $path is an invalid alias.
      * @see getAlias()
      */
-    public static function setAlias(string $alias, string $path)
+    public static function setAlias($alias, $path)
     {
         if (strncmp($alias, '@', 1)) {
             $alias = '@' . $alias;
@@ -275,11 +259,7 @@ class BaseKawaii extends Object
         }
     }
 
-    /**
-     * @param string $className
-     * @throws UnknownClassException
-     */
-    public static function autoload(string $className)
+    public static function autoload($className)
     {
         if (isset(static::$classMap[$className])) {
             $classFile = static::$classMap[$className];

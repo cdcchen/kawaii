@@ -86,7 +86,7 @@ class Theme extends Object
      * @return string the base URL (without ending slash) for this theme. All resources of this theme are considered
      * to be under this base URL.
      */
-    public function getBaseUrl()
+    public function getBaseUrl(): string
     {
         return $this->_baseUrl;
     }
@@ -95,7 +95,7 @@ class Theme extends Object
      * @param string $url the base URL or path alias for this theme. All resources of this theme are considered
      * to be under this base URL.
      */
-    public function setBaseUrl($url)
+    public function setBaseUrl(string $url): void
     {
         $this->_baseUrl = rtrim(Kawaii::getAlias($url), '/');
     }
@@ -106,7 +106,7 @@ class Theme extends Object
      * @return string the root path of this theme. All resources of this theme are located under this directory.
      * @see pathMap
      */
-    public function getBasePath()
+    public function getBasePath(): string
     {
         return $this->_basePath;
     }
@@ -116,7 +116,7 @@ class Theme extends Object
      * under this directory.
      * @see pathMap
      */
-    public function setBasePath($path)
+    public function setBasePath(string $path): void
     {
         $this->_basePath = Kawaii::getAlias($path);
     }
@@ -128,7 +128,7 @@ class Theme extends Object
      * @return string the themed file, or the original file if the themed version is not available.
      * @throws InvalidConfigException if [[basePath]] is not set
      */
-    public function applyTo($path)
+    public function applyTo(string $path): string
     {
         $pathMap = $this->pathMap;
         if (empty($pathMap)) {
@@ -163,7 +163,7 @@ class Theme extends Object
      * @return string the absolute URL
      * @throws InvalidConfigException if [[baseUrl]] is not set
      */
-    public function getUrl($url)
+    public function getUrl(string $url): string
     {
         if (($baseUrl = $this->getBaseUrl()) !== null) {
             return $baseUrl . '/' . ltrim($url, '/');
@@ -178,7 +178,7 @@ class Theme extends Object
      * @return string the absolute file path
      * @throws InvalidConfigException if [[baseUrl]] is not set
      */
-    public function getPath($path)
+    public function getPath(string $path): string
     {
         if (($basePath = $this->getBasePath()) !== null) {
             return $basePath . DIRECTORY_SEPARATOR . ltrim($path, '/\\');

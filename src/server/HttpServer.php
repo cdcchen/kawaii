@@ -9,24 +9,26 @@
 namespace kawaii\server;
 
 
+use cdcchen\psr7\HeaderCollection;
 use Kawaii;
 use kawaii\web\Request;
 use kawaii\web\Response;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Swoole\Http\Server as SwooleHttpServer;
+use Swoole\Server as SwooleServer;
 
 /**
  * Class HttpServer
  * @package kawaii\base
  */
-class HttpServer extends \Swoole\Http\Server
+class HttpServer extends Base
 {
     /**
      * @param Listener $listener
-     * @return SwooleHttpServer
+     * @return SwooleServer
      */
-    static protected function createSwooleServer(Listener $listener)
+    static protected function createSwooleServer(Listener $listener): SwooleServer
     {
         return new SwooleHttpServer($listener->host, $listener->port);
     }
@@ -34,11 +36,7 @@ class HttpServer extends \Swoole\Http\Server
     /**
      * @inheritdoc
      */
-    protected function setCallback(): void
-    {
-        $this->bindHttpCallback();
-    }
-    protected function bindCallback()
+    protected function bindCallback(): void
     {
         static::$swooleServer->on('Request', [$this, 'onRequest']);
     }
@@ -47,7 +45,7 @@ class HttpServer extends \Swoole\Http\Server
      * @param SwooleRequest $req
      * @param SwooleResponse $res
      */
-    public function onRequest(SwooleRequest $req, SwooleResponse $res)
+    public function onRequest(SwooleRequest $req, SwooleResponse $res): void
     {
         try {
             $request = new Request(

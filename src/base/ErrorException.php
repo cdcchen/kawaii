@@ -74,7 +74,7 @@ class ErrorException extends \ErrorException
      * @param array $error error got from error_get_last()
      * @return boolean if error is one of fatal type
      */
-    public static function isFatalError($error)
+    public static function isFatalError(array $error): bool
     {
         return isset($error['type']) && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING, self::E_HHVM_FATAL_ERROR]);
     }
@@ -82,7 +82,7 @@ class ErrorException extends \ErrorException
     /**
      * @return string the user-friendly name of this exception
      */
-    public function getName()
+    public function getName(): string
     {
         static $names = [
             E_COMPILE_ERROR => 'PHP Compile Error',
@@ -103,6 +103,6 @@ class ErrorException extends \ErrorException
             self::E_HHVM_FATAL_ERROR => 'HHVM Fatal Error',
         ];
 
-        return isset($names[$this->getCode()]) ? $names[$this->getCode()] : 'Error';
+        return $names[$this->getCode()] ?? 'Error';
     }
 }

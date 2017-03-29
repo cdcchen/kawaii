@@ -53,7 +53,7 @@ class Route
      * @param bool $strict
      * @param string $suffix
      */
-    public function __construct($method, callable $handler, array $data, bool $strict = false, string $suffix = '')
+    public function __construct($method, callable $handler, array $data, $strict = false, $suffix = '')
     {
         $this->method = strtoupper($method);
         $this->handler = $handler;
@@ -62,7 +62,7 @@ class Route
         $this->suffix = (string)$suffix;
 
         if (!$this->isStatic()) {
-            [$this->regex, $this->varNames] = static::buildRegexForRoute($data);
+            list($this->regex, $this->varNames) = static::buildRegexForRoute($data);
         }
     }
 
@@ -70,7 +70,7 @@ class Route
      * @param string $path
      * @return bool
      */
-    public function match(string $path): bool
+    public function match($path)
     {
         return (bool)preg_match($this->getRegex(), $path);
     }
@@ -78,15 +78,15 @@ class Route
     /**
      * @return string|null
      */
-    public function getRegex(): ?string
+    public function getRegex()
     {
-        return $this->strict ? ('^' . $this->regex . '$') : $this->regex;
+        return $this->strict ? '^' . $this->regex . '$' : $this->regex;
     }
 
     /**
      * @return array
      */
-    public function getVarNames(): array
+    public function getVarNames()
     {
         return $this->varNames ?: [];
     }
@@ -94,7 +94,7 @@ class Route
     /**
      * @return bool
      */
-    public function isStatic(): bool
+    public function isStatic()
     {
         return count($this->data) === 1 && is_string($this->data[0]);
     }
@@ -104,7 +104,7 @@ class Route
      * @return array
      * @throws BadRouteException
      */
-    private static function buildRegexForRoute(array $data): array
+    private static function buildRegexForRoute($data)
     {
         $regex = '';
         $variables = [];
@@ -135,7 +135,7 @@ class Route
      * @param string $regex
      * @return bool|int
      */
-    private static function regexHasCapturingGroups(string $regex)
+    private static function regexHasCapturingGroups($regex)
     {
         if (false === strpos($regex, '(')) {
             // Needs to have at least a ( to contain a capturing group
@@ -162,7 +162,7 @@ class Route
     /**
      * @return array
      */
-    public function toArray(): array
+    public function toArray()
     {
         return [
             'method' => $this->method,

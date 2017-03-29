@@ -15,5 +15,5 @@ interface ViewContextInterface
     /**
      * @return string the view path that may be prefixed to a relative view name.
      */
-    public function getViewPath();
+    public function getViewPath(): string ;
 }
