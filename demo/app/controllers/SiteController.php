@@ -18,7 +18,6 @@ class SiteController extends Controller
 {
     public function actionIndex()
     {
-        var_dump(__FILE__);
         return $this->render('index', ['hello' => 'Hello world!!']);
     }
 }

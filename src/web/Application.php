@@ -71,7 +71,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         $context = new Context($request, new Response());
         try {
             // @todo static files process
-            foreach ((array)Kawaii::$app->staticPath as $path) {
+            foreach ((array)$this->staticPath as $path) {
                 $filename = $path . '/' . ltrim($request->getUri()->getPath());
                 clearstatcache(true, $filename);
                 if (is_file($filename) && is_readable($filename)) {

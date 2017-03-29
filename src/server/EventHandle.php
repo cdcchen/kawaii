@@ -15,10 +15,10 @@ use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Server as SwooleServer;
 use Swoole\WebSocket\Frame;
 
-class DefaultCallback
+class EventHandle
 {
     /**
-     * @param SwooleServer $server
+     * @param SwooleServer|SwooleServerTrait $server
      */
     public static function onMasterStart(SwooleServer $server): void
     {
@@ -29,7 +29,7 @@ class DefaultCallback
     }
 
     /**
-     * @param SwooleServer $server
+     * @param SwooleServer|SwooleServerTrait $server
      */
     public static function onMasterStop(SwooleServer $server): void
     {
@@ -39,7 +39,7 @@ class DefaultCallback
     }
 
     /**
-     * @param SwooleServer $server
+     * @param SwooleServer|SwooleServerTrait $server
      */
     public static function onManagerStart(SwooleServer $server): void
     {
@@ -49,7 +49,7 @@ class DefaultCallback
     }
 
     /**
-     * @param SwooleServer $server
+     * @param SwooleServer|SwooleServerTrait $server
      */
     public static function onManagerStop(SwooleServer $server): void
     {
@@ -57,14 +57,12 @@ class DefaultCallback
     }
 
     /**
-     * @param SwooleServer $server
+     * @param SwooleServer|SwooleServerTrait $server
      * @param int $workId
      */
     public static function onWorkerStart(SwooleServer $server, int $workId): void
     {
         Base::setProcessName($server->taskworker ? 'task' : 'worker');
-
-        Kawaii::$app->reload();
 
         echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
     }
@@ -166,19 +164,19 @@ class DefaultCallback
     #################### websocket default callback ##############################
 
     /**
-     * @param WebSwooleServer $server
+     * @param WebSocketServer $server
      * @param SwooleHttpRequest $request
      */
-    public static function onOpen(WebSwooleServer $server, SwooleHttpRequest $request): void
+    public static function onOpen(WebSocketServer $server, SwooleHttpRequest $request): void
     {
         echo "Websocket client connected\n";
     }
 
     /**
-     * @param WebSwooleServer $server
+     * @param WebSocketServer $server
      * @param Frame $frame
      */
-    public static function onMessage(WebSwooleServer $server, Frame $frame): void
+    public static function onMessage(WebSocketServer $server, Frame $frame): void
     {
         echo "Receive message: {$frame->data}\n";
     }

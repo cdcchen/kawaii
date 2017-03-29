@@ -111,7 +111,7 @@ class Controller extends Object implements ViewContextInterface
             // @todo run module action
 //            return $this->module->runAction($route, $params);
         } else {
-            return Kawaii::$app->runAction(ltrim($route, '/'), $params);
+            return Kawaii::$app->runAction(ltrim($route, '/'), $this->context);
         }
     }
 

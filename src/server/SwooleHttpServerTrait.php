@@ -19,7 +19,20 @@ use Swoole\Http\Response as SwooleHttpResponse;
 
 trait SwooleHttpServerTrait
 {
-    public $onRequest = [self::class, 'onRequestCallback'];
+    use SwooleServerTrait;
+
+    /**
+     * @var callable
+     */
+    protected $onRequest;
+
+    /**
+     * @param callable $callback
+     */
+    public function setRequestHandle(callable $callback): void
+    {
+        $this->onRequest = $callback;
+    }
 
     /**
      * @inheritdoc
@@ -27,9 +40,10 @@ trait SwooleHttpServerTrait
     private function bindHttpCallback(): void
     {
         $this->onConnect = $this->onReceive = null;
+        $requestHandle = $this->onRequest ?: [$this, 'onRequestHandle'];
 
-        if (is_callable($this->onRequest)) {
-            $this->on('Request', $this->onRequest);
+        if (is_callable($requestHandle)) {
+            $this->on('Request', $requestHandle);
         } else {
             throw new InvalidConfigException('onRequest callback must be callable.');
         }
@@ -39,7 +53,7 @@ trait SwooleHttpServerTrait
      * @param SwooleHttpRequest $req
      * @param SwooleHttpResponse $res
      */
-    public static function onRequestCallback(SwooleHttpRequest $req, SwooleHttpResponse $res): void
+    public function onRequestHandle(SwooleHttpRequest $req, SwooleHttpResponse $res): void
     {
         try {
             $request = new Request(

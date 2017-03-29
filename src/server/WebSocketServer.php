@@ -18,17 +18,16 @@ use kawaii\base\InvalidConfigException;
  */
 class WebSocketServer extends \Swoole\WebSocket\Server
 {
-    use SwooleServerTrait;
     use SwooleHttpServerTrait;
 
     /**
      * @var callable
      */
-    public $onOpen = [DefaultCallback::class, 'onOpen'];
+    public $onOpen = [EventHandle::class, 'onOpen'];
     /**
      * @var callable
      */
-    public $onMessage = [DefaultCallback::class, 'onMessage'];
+    public $onMessage = [EventHandle::class, 'onMessage'];
     /**
      * @var callable
      */

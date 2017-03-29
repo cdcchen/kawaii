@@ -17,7 +17,6 @@ use Kawaii;
  */
 class HttpServer extends \Swoole\Http\Server
 {
-    use SwooleServerTrait;
     use SwooleHttpServerTrait;
 
     /**

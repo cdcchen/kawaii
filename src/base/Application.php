@@ -90,7 +90,9 @@ abstract class Application extends ServiceLocator
      * @var string the root directory that contains layout view files for this module.
      */
     private $layoutPath;
-
+    /**
+     * @var string
+     */
     private $vendorPath;
 
 

@@ -19,19 +19,19 @@ use kawaii\base\InvalidConfigException;
  */
 trait SwooleServerTrait
 {
-    public $onMasterStart  = [DefaultCallback::class, 'onMasterStart'];
-    public $onMasterStop   = [DefaultCallback::class, 'onMasterStop'];
-    public $onManagerStart = [DefaultCallback::class, 'onManagerStart'];
-    public $onManagerStop  = [DefaultCallback::class, 'onManagerStop'];
-    public $onWorkerStart  = [DefaultCallback::class, 'onWorkerStart'];
-    public $onWorkerStop   = [DefaultCallback::class, 'onWorkerStop'];
-    public $onWorkerError  = [DefaultCallback::class, 'onWorkerError'];
-    public $onTask         = [DefaultCallback::class, 'onTask'];
-    public $onFinish       = [DefaultCallback::class, 'onFinish'];
-    public $onReceive      = [DefaultCallback::class, 'onReceive'];
-    public $onPipeMessage  = [DefaultCallback::class, 'onPipeMessage'];
-    public $onConnect      = [DefaultCallback::class, 'onConnect'];
-    public $onClose        = [DefaultCallback::class, 'onClose'];
+    public $onMasterStart  = [EventHandle::class, 'onMasterStart'];
+    public $onMasterStop   = [EventHandle::class, 'onMasterStop'];
+    public $onManagerStart = [EventHandle::class, 'onManagerStart'];
+    public $onManagerStop  = [EventHandle::class, 'onManagerStop'];
+    public $onWorkerStart  = [EventHandle::class, 'onWorkerStart'];
+    public $onWorkerStop   = [EventHandle::class, 'onWorkerStop'];
+    public $onWorkerError  = [EventHandle::class, 'onWorkerError'];
+    public $onTask         = [EventHandle::class, 'onTask'];
+    public $onFinish       = [EventHandle::class, 'onFinish'];
+    public $onReceive      = [EventHandle::class, 'onReceive'];
+    public $onPipeMessage  = [EventHandle::class, 'onPipeMessage'];
+    public $onConnect      = [EventHandle::class, 'onConnect'];
+    public $onClose        = [EventHandle::class, 'onClose'];
 
 
     protected function init(): void
@@ -96,6 +96,9 @@ trait SwooleServerTrait
         $this->bindCallback();
     }
 
+    /**
+     * @param ApplicationInterface|\kawaii\base\Application $app
+     */
     public function run(ApplicationInterface $app)
     {
         $app->run();

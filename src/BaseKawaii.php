@@ -14,6 +14,9 @@ use kawaii\base\InvalidParamException;
 use kawaii\base\Object;
 use kawaii\base\UnknownClassException;
 use kawaii\di\Container;
+use kawaii\server\HttpServer;
+use kawaii\server\SwooleServerTrait;
+use kawaii\server\WebSocketServer;
 use kawaii\web\Application;
 
 /**
@@ -76,9 +79,13 @@ class BaseKawaii extends Object
     public static $container;
 
     /**
-     * @var Application
+     * @var \kawaii\base\Application|\kawaii\web\Application
      */
     public static $app;
+    /**
+     * @var SwooleServerTrait|HttpServer|WebSocketServer
+     */
+    public static $server;
 
     /**
      * @param object $object
