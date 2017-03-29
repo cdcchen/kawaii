@@ -13,7 +13,7 @@ use kawaii\base\ApplicationInterface;
 use kawaii\base\InvalidConfigException;
 
 
-class WebsocketServer1 extends Base
+class WebsocketServer extends Base
 {
     /**
      * @var callable
@@ -47,7 +47,7 @@ class WebsocketServer1 extends Base
 
     /**
      * @param ApplicationInterface $app
-     * @return WebsocketServer1
+     * @return WebsocketServer
      */
     public function http(ApplicationInterface $app): self
     {

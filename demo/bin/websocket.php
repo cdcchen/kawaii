@@ -109,5 +109,5 @@ $app = new kawaii\web\Application($config);
 //});
 
 $config = __DIR__ . '/../config/server.php';
-$server = new \kawaii\server\WebsocketServer1('127.0.0.1', 9512);
+$server = new \kawaii\server\WebsocketServer('127.0.0.1', 9512);
 $server->http($app)->run($app);

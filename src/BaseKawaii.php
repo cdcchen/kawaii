@@ -16,7 +16,7 @@ use kawaii\base\UnknownClassException;
 use kawaii\di\Container;
 use kawaii\server\HttpServer;
 use kawaii\server\SwooleServerTrait;
-use kawaii\server\WebsocketServer1;
+use kawaii\server\WebsocketServer;
 use kawaii\web\Application;
 
 /**
@@ -83,7 +83,7 @@ class BaseKawaii extends Object
      */
     public static $app;
     /**
-     * @var SwooleServerTrait|HttpServer|WebsocketServer1
+     * @var SwooleServerTrait|HttpServer|WebsocketServer
      */
     public static $server;
 
