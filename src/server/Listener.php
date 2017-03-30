@@ -28,15 +28,15 @@ class Listener extends Object
     /**
      * @var int
      */
-    public $port = 9502;
-    /**
-     * @var int
-     */
-    public $mode = SWOOLE_PROCESS;
+    public $port = 9527;
     /**
      * @var int
      */
     public $type = SWOOLE_SOCK_TCP;
+    /**
+     * @var int
+     */
+    public $mode = SWOOLE_PROCESS;
 
     /**
      * ServerListener constructor.

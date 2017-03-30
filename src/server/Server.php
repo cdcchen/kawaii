@@ -41,8 +41,8 @@ class Server extends Base
      */
     protected function bindCallback(): void
     {
-        static::$swooleServer->on('Connect', [$this, 'onConnect']);
-        static::$swooleServer->on('Receive', [$this, 'onReceive']);
+        static::$swoole->on('Connect', [$this, 'onConnect']);
+        static::$swoole->on('Receive', [$this, 'onReceive']);
     }
 
     /**
@@ -76,7 +76,7 @@ class Server extends Base
             }
 
             $context = Kawaii::$app->handleRequest($result);
-            static::$swooleServer->send($clientId, (string)$context->response);
+            static::$swoole->send($clientId, (string)$context->response);
 
             unset(static::$buffers[$clientId]);
             unset($context, $result);

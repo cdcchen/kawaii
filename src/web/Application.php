@@ -10,6 +10,7 @@ namespace kawaii\web;
 
 
 use cdcchen\psr7\Stream;
+use Fig\Http\Message\StatusCodeInterface;
 use Kawaii;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
@@ -73,7 +74,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         $context = new Context($request, new Response());
         try {
             // @todo static files process
-            foreach ((array)Kawaii::$app->staticPath as $path) {
+            foreach ((array)$this->staticPath as $path) {
                 $filename = $path . '/' . ltrim($request->getUri()->getPath());
                 clearstatcache(true, $filename);
                 if (is_file($filename) && is_readable($filename)) {
@@ -89,10 +90,10 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
             $statusCode = $e->statusCode;
             $context->response->write($e->getMessage());
         } catch (UserException $e) {
-            $statusCode = 500;
+            $statusCode = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
             $context->response->write($e->getMessage());
         } catch (Exception | \Exception $e) {
-            $statusCode = 500;
+            $statusCode = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
             $context->response->write($e->getMessage());
         }
         finally {

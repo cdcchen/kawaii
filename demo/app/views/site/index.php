@@ -25,7 +25,7 @@
       if (ws) {
         return false;
       }
-      ws = new WebSocket("ws:\/\/127.0.0.1:9512");
+      ws = new WebSocket("ws:\/\/127.0.0.1:9527");
       ws.onopen = function (evt) {
         print("OPEN");
         ws.send('xx')

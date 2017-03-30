@@ -1,9 +1,8 @@
 <?php
 
 return [
-    'pid_file' => __DIR__ . '/../tmp/kawaii.pid',
-
-    'post_max_size' => 10240000,
-
-    'swoole' => require(__DIR__ . '/swoole.php'),
+    'access_log' => 'x',
+    'error_log' => 'y',
+    'server_signature' => 'Kawaii-Server',
+    'setting' => require(__DIR__ . '/swoole.php'),
 ];

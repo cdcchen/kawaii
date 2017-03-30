@@ -28,5 +28,5 @@ return [
 
     'params' => [
         'email' => 'admin@cdc.com',
-    ]
+    ],
 ];

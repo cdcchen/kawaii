@@ -9,12 +9,14 @@
 namespace kawaii\server;
 
 
+use Closure;
 use Kawaii;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\BaseTask;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
 use Swoole\Server as SwooleServer;
+use UnexpectedValueException;
 
 /**
  * Class Server
@@ -36,18 +38,75 @@ abstract class Base extends Object
     const DEFAULT_TYPE = SWOOLE_SOCK_TCP;
 
     /**
-     * @var string
+     * @var string config file
      */
-    protected static $configFile;
+    protected $configFile;
     /**
-     * @var array
+     * @var array swoole server setting
      */
-    protected static $config = [];
+    protected $config = [];
 
     /**
      * @var \Swoole\Server
      */
-    protected static $swooleServer;
+    protected $swoole;
+
+    /**
+     * @var callable
+     */
+    protected $masterStartHandle;
+    /**
+     * @var callable
+     */
+    protected $masterStopHandle;
+    /**
+     * @var callable
+     */
+    protected $managerStartHandle;
+    /**
+     * @var callable
+     */
+    protected $managerStopHandle;
+    /**
+     * @var callable
+     */
+    protected $workerStartHandle;
+    /**
+     * @var callable
+     */
+    protected $workerStopHandle;
+    /**
+     * @var callable
+     */
+    protected $workerErrorHandle;
+    /**
+     * @var callable
+     */
+    protected $connectHandle;
+    /**
+     * @var callable
+     */
+    protected $closeHandle;
+    /**
+     * @var callable
+     */
+    protected $receiveHandle;
+    /**
+     * @var callable
+     */
+    protected $packetHandle;
+    /**
+     * @var callable
+     */
+    protected $pipeMessageHandle;
+    /**
+     * @var callable
+     */
+    protected $taskHandle;
+    /**
+     * @var callable
+     */
+    protected $finishHandle;
 
     /**
      * BaseServer constructor.
@@ -56,23 +115,58 @@ abstract class Base extends Object
      */
     public function __construct(string $configFile = null, array $config = [])
     {
-        Kawaii::$server = $this;
-
-        static::$configFile = $configFile;
-        static::loadConfig();
-
         parent::__construct($config);
+
+        $this->configFile = $configFile;
+        $this->loadConfig();
+
+        $listener = static::$listeners[0] ?? static::defaultListener();
+        $this->swoole = static::createSwooleServer($listener);
+
+        static::testLogFile();
+        static::testPidFile();
+
+        if (isset($this->config['setting'])) {
+            $this->swoole->set($this->config['setting']);
+        } else {
+            echo "User default setting.\n";
+            // @todo use default setting
+        }
+
+        $this->setDefaultCallback();
+        $this->setCallback();
     }
 
     /**
-     * @param int $port
-     * @param string $host
-     * @param int $type
-     * @return static|self
+     * @throws InvalidConfigException
      */
-    public function listen(string $host = '0.0.0.0', int $port, int $type = SWOOLE_SOCK_TCP): self
+    protected function loadConfig(): void
     {
-        static::$listeners[] = new Listener($host, $port, $type);
+        if (empty($this->configFile)) {
+            return;
+        }
+
+        if (is_readable($this->configFile)) {
+            $this->config = require($this->configFile);
+        } else {
+            throw new InvalidConfigException("Config file: {$this->configFile} is not exist or unreadable.");
+        }
+    }
+
+    /**
+     * @param Listener $listener
+     * @param PortServer|null $server
+     * @return Base|static
+     */
+    public function listen(Listener $listener, PortServer $server = null): self
+    {
+        static::$listeners[] = $listener;
+
+        $port = $this->swoole->listen($listener->host, $listener->port, $listener->type);
+        if ($server !== null) {
+            $server->run($port);
+        }
+
         return $this;
     }
 
@@ -82,102 +176,45 @@ abstract class Base extends Object
      */
     public function run(ApplicationInterface $app): bool
     {
-        static::initSwooleServer();
-
-        static::$swooleServer->on('Start', [$this, 'onMasterStart']);
-        static::$swooleServer->on('Shutdown', [$this, 'onMasterStop']);
-        static::$swooleServer->on('ManagerStart', [$this, 'onManagerStart']);
-        static::$swooleServer->on('ManagerStop', [$this, 'onManagerStop']);
-        static::$swooleServer->on('WorkerStart', [$this, 'onWorkerStart']);
-        static::$swooleServer->on('WorkerStop', [$this, 'onWorkerStop']);
-        static::$swooleServer->on('WorkerError', [$this, 'onWorkerError']);
-        static::$swooleServer->on('Close', [$this, 'onClose']);
-        static::$swooleServer->on('Task', [$this, 'onTask']);
-        static::$swooleServer->on('Finish', [$this, 'onFinish']);
-        static::$swooleServer->on('PipeMessage', [$this, 'onPipeMessage']);
-
-        $this->bindCallback();
         $app->run();
 
-        return static::$swooleServer->start();
+        $this->bindCallback();
+
+        $this->beforeRun();
+        return $this->swoole->start();
     }
 
     /**
-     * Restart Swoole server
-     * @ todo 未完成
+     *
      */
-    protected static function restart(): void
+    protected function setCallback(): void
     {
-        static::$swooleServer->shutdown();
-        static::loadConfig();
-        static::initSwooleServer();
     }
-
-    /**
-     * Bind Swoole server event callback
-     */
-    abstract protected function bindCallback(): void;
 
     /**
      * @param Listener $listener
      * @return mixed
      */
-    abstract static protected function createSwooleServer(Listener $listener): SwooleServer;
+    abstract protected static function createSwooleServer(Listener $listener): SwooleServer;
 
     /**
-     * Init swoole server log file
+     * Before server run
      */
-    private static function initSwooleServer(): void
+    private function beforeRun(): void
     {
-        $config = static::getSwooleConfig();
-
-        if ($filename = $config['log_file']) {
-            static::initSwooleLogFile($filename);
-        }
-
-        // init swoole_server
-        $listener = empty(static::$listeners) ? static::defaultListener() : static::$listeners[0];
-        static::$swooleServer = static::createSwooleServer($listener);
-        for ($i = 1; $i < count(static::$listeners); $i++) {
-            $listener = static::$listeners[$i];
-            static::$swooleServer->addlistener($listener->host, $listener->port, $listener->type);
-        }
-
-        static::$swooleServer->set($config);
-
     }
 
     /**
-     * @throws InvalidConfigException
-     */
-    protected static function loadConfig(): void
-    {
-        if (empty(static::$configFile)) {
-            return;
-        }
-
-        if (file_exists(static::$configFile)) {
-            static::$config = require(static::$configFile);
-        } else {
-            $configFile = static::$configFile;
-            throw new InvalidConfigException("Config file: {$configFile} is not exist.");
-        }
-    }
-
-    /**
-     * reload server config
-     */
-    protected static function reload(): void
-    {
-        static::loadConfig();
-    }
-
-    /**
+     * @param string|null $name
      * @return array
      */
-    private static function getSwooleConfig(): array
+    public function getSetting(string $name = null): array
     {
-        return static::$config['swoole'] ?? [];
+        if ($name === null) {
+            return $this->swoole->setting;
+        } else {
+            return $this->swoole->setting[$name] ?? null;
+        }
     }
 
     /**
@@ -189,27 +226,43 @@ abstract class Base extends Object
     }
 
     /**
-     * @param string $filename
+     * Init log file
      */
-    private static function initSwooleLogFile(string $filename): void
+    private function testLogFile(): void
     {
-        $dir = dirname($filename);
-        if (!file_exists($dir)) {
-            mkdir($dir, 0644, true);
+        $logFile = $this->getSetting('log_file');
+        if ($logFile === null) {
+            return;
         }
 
-        if ($handle = fopen($filename, 'a')) {
-            fclose($handle);
-            chmod($filename, 0644); // 需要判断返回值, 然后写日志。
+        $dir = dirname($logFile);
+        if (!file_exists($dir)) {
+            mkdir($dir, 0644, true);
+        } elseif (!is_writable($dir)) {
+            echo "{$dir} is not writable.\n";
+        } elseif (!is_writable($logFile)) {
+            echo "{$logFile} is not writable.\n";
         }
     }
 
     /**
-     * @return string
+     * Init log file
      */
-    protected static function getPidFile(): string
+    private function testPidFile(): void
     {
-        return static::$config['pid_file'] ?? (sys_get_temp_dir() . '/kawaii.pid');
+        $pidFile = $this->getSetting('pid_file');
+        if ($pidFile === null) {
+            return;
+        }
+
+        $dir = dirname($pidFile);
+        if (!file_exists($dir)) {
+            mkdir($dir, 0644, true);
+        } elseif (!is_writable($dir)) {
+            echo "{$dir} is not writable.\n";
+        } elseif (!is_writable($pidFile)) {
+            echo "{$pidFile} is not writable.\n";
+        }
     }
 
     /**
@@ -227,11 +280,7 @@ abstract class Base extends Object
     protected static function setProcessName(string $extra): void
     {
         $title = static::getProcessName() . ' - ' . $extra;
-        if (function_exists('cli_set_process_title')) {
-            @cli_set_process_title($title);
-        } else {
-            swoole_set_process_name($title);
-        }
+        @cli_set_process_title($title);
     }
 
     /**
@@ -241,7 +290,7 @@ abstract class Base extends Object
      */
     public function asyncTask(BaseTask $task, $workerId = -1)
     {
-        return static::$swooleServer->task($task, $workerId);
+        return $this->swoole->task($task, $workerId);
     }
 
     /**
@@ -252,7 +301,7 @@ abstract class Base extends Object
      */
     public function syncTask(BaseTask $task, float $timeout = 0.5, int $workerId = -1)
     {
-        return static::$swooleServer->taskwait($task, $timeout, $workerId);
+        return $this->swoole->taskwait($task, $timeout, $workerId);
     }
 
     /**
@@ -262,132 +311,299 @@ abstract class Base extends Object
      */
     public function syncTaskMulti(array $tasks, float $timeout = 0.5)
     {
-        return static::$swooleServer->taskWaitMulti($tasks, $timeout);
+        return $this->swoole->taskWaitMulti($tasks, $timeout);
     }
 
 
     /**
-     * @param SwooleServer $server
+     * @param callable $callback
      */
-    public function onMasterStart(SwooleServer $server): void
+    public function onStart(callable $callback): void
     {
-        file_put_contents(static::getPidFile(), $server->master_pid);
-        static::setProcessName('master process');
-
-        echo "Server pid: {$server->master_pid} starting...\n";
+        $this->masterStartHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
-     * @param SwooleServer $server
+     * @param callable $callback
      */
-    public function onMasterStop(SwooleServer $server): void
+    public function onStop(callable $callback): void
     {
-        unlink(static::getPidFile());
-
-        echo "Server pid: {$server->master_pid} shutdown...\n";
+        $this->masterStopHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
-     * @param SwooleServer $server
+     * @param callable $callback
      */
-    public function onManagerStart(SwooleServer $server): void
+    public function onManagerStart(callable $callback): void
     {
-        static::setProcessName('manager');
-
-        echo "Manager pid: {$server->manager_pid} starting...\n";
+        $this->managerStartHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
-     * @param SwooleServer $server
+     * @param callable $callback
      */
-    public function onManagerStop(SwooleServer $server): void
+    public function onManagerStop(callable $callback): void
     {
-        echo "Manager pid: {$server->manager_pid} stopped...\n";
+        $this->managerStopHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
-     * @param SwooleServer $server
-     * @param int $workId
+     * @param callable $callback
      */
-    public function onWorkerStart(SwooleServer $server, int $workId): void
+    public function onWorkerStart(callable $callback): void
     {
-        static::setProcessName($server->taskworker ? 'task' : 'worker');
-
-        static::reload();
-        Kawaii::$app->reload();
-
-        echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
+        $this->workerStartHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
-     * @param SwooleServer $server
-     * @param int $workId
+     * @param callable $callback
      */
-    public function onWorkerStop(SwooleServer $server, int $workId): void
+    public function onWorkStop(callable $callback): void
     {
-        echo "Worker: $workId stopped...\n";
+        $this->workerStopHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
-     * @param SwooleServer $server
-     * @param int $workerId
-     * @param int $workerPid
-     * @param int $exitCode
+     * @param callable $callback
      */
-    public function onWorkerError(SwooleServer $server, int $workerId, int $workerPid, int $exitCode): void
+    public function onWorkerError(callable $callback): void
     {
-        echo __FILE__ . ' error occurred.';
+        $this->workerErrorHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
-     * @param SwooleServer $server
-     * @param int $clientId
-     * @param int $fromId
+     * @param callable $callback
      */
-    public function onClose(SwooleServer $server, int $clientId, int $fromId): void
+    public function onConnect(callable $callback): void
     {
-        $memory = memory_get_usage() . '/' . memory_get_usage(true) . ' - ' . memory_get_peak_usage() . '/' . memory_get_peak_usage(true);
-        echo "Client: $clientId disconnected.\n{$memory}\n-----------------------------\n";
+        $this->connectHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
-     * @param string SwooleServer $server
-     * @param int $taskId
-     * @param int $fromId
-     * @param mixed $data
-     * @return mixed
+     * @param callable $callback
      */
-    public function onTask(SwooleServer $server, int $taskId, int $fromId, $data): void
+    public function onClose(callable $callback): void
     {
-        if ($data instanceof BaseTask) {
-            $data->handle($server, $taskId);
+        $this->closeHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+    }
+
+    /**
+     * @param callable $callback
+     */
+    public function onReceive(callable $callback): void
+    {
+        $this->receiveHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+    }
+
+    /**
+     * @param callable $callback
+     */
+    public function onPacket(callable $callback): void
+    {
+        $this->packetHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+    }
+
+    /**
+     * @param callable $callback
+     */
+    public function onPipeMessage(callable $callback): void
+    {
+        $this->pipeMessageHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+    }
+
+    /**
+     * @param callable $callback
+     */
+    public function onTask(callable $callback): void
+    {
+        $this->taskHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+    }
+
+    /**
+     * @param callable $callback
+     */
+    public function onFinish(callable $callback): void
+    {
+        $this->finishHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+    }
+
+
+    /**
+     * Bind Swoole server event callback
+     */
+    protected function bindCallback(): void
+    {
+        if (is_callable($this->masterStartHandle)) {
+            $this->swoole->on('Start', $this->masterStartHandle);
+        } elseif ($this->masterStartHandle !== null) {
+            throw new UnexpectedValueException('masterStartHandle callback is not callable.');
         }
 
-//        $dataText = var_export($data->getData(), true);
-//        echo "Task: $taskId starting...\n Data: $dataText";
-    }
-
-    /**
-     * @param SwooleServer $server
-     * @param int $taskId
-     * @param mixed $data
-     */
-    public function onFinish(SwooleServer $server, int $taskId, $data): void
-    {
-        if ($data instanceof BaseTask) {
-            $data->done();
+        if (is_callable($this->masterStopHandle)) {
+            $this->swoole->on('Shutdown', $this->masterStopHandle);
+        } elseif ($this->masterStopHandle !== null) {
+            throw new UnexpectedValueException('masterStopHandle callback is not callable.');
         }
 
+        if (is_callable($this->managerStartHandle)) {
+            $this->swoole->on('ManagerStart', $this->managerStartHandle);
+        } elseif ($this->managerStartHandle !== null) {
+            throw new UnexpectedValueException('managerStartHandle callback is not callable.');
+        }
+
+        if (is_callable($this->managerStopHandle)) {
+            $this->swoole->on('ManagerStop', $this->managerStopHandle);
+        } elseif ($this->managerStopHandle !== null) {
+            throw new UnexpectedValueException('managerStopHandle callback is not callable.');
+        }
+
+        if (is_callable($this->workerStartHandle)) {
+            $this->swoole->on('WorkerStart', $this->workerStartHandle);
+        } elseif ($this->workerStartHandle !== null) {
+            throw new UnexpectedValueException('workerStartHandle callback is not callable.');
+        }
+
+        if (is_callable($this->workerStopHandle)) {
+            $this->swoole->on('WorkerStop', $this->workerStopHandle);
+        } elseif ($this->workerStopHandle !== null) {
+            throw new UnexpectedValueException('workerStopHandle callback is not callable.');
+        }
+
+        if (is_callable($this->workerErrorHandle)) {
+            $this->swoole->on('WorkerError', $this->workerErrorHandle);
+        } elseif ($this->workerErrorHandle !== null) {
+            throw new UnexpectedValueException('workerErrorHandle callback is not callable.');
+        }
+
+        if (is_callable($this->connectHandle)) {
+            $this->swoole->on('Connect', $this->connectHandle);
+        } elseif ($this->connectHandle !== null) {
+            throw new UnexpectedValueException('connectHandle callback is not callable.');
+        }
+
+        if (is_callable($this->closeHandle)) {
+            $this->swoole->on('Close', $this->closeHandle);
+        } elseif ($this->closeHandle !== null) {
+            throw new UnexpectedValueException('closeHandle callback is not callable.');
+        }
+
+        if (is_callable($this->receiveHandle)) {
+            $this->swoole->on('Receive', $this->receiveHandle);
+        } elseif ($this->receiveHandle !== null) {
+            throw new UnexpectedValueException('receiveHandle callback is not callable.');
+        }
+
+        if (is_callable($this->packetHandle)) {
+            $this->swoole->on('Packet', $this->packetHandle);
+        } elseif ($this->packetHandle !== null) {
+            throw new UnexpectedValueException('packetHandle callback is not callable.');
+        }
+
+        if (is_callable($this->pipeMessageHandle)) {
+            $this->swoole->on('PipeMessage', $this->pipeMessageHandle);
+        } elseif ($this->pipeMessageHandle !== null) {
+            throw new UnexpectedValueException('pipeMessageHandle callback is not callable.');
+        }
+
+        if (is_callable($this->taskHandle)) {
+            $this->swoole->on('Task', $this->taskHandle);
+        } elseif ($this->taskHandle !== null) {
+            throw new UnexpectedValueException('taskHandle callback is not callable.');
+        }
+
+        if (is_callable($this->finishHandle)) {
+            $this->swoole->on('Finish', $this->finishHandle);
+        } elseif ($this->finishHandle !== null) {
+            throw new UnexpectedValueException('finishHandle callback is not callable.');
+        }
     }
 
-
     /**
-     * @param SwooleServer $server
-     * @param int $fromWorkerId
-     * @param string $data
+     * Set default callback
      */
-    public function onPipeMessage(SwooleServer $server, int $fromWorkerId, $data): void
+    protected function setDefaultCallback(): void
     {
+        $this->masterStartHandle = function (SwooleServer $server): void {
+            static::setProcessName('master process');
+            echo "Master pid: {$server->master_pid} starting...\n";
+        };
 
+        $this->masterStopHandle = function (SwooleServer $server): void {
+            unlink(static::getPidFile());
+
+            echo "Master pid: {$server->master_pid} shutdown...\n";
+        };
+
+        $this->managerStartHandle = function (SwooleServer $server): void {
+            static::setProcessName('manager');
+
+            echo "Manager pid: {$server->manager_pid} starting...\n";
+        };
+
+        $this->managerStopHandle = function (SwooleServer $server): void {
+            echo "Manager pid: {$server->manager_pid} stopped...\n";
+        };
+
+        $this->workerStartHandle = function (SwooleServer $server, int $workId): void {
+            static::setProcessName($server->taskworker ? 'task' : 'worker');
+
+            // @todo 需要重新载入配置
+
+            echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
+        };
+
+        $this->workerStopHandle = function (SwooleServer $server, int $workId): void {
+            echo "Worker: $workId stopped...\n";
+        };
+
+        $this->workerErrorHandle = function (
+            SwooleServer $server,
+            int $workerId,
+            int $workerPid,
+            int $exitCode,
+            int $signal
+        ): void {
+            echo "Worker error: id {$workerId}, pid {$workerPid}, exit code {$exitCode}, signal: {$signal}.\n";
+        };
+
+        $this->connectHandle = function (SwooleServer $server, int $fd, int $reactorId): void {
+            echo "Client {$fd} form reactor {$reactorId} connected.\n";
+        };
+
+        $this->closeHandle = function (SwooleServer $server, int $fd, int $reactorId): void {
+            echo "Client {$fd} from reactor {$reactorId} disconnected.\n";
+        };
+
+        $this->taskHandle = function (SwooleServer $server, int $taskId, int $fromWorkerId, $data): void {
+            if ($data instanceof BaseTask) {
+                $data->handle($server, $taskId);
+            }
+
+            echo "Task {$taskId} starting, worker {$fromWorkerId}.\n";
+        };
+
+        $this->finishHandle = function (SwooleServer $server, int $taskId, $data): void {
+            if ($data instanceof BaseTask) {
+                $data->done();
+            }
+
+            echo "Task {$taskId} run finished.\n";
+        };
+
+        $this->pipeMessageHandle = function (SwooleServer $server, int $fromWorkerId, $message): void {
+            echo "Receive message: {$message} from worker {$fromWorkerId}.\n";
+        };
+
+        $this->receiveHandle = function (SwooleServer $server, int $fd, int $fromWorkerId, string $data): void {
+            echo "Receive data: {$data} from client {$fd}, worker {$fromWorkerId}.\n";
+        };
+
+        $this->packetHandle = function (SwooleServer $server, string $data, array $client): void {
+            $fd = unpack('L', pack('N', ip2long($client['address'])))[1];
+            $fromId = ($client['server_socket'] << 16) + $client['port'];
+            $server->send($fd, "I had received data: {$data}", $fromId);
+
+            echo "Receive UDP data: {$data} from {$fd}.\n";
+        };
     }
 }
