@@ -16,39 +16,6 @@ use cdcchen\psr7\ServerRequest;
 
 class Request extends ServerRequest
 {
-    /**
-     * @param string $data
-     * @return static
-     */
-    public static function create($data)
-    {
-        list($header, $body) = explode(self::HTTP_EOF, $data);
-
-        $headerLines = explode(self::HEADER_LINE_EOF, $header);
-        list($method, $uri, $version) = explode(' ', trim($headerLines[0]));
-        unset($headerLines[0]);
-        $headers = HeaderParser::parse($headerLines);
-        $serverParams = ServerParams::create(); // @todo 暂用
-
-        $uri = '/' . ltrim($uri, '/');
-        $serverRequest = new static($method, $uri, $headers, $body, $version, $serverParams);
-
-        if (function_exists('mb_parse_str')) {
-            mb_parse_str($serverRequest->getUri()->getQuery(), $queryParams);
-            mb_parse_str($serverRequest->getBody(), $parsedBody);
-        } else {
-            parse_str($serverRequest->getUri()->getQuery(), $queryParams);
-            parse_str((string)$serverRequest->getBody(), $parsedBody);
-        }
-        $cookieParams = CookieParser::parse($serverRequest->getHeaderLine('cookie'));
-        $uploadedFiles = [];
-
-        return $serverRequest->withCookieParams($cookieParams)
-                             ->withQueryParams($queryParams)
-                             ->withParsedBody($parsedBody)
-                             ->withUploadedFiles($uploadedFiles);
-    }
-
     ################### Get header short methods ######################
 
     public function getIsPost()

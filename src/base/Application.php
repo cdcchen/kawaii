@@ -11,6 +11,7 @@ namespace kawaii\base;
 
 use Kawaii;
 use kawaii\di\ServiceLocator;
+use kawaii\server\Base as BaseServer;
 use kawaii\web\Context;
 
 /**
@@ -71,11 +72,16 @@ abstract class Application extends ServiceLocator
     /**
      * @var string
      */
-    protected static $configFile;
+    protected $configFile;
     /**
      * @var array
      */
-    protected static $config = [];
+    protected $config = [];
+
+    /**
+     * @var BaseServer
+     */
+    protected $server;
 
     /**
      * @var string
@@ -103,10 +109,10 @@ abstract class Application extends ServiceLocator
     {
         Kawaii::$app = $this;
 
-        static::$configFile = $configFile;
+        $this->configFile = $configFile;
         $this->loadConfig();
 
-        parent::__construct(array_merge(static::$config, $config));
+        parent::__construct(array_merge($this->config, $config));
     }
 
     /**
@@ -114,20 +120,20 @@ abstract class Application extends ServiceLocator
      */
     protected function loadConfig(): void
     {
-        if (empty(static::$configFile)) {
+        if (empty($this->configFile)) {
             return;
         }
 
-        if (file_exists(static::$configFile)) {
-            static::$config = require(static::$configFile);
+        if (file_exists($this->configFile)) {
+            $this->config = require($this->configFile);
         } else {
-            $configFile = static::$configFile;
+            $configFile = $this->configFile;
             throw new InvalidConfigException("Config file: {$configFile} is not exist.");
         }
 
-        $this->preInit(static::$config);
+        $this->preInit($this->config);
 
-        $this->registerErrorHandler(static::$config);
+        $this->registerErrorHandler($this->config);
     }
 
     /**
@@ -430,7 +436,7 @@ abstract class Application extends ServiceLocator
      * @return null|Controller
      * @throws InvalidConfigException
      */
-    public function createControllerById(string $id, Context $context) :? Controller
+    public function createControllerById(string $id, Context $context):? Controller
     {
         $pos = strrpos($id, '/');
         if ($pos === false) {

@@ -23,29 +23,23 @@ use UnexpectedValueException;
  */
 class WebsocketServer extends HttpServer
 {
-    protected $openHandle;
-    protected $messageHandle;
-    protected $handShakeHandle;
-
-    public function http(): self
-    {
-        $this->setRequestHandle();
-        return $this;
-    }
+    protected $openCallback;
+    protected $messageCallback;
+    protected $handShakeCallback;
 
     public function onOpen(callable $callback): void
     {
-        $this->openHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->openCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     public function onMessage(callable $callback): void
     {
-        $this->messageHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->messageCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     public function onHandShake(callable $callback): void
     {
-        $this->handShakeHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->handShakeCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -62,28 +56,28 @@ class WebsocketServer extends HttpServer
      */
     protected function bindCallback(): void
     {
-        if (is_callable($this->requestHandle)) {
-            $this->swoole->on('Request', $this->requestHandle);
+        if (is_callable($this->requestCallback)) {
+            $this->swoole->on('Request', $this->requestCallback);
         } else {
             throw new UnexpectedValueException('onRequest callback is not callable.');
         }
 
-        if (is_callable($this->openHandle)) {
-            $this->swoole->on('Open', $this->openHandle);
+        if (is_callable($this->openCallback)) {
+            $this->swoole->on('Open', $this->openCallback);
         } else {
-            throw new UnexpectedValueException('openHandle callback is not callable.');
+            throw new UnexpectedValueException('openCallback callback is not callable.');
         }
 
-        if (is_callable($this->messageHandle)) {
-            $this->swoole->on('Message', $this->messageHandle);
+        if (is_callable($this->messageCallback)) {
+            $this->swoole->on('Message', $this->messageCallback);
         } else {
-            throw new UnexpectedValueException('messageHandle callback is not callable.');
+            throw new UnexpectedValueException('messageCallback callback is not callable.');
         }
 
-        if (is_callable($this->handShakeHandle)) {
-            $this->swoole->on('HandShake', $this->handShakeHandle);
-        } elseif ($this->handShakeHandle !== null) {
-            throw new UnexpectedValueException('Handle callback is not callable.');
+        if (is_callable($this->handShakeCallback)) {
+            $this->swoole->on('HandShake', $this->handShakeCallback);
+        } elseif ($this->handShakeCallback !== null) {
+            throw new UnexpectedValueException('Callback callback is not callable.');
         }
 
         parent::bindCallback();
@@ -91,13 +85,13 @@ class WebsocketServer extends HttpServer
 
     protected function setCallback(): void
     {
-        $this->receiveHandle = $this->connectHandle = null;
+        $this->receiveCallback = $this->connectCallback = null;
 
-        $this->openHandle = function (Server $server, SwooleHttpRequest $request): void {
+        $this->openCallback = function (Server $server, SwooleHttpRequest $request): void {
             echo "Websocket {$request->fd} client connected.\n";
         };
 
-        $this->messageHandle = function (SwooleServer $server, Frame $frame): void {
+        $this->messageCallback = function (SwooleServer $server, Frame $frame): void {
             echo "Receive message: {$frame->data} form {$frame->fd}.\n";
         };
     }

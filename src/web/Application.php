@@ -16,7 +16,9 @@ use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
-use Psr\Http\Message\RequestInterface;
+use kawaii\server\HttpServer;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
 /**
@@ -64,10 +66,11 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     }
 
     /**
-     * @param RequestInterface $request
-     * @return Context
+     * @param ServerRequestInterface $request
+     * @param HttpServer $server
+     * @return ResponseInterface
      */
-    public function handleRequest(RequestInterface $request): Context
+    public function __invoke(ServerRequestInterface $request, HttpServer $server): ResponseInterface
     {
         $beginTime = microtime(true);
 
@@ -81,7 +84,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
                     $stream = new Stream(fopen($filename, 'r+'));
                     $context->response = $context->response->withBody($stream);
 
-                    return $context;
+                    return $context->response;
                 }
             }
 
@@ -105,7 +108,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
             $context->response = $context->response->withStatus($statusCode);
         }
 
-        return $context;
+        return $context->response;
     }
 
     /**
@@ -139,13 +142,6 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         return $this->router;
     }
 
-    public function reload(): void
-    {
-        parent::reload();
-
-        $this->loadRoutes();
-    }
-
     /**
      * @return bool
      */
@@ -159,13 +155,13 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      */
     private function loadRoutes(): void
     {
-        if (empty(static::$config['routes'])) {
+        if (empty($this->config['routes'])) {
             return;
-        } elseif (!is_array(static::$config['routes'])) {
+        } elseif (!is_array($this->config['routes'])) {
             throw new InvalidConfigException('Routes config value must be an array.');
         }
 
-        $routes = array_filter(static::$config['routes']);
+        $routes = array_filter($this->config['routes']);
         foreach ($routes as $path => $route) {
             $ruleConfig = [];
             if (is_array($route)) {

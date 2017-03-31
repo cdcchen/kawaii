@@ -27,11 +27,18 @@ use UnexpectedValueException;
  */
 class HttpServer extends Base
 {
+    protected $requestCallback;
     protected $requestHandle;
 
     public function onRequest(callable $callback): void
     {
-        $this->requestHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->requestCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+    }
+
+    public function http(callable $callback)
+    {
+        $this->requestHandle = $callback;
+        return $this;
     }
 
     /**
@@ -48,10 +55,14 @@ class HttpServer extends Base
      */
     protected function bindCallback(): void
     {
-        if (is_callable($this->requestHandle)) {
-            $this->swoole->on('Request', $this->requestHandle);
+        if (is_callable($this->requestCallback)) {
+            $this->swoole->on('Request', $this->requestCallback);
         } else {
-            throw new UnexpectedValueException('onRequest callback is not callable.');
+            throw new UnexpectedValueException('requestCallback is not callable.');
+        }
+
+        if (!is_callable($this->requestHandle)) {
+            throw new UnexpectedValueException('requestHandle is not callable.');
         }
 
         parent::bindCallback();
@@ -59,13 +70,9 @@ class HttpServer extends Base
 
     protected function setCallback(): void
     {
-        $this->receiveHandle = $this->connectHandle = null;
-        $this->setRequestHandle();
-    }
+        $this->receiveCallback = $this->connectCallback = null;
 
-    protected function setRequestHandle(): void
-    {
-        $this->requestHandle = function (SwooleHttpRequest $req, SwooleHttpResponse $res): void {
+        $this->requestCallback = function (SwooleHttpRequest $req, SwooleHttpResponse $res): void {
             try {
                 $request = new Request(
                     $req->server['request_method'],
@@ -75,10 +82,16 @@ class HttpServer extends Base
                     '1.1',
                     $req->server
                 );
-                $request = $request->withQueryParams(empty($req->get) ? [] : $req->get)
-                                   ->withCookieParams(empty($req->cookie) ? [] : $req->cookie);
-                $context = Kawaii::$app->handleRequest($request);
-                $response = $context->response;
+                $request = $request->withQueryParams($req->get ?? [])
+                                   ->withCookieParams($req->cookie ?? []);
+                if (isset($req->post)) {
+                    $request = $request->withParsedBody($req->post ?? []);
+                }
+                if (isset($req->files)) {
+                    $request = $request->withUploadedFiles(static::buildUploadedFiles($req->files));
+                }
+
+                $response = call_user_func($this->requestHandle, $request, $this);
 
             } catch (\Exception $e) {
                 $response = (new Response(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR, null, $e->getMessage()));
@@ -100,5 +113,14 @@ class HttpServer extends Base
             }
             $res->end((string)$response->getBody());
         };
+    }
+
+    /**
+     * @param array $files
+     * @return array
+     */
+    protected static function buildUploadedFiles(array $files): array
+    {
+        return [];
     }
 }

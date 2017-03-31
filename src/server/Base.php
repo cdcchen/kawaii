@@ -24,10 +24,6 @@ use UnexpectedValueException;
  */
 abstract class Base extends Object
 {
-    /**
-     * @var Listener[]
-     */
-    protected static $listeners = [];
 
     /**
      * Default server listener
@@ -37,6 +33,10 @@ abstract class Base extends Object
     const DEFAULT_MODE = SWOOLE_PROCESS;
     const DEFAULT_TYPE = SWOOLE_SOCK_TCP;
 
+    /**
+     * @var Listener[]
+     */
+    protected static $listeners = [];
     /**
      * @var string config file
      */
@@ -54,59 +54,59 @@ abstract class Base extends Object
     /**
      * @var callable
      */
-    protected $masterStartHandle;
+    protected $masterStartCallback;
     /**
      * @var callable
      */
-    protected $masterStopHandle;
+    protected $masterStopCallback;
     /**
      * @var callable
      */
-    protected $managerStartHandle;
+    protected $managerStartCallback;
     /**
      * @var callable
      */
-    protected $managerStopHandle;
+    protected $managerStopCallback;
     /**
      * @var callable
      */
-    protected $workerStartHandle;
+    protected $workerStartCallback;
     /**
      * @var callable
      */
-    protected $workerStopHandle;
+    protected $workerStopCallback;
     /**
      * @var callable
      */
-    protected $workerErrorHandle;
+    protected $workerErrorCallback;
     /**
      * @var callable
      */
-    protected $connectHandle;
+    protected $connectCallback;
     /**
      * @var callable
      */
-    protected $closeHandle;
+    protected $closeCallback;
     /**
      * @var callable
      */
-    protected $receiveHandle;
+    protected $receiveCallback;
     /**
      * @var callable
      */
-    protected $packetHandle;
+    protected $packetCallback;
     /**
      * @var callable
      */
-    protected $pipeMessageHandle;
+    protected $pipeMessageCallback;
     /**
      * @var callable
      */
-    protected $taskHandle;
+    protected $taskCallback;
     /**
      * @var callable
      */
-    protected $finishHandle;
+    protected $finishCallback;
 
     /**
      * BaseServer constructor.
@@ -171,16 +171,13 @@ abstract class Base extends Object
     }
 
     /**
-     * @param ApplicationInterface $app
      * @return bool
      */
-    public function run(ApplicationInterface $app): bool
+    public function run(): bool
     {
-        $app->run();
-
+        $this->beforeRun();
         $this->bindCallback();
 
-        $this->beforeRun();
         return $this->swoole->start();
     }
 
@@ -200,7 +197,7 @@ abstract class Base extends Object
     /**
      * Before server run
      */
-    private function beforeRun(): void
+    protected function beforeRun(): void
     {
     }
 
@@ -208,7 +205,7 @@ abstract class Base extends Object
      * @param string|null $name
      * @return array
      */
-    public function getSetting(string $name = null): array
+    public function getSetting(string $name = null): ?array
     {
         if ($name === null) {
             return $this->swoole->setting;
@@ -320,7 +317,7 @@ abstract class Base extends Object
      */
     public function onStart(callable $callback): void
     {
-        $this->masterStartHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->masterStartCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -328,7 +325,7 @@ abstract class Base extends Object
      */
     public function onStop(callable $callback): void
     {
-        $this->masterStopHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->masterStopCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -336,7 +333,7 @@ abstract class Base extends Object
      */
     public function onManagerStart(callable $callback): void
     {
-        $this->managerStartHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->managerStartCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -344,7 +341,7 @@ abstract class Base extends Object
      */
     public function onManagerStop(callable $callback): void
     {
-        $this->managerStopHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->managerStopCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -352,7 +349,7 @@ abstract class Base extends Object
      */
     public function onWorkerStart(callable $callback): void
     {
-        $this->workerStartHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->workerStartCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -360,7 +357,7 @@ abstract class Base extends Object
      */
     public function onWorkStop(callable $callback): void
     {
-        $this->workerStopHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->workerStopCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -368,7 +365,7 @@ abstract class Base extends Object
      */
     public function onWorkerError(callable $callback): void
     {
-        $this->workerErrorHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->workerErrorCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -376,7 +373,7 @@ abstract class Base extends Object
      */
     public function onConnect(callable $callback): void
     {
-        $this->connectHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->connectCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -384,7 +381,7 @@ abstract class Base extends Object
      */
     public function onClose(callable $callback): void
     {
-        $this->closeHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->closeCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -392,7 +389,7 @@ abstract class Base extends Object
      */
     public function onReceive(callable $callback): void
     {
-        $this->receiveHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->receiveCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -400,7 +397,7 @@ abstract class Base extends Object
      */
     public function onPacket(callable $callback): void
     {
-        $this->packetHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->packetCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -408,7 +405,7 @@ abstract class Base extends Object
      */
     public function onPipeMessage(callable $callback): void
     {
-        $this->pipeMessageHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->pipeMessageCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -416,7 +413,7 @@ abstract class Base extends Object
      */
     public function onTask(callable $callback): void
     {
-        $this->taskHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->taskCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
     /**
@@ -424,7 +421,7 @@ abstract class Base extends Object
      */
     public function onFinish(callable $callback): void
     {
-        $this->finishHandle = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
+        $this->finishCallback = $callback instanceof Closure ? $callback->bindTo($this) : $callback;
     }
 
 
@@ -433,88 +430,88 @@ abstract class Base extends Object
      */
     protected function bindCallback(): void
     {
-        if (is_callable($this->masterStartHandle)) {
-            $this->swoole->on('Start', $this->masterStartHandle);
-        } elseif ($this->masterStartHandle !== null) {
-            throw new UnexpectedValueException('masterStartHandle callback is not callable.');
+        if (is_callable($this->masterStartCallback)) {
+            $this->swoole->on('Start', $this->masterStartCallback);
+        } elseif ($this->masterStartCallback !== null) {
+            throw new UnexpectedValueException('masterStartCallback is not callable.');
         }
 
-        if (is_callable($this->masterStopHandle)) {
-            $this->swoole->on('Shutdown', $this->masterStopHandle);
-        } elseif ($this->masterStopHandle !== null) {
-            throw new UnexpectedValueException('masterStopHandle callback is not callable.');
+        if (is_callable($this->masterStopCallback)) {
+            $this->swoole->on('Shutdown', $this->masterStopCallback);
+        } elseif ($this->masterStopCallback !== null) {
+            throw new UnexpectedValueException('masterStopCallback is not callable.');
         }
 
-        if (is_callable($this->managerStartHandle)) {
-            $this->swoole->on('ManagerStart', $this->managerStartHandle);
-        } elseif ($this->managerStartHandle !== null) {
-            throw new UnexpectedValueException('managerStartHandle callback is not callable.');
+        if (is_callable($this->managerStartCallback)) {
+            $this->swoole->on('ManagerStart', $this->managerStartCallback);
+        } elseif ($this->managerStartCallback !== null) {
+            throw new UnexpectedValueException('managerStartCallback is not callable.');
         }
 
-        if (is_callable($this->managerStopHandle)) {
-            $this->swoole->on('ManagerStop', $this->managerStopHandle);
-        } elseif ($this->managerStopHandle !== null) {
-            throw new UnexpectedValueException('managerStopHandle callback is not callable.');
+        if (is_callable($this->managerStopCallback)) {
+            $this->swoole->on('ManagerStop', $this->managerStopCallback);
+        } elseif ($this->managerStopCallback !== null) {
+            throw new UnexpectedValueException('managerStopCallback is not callable.');
         }
 
-        if (is_callable($this->workerStartHandle)) {
-            $this->swoole->on('WorkerStart', $this->workerStartHandle);
-        } elseif ($this->workerStartHandle !== null) {
-            throw new UnexpectedValueException('workerStartHandle callback is not callable.');
+        if (is_callable($this->workerStartCallback)) {
+            $this->swoole->on('WorkerStart', $this->workerStartCallback);
+        } elseif ($this->workerStartCallback !== null) {
+            throw new UnexpectedValueException('workerStartCallback is not callable.');
         }
 
-        if (is_callable($this->workerStopHandle)) {
-            $this->swoole->on('WorkerStop', $this->workerStopHandle);
-        } elseif ($this->workerStopHandle !== null) {
-            throw new UnexpectedValueException('workerStopHandle callback is not callable.');
+        if (is_callable($this->workerStopCallback)) {
+            $this->swoole->on('WorkerStop', $this->workerStopCallback);
+        } elseif ($this->workerStopCallback !== null) {
+            throw new UnexpectedValueException('workerStopCallback is not callable.');
         }
 
-        if (is_callable($this->workerErrorHandle)) {
-            $this->swoole->on('WorkerError', $this->workerErrorHandle);
-        } elseif ($this->workerErrorHandle !== null) {
-            throw new UnexpectedValueException('workerErrorHandle callback is not callable.');
+        if (is_callable($this->workerErrorCallback)) {
+            $this->swoole->on('WorkerError', $this->workerErrorCallback);
+        } elseif ($this->workerErrorCallback !== null) {
+            throw new UnexpectedValueException('workerErrorCallback is not callable.');
         }
 
-        if (is_callable($this->connectHandle)) {
-            $this->swoole->on('Connect', $this->connectHandle);
-        } elseif ($this->connectHandle !== null) {
-            throw new UnexpectedValueException('connectHandle callback is not callable.');
+        if (is_callable($this->connectCallback)) {
+            $this->swoole->on('Connect', $this->connectCallback);
+        } elseif ($this->connectCallback !== null) {
+            throw new UnexpectedValueException('connectCallback is not callable.');
         }
 
-        if (is_callable($this->closeHandle)) {
-            $this->swoole->on('Close', $this->closeHandle);
-        } elseif ($this->closeHandle !== null) {
-            throw new UnexpectedValueException('closeHandle callback is not callable.');
+        if (is_callable($this->closeCallback)) {
+            $this->swoole->on('Close', $this->closeCallback);
+        } elseif ($this->closeCallback !== null) {
+            throw new UnexpectedValueException('closeCallback is not callable.');
         }
 
-        if (is_callable($this->receiveHandle)) {
-            $this->swoole->on('Receive', $this->receiveHandle);
-        } elseif ($this->receiveHandle !== null) {
-            throw new UnexpectedValueException('receiveHandle callback is not callable.');
+        if (is_callable($this->receiveCallback)) {
+            $this->swoole->on('Receive', $this->receiveCallback);
+        } elseif ($this->receiveCallback !== null) {
+            throw new UnexpectedValueException('receiveCallback is not callable.');
         }
 
-        if (is_callable($this->packetHandle)) {
-            $this->swoole->on('Packet', $this->packetHandle);
-        } elseif ($this->packetHandle !== null) {
-            throw new UnexpectedValueException('packetHandle callback is not callable.');
+        if (is_callable($this->packetCallback)) {
+            $this->swoole->on('Packet', $this->packetCallback);
+        } elseif ($this->packetCallback !== null) {
+            throw new UnexpectedValueException('packetCallback is not callable.');
         }
 
-        if (is_callable($this->pipeMessageHandle)) {
-            $this->swoole->on('PipeMessage', $this->pipeMessageHandle);
-        } elseif ($this->pipeMessageHandle !== null) {
-            throw new UnexpectedValueException('pipeMessageHandle callback is not callable.');
+        if (is_callable($this->pipeMessageCallback)) {
+            $this->swoole->on('PipeMessage', $this->pipeMessageCallback);
+        } elseif ($this->pipeMessageCallback !== null) {
+            throw new UnexpectedValueException('pipeMessageCallback is not callable.');
         }
 
-        if (is_callable($this->taskHandle)) {
-            $this->swoole->on('Task', $this->taskHandle);
-        } elseif ($this->taskHandle !== null) {
-            throw new UnexpectedValueException('taskHandle callback is not callable.');
+        if (is_callable($this->taskCallback)) {
+            $this->swoole->on('Task', $this->taskCallback);
+        } elseif ($this->taskCallback !== null) {
+            throw new UnexpectedValueException('taskCallback is not callable.');
         }
 
-        if (is_callable($this->finishHandle)) {
-            $this->swoole->on('Finish', $this->finishHandle);
-        } elseif ($this->finishHandle !== null) {
-            throw new UnexpectedValueException('finishHandle callback is not callable.');
+        if (is_callable($this->finishCallback)) {
+            $this->swoole->on('Finish', $this->finishCallback);
+        } elseif ($this->finishCallback !== null) {
+            throw new UnexpectedValueException('finishCallback is not callable.');
         }
     }
 
@@ -523,28 +520,28 @@ abstract class Base extends Object
      */
     protected function setDefaultCallback(): void
     {
-        $this->masterStartHandle = function (SwooleServer $server): void {
+        $this->masterStartCallback = function (SwooleServer $server): void {
             static::setProcessName('master process');
             echo "Master pid: {$server->master_pid} starting...\n";
         };
 
-        $this->masterStopHandle = function (SwooleServer $server): void {
+        $this->masterStopCallback = function (SwooleServer $server): void {
             unlink(static::getPidFile());
 
             echo "Master pid: {$server->master_pid} shutdown...\n";
         };
 
-        $this->managerStartHandle = function (SwooleServer $server): void {
+        $this->managerStartCallback = function (SwooleServer $server): void {
             static::setProcessName('manager');
 
             echo "Manager pid: {$server->manager_pid} starting...\n";
         };
 
-        $this->managerStopHandle = function (SwooleServer $server): void {
+        $this->managerStopCallback = function (SwooleServer $server): void {
             echo "Manager pid: {$server->manager_pid} stopped...\n";
         };
 
-        $this->workerStartHandle = function (SwooleServer $server, int $workId): void {
+        $this->workerStartCallback = function (SwooleServer $server, int $workId): void {
             static::setProcessName($server->taskworker ? 'task' : 'worker');
 
             // @todo 需要重新载入配置
@@ -552,11 +549,11 @@ abstract class Base extends Object
             echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
         };
 
-        $this->workerStopHandle = function (SwooleServer $server, int $workId): void {
+        $this->workerStopCallback = function (SwooleServer $server, int $workId): void {
             echo "Worker: $workId stopped...\n";
         };
 
-        $this->workerErrorHandle = function (
+        $this->workerErrorCallback = function (
             SwooleServer $server,
             int $workerId,
             int $workerPid,
@@ -566,15 +563,15 @@ abstract class Base extends Object
             echo "Worker error: id {$workerId}, pid {$workerPid}, exit code {$exitCode}, signal: {$signal}.\n";
         };
 
-        $this->connectHandle = function (SwooleServer $server, int $fd, int $reactorId): void {
+        $this->connectCallback = function (SwooleServer $server, int $fd, int $reactorId): void {
             echo "Client {$fd} form reactor {$reactorId} connected.\n";
         };
 
-        $this->closeHandle = function (SwooleServer $server, int $fd, int $reactorId): void {
+        $this->closeCallback = function (SwooleServer $server, int $fd, int $reactorId): void {
             echo "Client {$fd} from reactor {$reactorId} disconnected.\n";
         };
 
-        $this->taskHandle = function (SwooleServer $server, int $taskId, int $fromWorkerId, $data): void {
+        $this->taskCallback = function (SwooleServer $server, int $taskId, int $fromWorkerId, $data): void {
             if ($data instanceof BaseTask) {
                 $data->handle($server, $taskId);
             }
@@ -582,7 +579,7 @@ abstract class Base extends Object
             echo "Task {$taskId} starting, worker {$fromWorkerId}.\n";
         };
 
-        $this->finishHandle = function (SwooleServer $server, int $taskId, $data): void {
+        $this->finishCallback = function (SwooleServer $server, int $taskId, $data): void {
             if ($data instanceof BaseTask) {
                 $data->done();
             }
@@ -590,15 +587,15 @@ abstract class Base extends Object
             echo "Task {$taskId} run finished.\n";
         };
 
-        $this->pipeMessageHandle = function (SwooleServer $server, int $fromWorkerId, $message): void {
+        $this->pipeMessageCallback = function (SwooleServer $server, int $fromWorkerId, $message): void {
             echo "Receive message: {$message} from worker {$fromWorkerId}.\n";
         };
 
-        $this->receiveHandle = function (SwooleServer $server, int $fd, int $fromWorkerId, string $data): void {
+        $this->receiveCallback = function (SwooleServer $server, int $fd, int $fromWorkerId, string $data): void {
             echo "Receive data: {$data} from client {$fd}, worker {$fromWorkerId}.\n";
         };
 
-        $this->packetHandle = function (SwooleServer $server, string $data, array $client): void {
+        $this->packetCallback = function (SwooleServer $server, string $data, array $client): void {
             $fd = unpack('L', pack('N', ip2long($client['address'])))[1];
             $fromId = ($client['server_socket'] << 16) + $client['port'];
             $server->send($fd, "I had received data: {$data}", $fromId);

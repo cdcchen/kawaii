@@ -9,8 +9,9 @@
 namespace kawaii\base;
 
 
-use kawaii\web\Context;
-use Psr\Http\Message\RequestInterface;
+use kawaii\server\HttpServer;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Interface ApplicationInterface
@@ -24,13 +25,9 @@ interface ApplicationInterface
     public function run(): void;
 
     /**
-     * @param RequestInterface $request
-     * @return Context
+     * @param ServerRequestInterface $request
+     * @param HttpServer $server
+     * @return ResponseInterface
      */
-    public function handleRequest(RequestInterface $request): Context;
-
-    /**
-     * Reload app config
-     */
-    public function reload(): void;
+    public function __invoke(ServerRequestInterface $request, HttpServer $server): ResponseInterface;
 }
