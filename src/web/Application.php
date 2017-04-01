@@ -16,7 +16,7 @@ use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
-use kawaii\server\HttpServer;
+use kawaii\server\Base as BaseServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -50,6 +50,8 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         $this->middleware = (new Middleware())->add($seedMiddleware);
 
         $this->router = new Router();
+        $this->loadRoutes();
+        $this->hook(new RouteMiddleware());
     }
 
     /**
@@ -60,17 +62,14 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         if (!$this->beforeRun()) {
             throw new RuntimeException('Application::beforeRun must return true or false.');
         }
-
-        $this->loadRoutes();
-        $this->hook(new RouteMiddleware());
     }
 
     /**
      * @param ServerRequestInterface $request
-     * @param HttpServer $server
+     * @param BaseServer $server
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, HttpServer $server): ResponseInterface
+    public function __invoke(ServerRequestInterface $request, BaseServer $server): ResponseInterface
     {
         $beginTime = microtime(true);
 

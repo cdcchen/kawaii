@@ -9,7 +9,7 @@
 namespace kawaii\base;
 
 
-use kawaii\server\HttpServer;
+use kawaii\server\Base as BaseServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -26,8 +26,8 @@ interface ApplicationInterface
 
     /**
      * @param ServerRequestInterface $request
-     * @param HttpServer $server
+     * @param BaseServer $server
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, HttpServer $server): ResponseInterface;
+    public function __invoke(ServerRequestInterface $request, BaseServer $server): ResponseInterface;
 }

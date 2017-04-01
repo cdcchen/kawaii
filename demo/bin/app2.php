@@ -111,4 +111,4 @@ $app->run();
 
 $config = __DIR__ . '/../config/server.php';
 $server = new \kawaii\server\HttpServer($config);
-$server->http($app)->run();
+$server->run($app)->start();

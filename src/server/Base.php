@@ -173,9 +173,9 @@ abstract class Base extends Object
     /**
      * @return bool
      */
-    public function run(): bool
+    public function start(): bool
     {
-        $this->beforeRun();
+        $this->beforeStart();
         $this->bindCallback();
 
         return $this->swoole->start();
@@ -197,7 +197,7 @@ abstract class Base extends Object
     /**
      * Before server run
      */
-    protected function beforeRun(): void
+    protected function beforeStart(): void
     {
     }
 
@@ -526,8 +526,6 @@ abstract class Base extends Object
         };
 
         $this->masterStopCallback = function (SwooleServer $server): void {
-            unlink(static::getPidFile());
-
             echo "Master pid: {$server->master_pid} shutdown...\n";
         };
 

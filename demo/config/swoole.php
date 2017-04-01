@@ -22,8 +22,8 @@ return [
 
     'backlog' => 128,
 
-    'heartbeat_check_interval' => 5,
-    'heartbeat_idle_time' => 10,
+//    'heartbeat_check_interval' => 60,
+//    'heartbeat_idle_time' => 300,
 
     'open_tcp_nodelay' => true,
     'buffer_output_size' => 10240000,
@@ -33,13 +33,12 @@ return [
     //    'open_eof_check' => true,
     //    'package_eof' => "\r\n",
 
-    //    'open_tcp_keepalive' => true,
     'tcp_keepidle' => 600,
     'tcp_keepcount' => 5,
     'tcp_keepinterval' => 60,
 
 
-    'open_http2_protocol' => true,
+    //    'open_http2_protocol' => false,
     //    'open_http2_protocol' => true,
     //    'ssl_cert_file' => '',
     //    'ssl_key_file' => '',
