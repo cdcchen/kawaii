@@ -11,7 +11,6 @@ namespace kawaii\server;
 
 use Closure;
 use Kawaii;
-use kawaii\base\ApplicationInterface;
 use kawaii\base\BaseTask;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
@@ -22,7 +21,7 @@ use UnexpectedValueException;
  * Class Server
  * @package kawaii\base
  */
-abstract class Base extends Object
+abstract class BaseServer extends Object
 {
 
     /**
@@ -156,7 +155,7 @@ abstract class Base extends Object
     /**
      * @param Listener $listener
      * @param PortServer|null $server
-     * @return Base|static
+     * @return BaseServer|static
      */
     public function listen(Listener $listener, PortServer $server = null): self
     {
@@ -179,6 +178,11 @@ abstract class Base extends Object
         $this->bindCallback();
 
         return $this->swoole->start();
+    }
+
+    public function shutdown(): bool
+    {
+        return $this->swoole->shutdown();
     }
 
     /**

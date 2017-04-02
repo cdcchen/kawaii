@@ -9,7 +9,7 @@
 namespace kawaii;
 
 
-use kawaii\server\Base;
+use kawaii\server\BaseServer;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\InvalidParamException;
 use kawaii\base\Object;
@@ -74,15 +74,11 @@ class BaseKawaii extends Object
     public static $container;
 
     /**
-     * @var Application
+     * @param object $object
+     * @param array $properties
+     * @return object
      */
-    public static $app;
-    /**
-     * @var Base
-     */
-    public static $server;
-
-    public static function configure($object, $properties)
+    public static function configure($object, array $properties)
     {
         foreach ($properties as $name => $value) {
             $object->$name = $value;

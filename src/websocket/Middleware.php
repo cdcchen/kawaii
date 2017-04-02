@@ -6,14 +6,14 @@
  * Time: 14:28
  */
 
-namespace kawaii\web;
+namespace kawaii\websocket;
 
 
 use kawaii\base\Object;
 
 /**
  * Class Middleware
- * @package kawaii\web
+ * @package kawaii\websocket
  */
 class Middleware extends Object implements MiddlewareStackInterface
 {

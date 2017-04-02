@@ -10,11 +10,11 @@ namespace kawaii\server;
 
 
 use cdcchen\psr7\HeaderCollection;
+use cdcchen\psr7\Response;
+use cdcchen\psr7\ServerRequest;
 use Closure;
 use Fig\Http\Message\StatusCodeInterface;
 use Kawaii;
-use kawaii\web\Request;
-use kawaii\web\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
@@ -52,7 +52,7 @@ trait HttpServerTrait
 
         $this->requestCallback = function (SwooleHttpRequest $req, SwooleHttpResponse $res): void {
             try {
-                $request = new Request(
+                $request = new ServerRequest(
                     $req->server['request_method'],
                     $req->server['request_uri'],
                     new HeaderCollection(empty($req->header) ? [] : $req->header),
@@ -75,7 +75,8 @@ trait HttpServerTrait
                     $response = static::buildServerErrorResponse('requestHandle must be return an instance of \kawaii\web\Response');
                 }
             } catch (\Exception $e) {
-                $response = new Response(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR, null, $e->getMessage());
+                $message = $e->getFile() . PHP_EOL . $e->getLine() . PHP_EOL . $e->getMessage();
+                $response = new Response(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR, null, $message);
                 echo "Exception occurred: {$e->getMessage()}\n";
             }
 

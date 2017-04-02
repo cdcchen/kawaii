@@ -12,11 +12,11 @@ namespace kawaii\web;
 use cdcchen\psr7\Stream;
 use Fig\Http\Message\StatusCodeInterface;
 use Kawaii;
-use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
-use kawaii\server\Base as BaseServer;
+use kawaii\server\BaseServer as BaseServer;
+use kawaii\server\HttpServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -51,7 +51,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
         $this->router = new Router();
         $this->loadRoutes();
-        $this->hook(new RouteMiddleware());
+        $this->hook(new RouteMiddleware($this));
     }
 
     /**
@@ -66,7 +66,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
     /**
      * @param ServerRequestInterface $request
-     * @param BaseServer $server
+     * @param BaseServer|HttpServer $server
      * @return ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request, BaseServer $server): ResponseInterface
@@ -74,6 +74,9 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         $beginTime = microtime(true);
 
         $context = new Context($request, new Response());
+        $context->app = $this;
+        $context->server = $server;
+
         try {
             // @todo static files process
             foreach ((array)$this->staticPath as $path) {
@@ -86,8 +89,8 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
                     return $context->response;
                 }
             }
-
             $context = $this->middleware->handle($context);
+            // @todo 要判断返回是否为context，如果不是需要手工造Response组成context
         } catch (HttpException $e) {
             $statusCode = $e->statusCode;
             $context->response->write($e->getMessage());
@@ -98,14 +101,13 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
             $statusCode = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
             $context->response->write($e->getMessage());
         }
-        finally {
-            $finishedTime = microtime(true);
-            echo 'Processing the request. time: ', ($finishedTime - $beginTime), PHP_EOL;
-        }
 
         if (isset($statusCode)) {
             $context->response = $context->response->withStatus($statusCode);
         }
+
+        $finishedTime = microtime(true);
+        echo 'Processing the request. time: ', ($finishedTime - $beginTime), PHP_EOL;
 
         return $context->response;
     }
@@ -187,9 +189,9 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
     /**
      * @param string $route
-     * @return \Closure
+     * @return callable
      */
-    private function buildHandlerByRoute(string $route): \Closure
+    private function buildHandlerByRoute(string $route): callable
     {
         return function (Context $context, callable $next) use ($route) {
             /* @var Context $context */

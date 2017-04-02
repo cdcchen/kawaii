@@ -6,7 +6,7 @@
  * Time: 16:43
  */
 
-namespace kawaii\web;
+namespace kawaii\websocket;
 
 
 use Kawaii;
@@ -16,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class RouteMiddleware
- * @package kawaii\web
+ * @package kawaii\websocket
  */
 class RouteMiddleware implements MiddlewareInterface
 {
@@ -42,7 +42,7 @@ class RouteMiddleware implements MiddlewareInterface
         $context = $next($context);
 
         $path = $context->request->getUri()->getPath();
-        $result = $this->app->getRouter()->dispatch($context->request->getMethod(), $path);
+        $result = Kawaii::$app->getRouter()->dispatch($context->request->getMethod(), $path);
         if ($result === false) {
             $context->response = $context->response->withStatus(404);
             return $context;

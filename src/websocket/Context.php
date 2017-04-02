@@ -6,30 +6,22 @@
  * Time: 17:55
  */
 
-namespace kawaii\web;
+namespace kawaii\websocket;
 
+use cdcchen\psr7\ServerRequest;
 use kawaii\base\Object;
-use kawaii\server\HttpServer;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 
 /**
  * Class Context
- * @package kawaii\web
+ * @package kawaii\websocket
  */
 class Context extends Object
 {
     /**
-     * @var ApplicationInterface|Application
-     */
-    public $app;
-    /**
-     * @var HttpServer
-     */
-    public $server;
-    /**
-     * @var Request
+     * @var ServerRequest
      */
     public $request;
     /**

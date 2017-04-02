@@ -11,8 +11,6 @@ namespace kawaii\base;
 
 use Kawaii;
 use kawaii\di\ServiceLocator;
-use kawaii\server\Base as BaseServer;
-use kawaii\web\Context;
 
 /**
  * Class Application
@@ -68,7 +66,6 @@ abstract class Application extends ServiceLocator
      * @var array
      */
     public $params = [];
-
     /**
      * @var string
      */
@@ -77,17 +74,10 @@ abstract class Application extends ServiceLocator
      * @var array
      */
     protected $config = [];
-
-    /**
-     * @var BaseServer
-     */
-    protected $server;
-
     /**
      * @var string
      */
     private $basePath;
-
     /**
      * @var string the root directory that contains view files for this module
      */
@@ -96,7 +86,9 @@ abstract class Application extends ServiceLocator
      * @var string the root directory that contains layout view files for this module.
      */
     private $layoutPath;
-
+    /**
+     * @var string
+     */
     private $vendorPath;
 
 
@@ -107,8 +99,6 @@ abstract class Application extends ServiceLocator
      */
     public function __construct(string $configFile, array $config = [])
     {
-        Kawaii::$app = $this;
-
         $this->configFile = $configFile;
         $this->loadConfig();
 
@@ -368,17 +358,18 @@ abstract class Application extends ServiceLocator
 
     /**
      * @param string $route
-     * @param Context $context
+     * @param object $context
+     * @param array $params
      * @return mixed|null
      * @throws InvalidRouteException
      */
-    public function runAction(string $route, Context $context)
+    public function runAction(string $route, $context, array $params = [])
     {
         $parts = $this->createController($route, $context);
         if (is_array($parts)) {
             /* @var $controller Controller */
             list($controller, $actionId) = $parts;
-            $result = $controller->runAction($actionId, $context->request->getQueryParams());
+            $result = $controller->runAction($actionId, $params);
 
             return $result;
         } else {
@@ -388,10 +379,10 @@ abstract class Application extends ServiceLocator
 
     /**
      * @param string $route
-     * @param Context $context
+     * @param $context
      * @return array|bool
      */
-    public function createController($route, Context $context)
+    private function createController($route, $context)
     {
         $route = trim($route, '/');
         if ($route === '') {
@@ -432,11 +423,11 @@ abstract class Application extends ServiceLocator
 
     /**
      * @param string $id
-     * @param Context $context
-     * @return null|Controller
+     * @param $context
+     * @return Controller|null
      * @throws InvalidConfigException
      */
-    public function createControllerById(string $id, Context $context):? Controller
+    private function createControllerById(string $id, $context): ?Controller
     {
         $pos = strrpos($id, '/');
         if ($pos === false) {

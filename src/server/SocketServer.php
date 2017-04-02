@@ -15,7 +15,7 @@ use Swoole\Server as SwooleServer;
  * Class SocketServer
  * @package kawaii\server
  */
-class SocketServer extends Base
+class SocketServer extends BaseServer
 {
     /**
      * @param Listener $listener

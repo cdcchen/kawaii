@@ -10,6 +10,7 @@ namespace kawaii\server;
 
 
 use Kawaii;
+use kawaii\base\ApplicationInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Server as SwooleServer;
 use UnexpectedValueException;
@@ -18,7 +19,7 @@ use UnexpectedValueException;
  * Class HttpServer
  * @package kawaii\base
  */
-class HttpServer extends Base
+class HttpServer extends BaseServer
 {
     use HttpServerTrait;
 
@@ -28,6 +29,9 @@ class HttpServer extends Base
      */
     public function run(callable $callback)
     {
+        if ($callback instanceof ApplicationInterface) {
+            $callback->run();
+        }
         $this->requestHandle = $callback;
         $this->setHttpCallback();
 
@@ -36,7 +40,7 @@ class HttpServer extends Base
 
     /**
      * @param Listener $listener
-     * @return SwooleServer
+     * @return SwooleServer|SwooleHttpServer
      */
     protected static function createSwooleServer(Listener $listener): SwooleServer
     {
@@ -48,13 +52,13 @@ class HttpServer extends Base
      */
     protected function bindCallback(): void
     {
+        parent::bindCallback();
+
         if (is_callable($this->requestCallback)) {
             $this->swoole->on('Request', $this->requestCallback);
         } else {
             throw new UnexpectedValueException('requestCallback is not callable.');
         }
-
-        parent::bindCallback();
     }
 
     /**
@@ -62,6 +66,7 @@ class HttpServer extends Base
      */
     protected function setCallback(): void
     {
+        parent::setCallback();
         $this->receiveCallback = $this->connectCallback = null;
     }
 }

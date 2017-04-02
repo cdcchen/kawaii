@@ -8,7 +8,6 @@ require __DIR__ . '/../../src/Kawaii.php';
 
 $config = __DIR__ . '/../config/app.php';
 $app = new kawaii\web\Application($config);
-$app->run();
 
 //$app->hook(function (\kawaii\web\Context $context, callable $next) {
 ////    var_dump($next);
@@ -26,59 +25,6 @@ $app->run();
 //
 //    return $context;
 //});
-//
-//$app->hook(function (
-//    \Psr\Http\Message\RequestInterface $request,
-//    \Psr\Http\Message\ResponseInterface $response,
-//    callable $next
-//) {
-//    $response = $next($request, $response);
-//    $response->getBody()->write('This is BEFORE.<br />');
-//
-//    $response = $response->withAddedHeader('name', 'chendong');
-//    $response->getBody()->write('00000000');
-//
-//    $collection = new \kawaii\base\Collection([__FILE__, __CLASS__, __METHOD__]);
-//    $collection->add($request);
-//    $collection->add($request);
-//    $collection->remove($request);
-//    $response->getBody()->write(var_export($collection, true));
-//    $response->getBody()->write($collection->contains($request) ? 'yes' : 'no');
-//
-//    return $response;
-//});
-//
-//$app->hook(function (\kawaii\web\Request $request, \kawaii\web\Response $response, callable $next) {
-//    $response = $next($request, $response);
-//    $response->getBody()->write('<hr /><pre>');
-//    $response->getBody()->write(var_export($request->getQueryParams(), true) . '<hr />');
-//    $response->getBody()->write(var_export($request->getParsedBody(), true) . '<hr />');
-//    $response->getBody()->write(var_export($request->getCookieParams(), true) . '<hr />');
-//    $response->getBody()->write(var_export($request->getServerParams(), true) . '<hr />');
-//    $response->getBody()->write(var_export($request->getHeaders(), true) . '<hr />');
-//    $response->getBody()->write(var_export($request->getHeader('uni'), true) . '<hr /><hr />');
-//    return $response;
-//});
-//
-//$app->hook(function (\kawaii\web\Request $request, \kawaii\web\Response $response, callable $next) {
-//    $response = $next($request, $response);
-//    $response = $response->withHeader('ppppp', 'xxxx')
-//                         ->withAddedHeader('ppppp', 'yyyy');
-//
-//    $response->getBody()->write(var_export($response->getHeader('ppppp'), true));
-//    $response->getBody()->write('<hr />');
-//    $response->getBody()->write(var_export(sys_getloadavg(), true));
-//
-//    $map = new \kawaii\base\HashMap(['name' => 'cdcchen']);
-//    $response->getBody()->write(var_export($map->toArray(), true));
-//
-//    /* @var \kawaii\web\Response $response */
-//    $response = $response->addCookie('testcookie', 'cookietest', time() + 10)
-//                         ->addCookie('gogogog', 'hahaha');
-//
-//    return $response;
-//});
-//
 //$app->get('/user/', function (\kawaii\web\Context $context, $next) {
 //    /* @var \kawaii\web\Context $context */
 //    $context = $next($context);

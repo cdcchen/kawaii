@@ -10,15 +10,16 @@ namespace kawaii\base;
 
 
 use Kawaii;
-use kawaii\web\Context;
-use kawaii\web\RequestParserInterface;
-use Psr\Http\Message\RequestInterface;
 
 /**
  * Class Controller
  * @package kawaii\base
+ *
+ * @property object $context
+ * @property Application $app
+ * @property \kawaii\server\BaseServer $server
  */
-class Controller extends Object implements ViewContextInterface
+abstract class Controller extends Object implements ViewContextInterface
 {
     /**
      * @var array
@@ -48,29 +49,43 @@ class Controller extends Object implements ViewContextInterface
     private $viewPath;
 
     /**
-     * @var Context
+     * @var \kawaii\web\Context|\kawaii\websocket\Context
      */
-    private $context;
+    protected $context;
 
     /**
      * Controller constructor.
      * @param string $id
-     * @param Context $context
+     * @param $context
      * @param array $config
      */
-    public function __construct(string $id, Context $context, array $config = [])
+    public function __construct(string $id, $context, array $config = [])
     {
         $this->id = $id;
         $this->context = $context;
+
         parent::__construct($config);
     }
 
     /**
-     * @return \kawaii\web\Request|RequestInterface
+     * @return object Controller context
      */
-    public function getRequest(): RequestInterface
+    public function getContext()
     {
-        return $this->context->request;
+        return $this->context;
+    }
+
+    /**
+     * @return Application
+     */
+    public function getApp()
+    {
+        return $this->context->app;
+    }
+
+    public function getServer()
+    {
+        return $this->context->server;
     }
 
     /**
@@ -89,6 +104,7 @@ class Controller extends Object implements ViewContextInterface
         $result = null;
         if ($this->beforeAction($this->action)) {
             // run the action
+            $params = array_merge($this->context->request->getQueryParams(), $params);
             $result = $this->action->runWithParams($params);
             $result = $this->afterAction($this->action, $result);
         }
@@ -111,7 +127,7 @@ class Controller extends Object implements ViewContextInterface
             // @todo run module action
 //            return $this->module->runAction($route, $params);
         } else {
-            return Kawaii::$app->runAction(ltrim($route, '/'), $params);
+            return $this->context->app->runAction(ltrim($route, '/'), $params);
         }
     }
 
@@ -266,7 +282,7 @@ class Controller extends Object implements ViewContextInterface
     public function getViewPath(): string
     {
         if ($this->viewPath === null) {
-            $this->viewPath = Kawaii::$app->getViewPath() . DIRECTORY_SEPARATOR . $this->id;
+            $this->viewPath = $this->context->app->getViewPath() . DIRECTORY_SEPARATOR . $this->id;
         }
         return $this->viewPath;
     }
@@ -294,9 +310,9 @@ class Controller extends Object implements ViewContextInterface
         if (strncmp($layout, '@', 1) === 0) {
             $file = Kawaii::getAlias($layout);
         } elseif (strncmp($layout, '/', 1) === 0) {
-            $file = Kawaii::$app->getLayoutPath() . DIRECTORY_SEPARATOR . ltrim($layout);
+            $file = $this->context->app->getLayoutPath() . DIRECTORY_SEPARATOR . ltrim($layout);
         } else {
-            $file = Kawaii::$app->getLayoutPath() . DIRECTORY_SEPARATOR . ltrim($layout);
+            $file = $this->context->app->getLayoutPath() . DIRECTORY_SEPARATOR . ltrim($layout);
             // @todo if use module
 //            $file = $module->getLayoutPath() . DIRECTORY_SEPARATOR . $layout;
         }

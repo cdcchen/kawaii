@@ -11,10 +11,9 @@ namespace kawaii\server;
 
 use Closure;
 use kawaii\websocket\ApplicationInterface;
-use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Server as SwooleServer;
 use Swoole\WebSocket\{
-    Frame, Server
+    Server
 };
 use UnexpectedValueException;
 
@@ -22,7 +21,7 @@ use UnexpectedValueException;
  * Class WebsocketServer
  * @package kawaii\server
  */
-class WebsocketServer extends Base
+class WebsocketServer extends BaseServer
 {
     use HttpServerTrait;
 
@@ -45,6 +44,8 @@ class WebsocketServer extends Base
      */
     public function run(ApplicationInterface $app)
     {
+        $app->run();
+
         $this->messageCallback = [$app, 'handleMessage'];
 
         if (method_exists($app, 'handleOpen')) {
@@ -63,8 +64,13 @@ class WebsocketServer extends Base
      */
     public function http(callable $callback)
     {
-        $this->setHttpCallback();
+        if ($callback instanceof \kawaii\base\ApplicationInterface) {
+            $callback->run();
+        }
+
         $this->requestHandle = $callback;
+        $this->setHttpCallback();
+
         return $this;
     }
 
@@ -108,6 +114,8 @@ class WebsocketServer extends Base
      */
     protected function bindCallback(): void
     {
+        parent::bindCallback();
+
         if (is_callable($this->openCallback)) {
             $this->swoole->on('Open', $this->openCallback);
         } elseif ($this->openCallback !== null) {
@@ -133,8 +141,6 @@ class WebsocketServer extends Base
                 throw new UnexpectedValueException('requestHandle is not callable.');
             }
         }
-
-        parent::bindCallback();
     }
 
     /**
@@ -142,18 +148,8 @@ class WebsocketServer extends Base
      */
     protected function setCallback(): void
     {
+        parent::setCallback();
         $this->receiveCallback = $this->connectCallback = null;
 
-        $this->openCallback = function (Server $server, SwooleHttpRequest $request): void {
-            echo "Websocket {$request->fd} client connected.\n";
-        };
-
-        $this->messageCallback = function (SwooleServer $server, Frame $frame): void {
-            echo "Receive message: {$frame->data} form {$frame->fd}.\n";
-        };
-
-        $this->onClose(function (SwooleServer $server, int $fd, int $reactorId): void {
-            echo "WebSocket Client {$fd} from reactor {$reactorId} disconnected.\n";
-        });
     }
 }

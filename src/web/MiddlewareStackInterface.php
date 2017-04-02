@@ -6,11 +6,8 @@
  * Time: 11:21
  */
 
-namespace kawaii\server;
+namespace kawaii\web;
 
-
-use kawaii\web\Context;
-use Psr\Http\Message\ResponseInterface;
 
 interface MiddlewareStackInterface
 {

@@ -11,7 +11,17 @@ namespace kawaii\web;
 
 use kawaii\base\Action;
 use kawaii\base\InlineAction;
+use kawaii\server\HttpServer;
 
+/**
+ * Class Controller
+ * @package kawaii\web
+ *
+ * @property Context $context
+ * @property Application $app
+ * @property Request $request
+ * @property HttpServer $server
+ */
 class Controller extends \kawaii\base\Controller
 {
     public $defaultAction = 'index';
@@ -20,6 +30,15 @@ class Controller extends \kawaii\base\Controller
      * @var array the parameters bound to the current action.
      */
     public $actionParams = [];
+
+
+    /**
+     * @return Request
+     */
+    public function getRequest(): Request
+    {
+        return $this->context->request;
+    }
 
     /**
      * @param Action $action

@@ -6,10 +6,8 @@
  * Time: 20:41
  */
 
-namespace kawaii\server;
+namespace kawaii\web;
 
-
-use kawaii\web\Context;
 
 interface MiddlewareInterface
 {

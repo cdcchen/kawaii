@@ -17,7 +17,7 @@ use Swoole\WebSocket\Server;
  * Interface ApplicationInterface
  * @package kawaii\websocket
  */
-interface ApplicationInterface
+interface ApplicationInterface extends \kawaii\base\ApplicationInterface
 {
     /**
      * @param Server $server
