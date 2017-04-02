@@ -16,8 +16,6 @@ use Kawaii;
  * @package kawaii\base
  *
  * @property object $context
- * @property Application $app
- * @property \kawaii\server\BaseServer $server
  */
 abstract class Controller extends Object implements ViewContextInterface
 {
@@ -51,7 +49,7 @@ abstract class Controller extends Object implements ViewContextInterface
     /**
      * @var \kawaii\web\Context|\kawaii\websocket\Context
      */
-    protected $context;
+    private $context;
 
     /**
      * Controller constructor.
@@ -73,19 +71,6 @@ abstract class Controller extends Object implements ViewContextInterface
     public function getContext()
     {
         return $this->context;
-    }
-
-    /**
-     * @return Application
-     */
-    public function getApp()
-    {
-        return $this->context->app;
-    }
-
-    public function getServer()
-    {
-        return $this->context->server;
     }
 
     /**

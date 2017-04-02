@@ -11,16 +11,13 @@ namespace kawaii\web;
 
 use kawaii\base\Action;
 use kawaii\base\InlineAction;
-use kawaii\server\HttpServer;
 
 /**
  * Class Controller
  * @package kawaii\web
  *
  * @property Context $context
- * @property Application $app
  * @property Request $request
- * @property HttpServer $server
  */
 class Controller extends \kawaii\base\Controller
 {
@@ -37,7 +34,7 @@ class Controller extends \kawaii\base\Controller
      */
     public function getRequest(): Request
     {
-        return $this->context->request;
+        return $this->getContext()->request;
     }
 
     /**

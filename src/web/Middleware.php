@@ -9,6 +9,7 @@
 namespace kawaii\web;
 
 
+use kawaii\base\InvalidValueException;
 use kawaii\base\Object;
 
 /**
@@ -47,8 +48,8 @@ class Middleware extends Object implements MiddlewareStackInterface
     {
         if (is_callable($this->middleware)) {
             return call_user_func($this->middleware, $context);
+        } else {
+            throw new InvalidValueException('The middleware is not callable');
         }
-
-        return $context;
     }
 }
