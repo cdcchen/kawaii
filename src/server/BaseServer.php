@@ -114,6 +114,8 @@ abstract class BaseServer extends Object
      */
     public function __construct(string $configFile = null, array $config = [])
     {
+        Kawaii::$server = $this;
+
         parent::__construct($config);
 
         $this->configFile = $configFile;
@@ -269,7 +271,7 @@ abstract class BaseServer extends Object
     /**
      * @return string
      */
-    protected static function getProcessName(): string
+    public static function getProcessName(): string
     {
         global $argv;
         return "php {$argv[0]}";
@@ -278,7 +280,7 @@ abstract class BaseServer extends Object
     /**
      * @param string $extra
      */
-    protected static function setProcessName(string $extra): void
+    public static function setProcessName(string $extra): void
     {
         $title = static::getProcessName() . ' - ' . $extra;
         @cli_set_process_title($title);
@@ -524,85 +526,21 @@ abstract class BaseServer extends Object
      */
     protected function setDefaultCallback(): void
     {
-        $this->masterStartCallback = function (SwooleServer $server): void {
-            static::setProcessName('master process');
-            echo "Master pid: {$server->master_pid} starting...\n";
-        };
+        $handle = new DefaultHandle($this);
 
-        $this->masterStopCallback = function (SwooleServer $server): void {
-            echo "Master pid: {$server->master_pid} shutdown...\n";
-        };
-
-        $this->managerStartCallback = function (SwooleServer $server): void {
-            static::setProcessName('manager');
-
-            echo "Manager pid: {$server->manager_pid} starting...\n";
-        };
-
-        $this->managerStopCallback = function (SwooleServer $server): void {
-            echo "Manager pid: {$server->manager_pid} stopped...\n";
-        };
-
-        $this->workerStartCallback = function (SwooleServer $server, int $workId): void {
-            static::setProcessName($server->taskworker ? 'task' : 'worker');
-
-            // @todo 需要重新载入配置
-
-            echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
-        };
-
-        $this->workerStopCallback = function (SwooleServer $server, int $workId): void {
-            echo "Worker: $workId stopped...\n";
-        };
-
-        $this->workerErrorCallback = function (
-            SwooleServer $server,
-            int $workerId,
-            int $workerPid,
-            int $exitCode,
-            int $signal
-        ): void {
-            echo "Worker error: id {$workerId}, pid {$workerPid}, exit code {$exitCode}, signal: {$signal}.\n";
-        };
-
-        $this->connectCallback = function (SwooleServer $server, int $fd, int $reactorId): void {
-            echo "Client {$fd} form reactor {$reactorId} connected.\n";
-        };
-
-        $this->closeCallback = function (SwooleServer $server, int $fd, int $reactorId): void {
-            echo "Client {$fd} from reactor {$reactorId} disconnected.\n";
-        };
-
-        $this->taskCallback = function (SwooleServer $server, int $taskId, int $fromWorkerId, $data): void {
-            if ($data instanceof BaseTask) {
-                $data->handle($server, $taskId);
-            }
-
-            echo "Task {$taskId} starting, worker {$fromWorkerId}.\n";
-        };
-
-        $this->finishCallback = function (SwooleServer $server, int $taskId, $data): void {
-            if ($data instanceof BaseTask) {
-                $data->done();
-            }
-
-            echo "Task {$taskId} run finished.\n";
-        };
-
-        $this->pipeMessageCallback = function (SwooleServer $server, int $fromWorkerId, $message): void {
-            echo "Receive message: {$message} from worker {$fromWorkerId}.\n";
-        };
-
-        $this->receiveCallback = function (SwooleServer $server, int $fd, int $fromWorkerId, string $data): void {
-            echo "Receive data: {$data} from client {$fd}, worker {$fromWorkerId}.\n";
-        };
-
-        $this->packetCallback = function (SwooleServer $server, string $data, array $client): void {
-            $fd = unpack('L', pack('N', ip2long($client['address'])))[1];
-            $fromId = ($client['server_socket'] << 16) + $client['port'];
-            $server->send($fd, "I had received data: {$data}", $fromId);
-
-            echo "Receive UDP data: {$data} from {$fd}.\n";
-        };
+        $this->masterStartCallback = [$handle, 'onMasterStart'];
+        $this->masterStopCallback = [$handle, 'onMasterStop'];
+        $this->managerStartCallback = [$handle, 'onManagerStart'];
+        $this->managerStopCallback = [$handle, 'onManagerStop'];
+        $this->workerStartCallback = [$handle, 'onWorkerStart'];
+        $this->workerStopCallback = [$handle, 'onWorkerStop'];
+        $this->workerErrorCallback = [$handle, 'onWorkerError'];
+        $this->connectCallback = [$handle, 'onConnect'];
+        $this->closeCallback = [$handle, 'onClose'];
+        $this->taskCallback = [$handle, 'onTask'];
+        $this->finishCallback = [$handle, 'onFinish'];
+        $this->pipeMessageCallback = [$handle, 'onPipeMessage'];
+        $this->receiveCallback = [$handle, 'onReceive'];
+        $this->packetCallback = [$handle, 'onPacket'];
     }
 }

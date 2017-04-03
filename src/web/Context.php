@@ -25,10 +25,6 @@ class Context extends Object
      */
     public $app;
     /**
-     * @var HttpServer
-     */
-    public $server;
-    /**
      * @var Request
      */
     public $request;
@@ -44,12 +40,14 @@ class Context extends Object
 
     /**
      * Context constructor.
+     * @param Application $app
      * @param RequestInterface $request
      * @param ResponseInterface $response
      * @param array $config
      */
-    public function __construct(RequestInterface $request, ResponseInterface $response, array $config = [])
+    public function __construct(Application $app, RequestInterface $request, ResponseInterface $response, array $config = [])
     {
+        $this->app = $app;
         $this->request = $request;
         $this->response = $response;
 

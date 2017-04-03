@@ -78,7 +78,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     {
         $beginTime = microtime(true);
 
-        $context = new Context($request, new Response());
+        $context = new Context($this, $request, new Response());
         try {
             $context = $this->middleware->handle($context);
         } catch (HttpException $e) {

@@ -73,9 +73,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     {
         $beginTime = microtime(true);
 
-        $context = new Context($request, new Response());
-        $context->app = $this;
-        $context->server = $server;
+        $context = new Context($this, $request, new Response());
 
         try {
             // @todo static files process

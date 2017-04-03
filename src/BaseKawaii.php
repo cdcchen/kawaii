@@ -74,6 +74,11 @@ class BaseKawaii extends Object
     public static $container;
 
     /**
+     * @var BaseServer
+     */
+    public static $server;
+
+    /**
      * @param object $object
      * @param array $properties
      * @return object
