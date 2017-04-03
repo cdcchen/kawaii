@@ -35,15 +35,15 @@ abstract class BaseServer extends Object
     /**
      * @var Listener[]
      */
-    protected static $listeners = [];
+    public static $listeners = [];
     /**
      * @var string config file
      */
-    protected $configFile;
+    public $configFile;
     /**
      * @var array swoole server setting
      */
-    protected $config = [];
+    public $config = [];
 
     /**
      * @var \Swoole\Server
