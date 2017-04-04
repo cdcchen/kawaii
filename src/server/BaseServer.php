@@ -14,6 +14,7 @@ use Kawaii;
 use kawaii\base\BaseTask;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
+use Swoole\Http\Server;
 use Swoole\Server as SwooleServer;
 use UnexpectedValueException;
 
@@ -182,6 +183,9 @@ abstract class BaseServer extends Object
         return $this->swoole->start();
     }
 
+    /**
+     * @return bool
+     */
     public function shutdown(): bool
     {
         return $this->swoole->shutdown();
@@ -218,6 +222,14 @@ abstract class BaseServer extends Object
         } else {
             return $this->swoole->setting[$name] ?? null;
         }
+    }
+
+    /**
+     * @return SwooleServer|\Swoole\Http\Server|\Swoole\WebSocket\Server
+     */
+    public function getSwoole(): SwooleServer
+    {
+        return $this->swoole;
     }
 
     /**
@@ -284,6 +296,17 @@ abstract class BaseServer extends Object
     {
         $title = static::getProcessName() . ' - ' . $extra;
         @cli_set_process_title($title);
+    }
+
+    /**
+     * @param BaseProcess $process
+     * @param bool $redirect
+     * @param $createPipe
+     * @return bool
+     */
+    public function addProcess(BaseProcess $process, bool $redirect = false, bool $createPipe = true)
+    {
+        return $process->run($this, $redirect, $createPipe);
     }
 
     /**

@@ -11,6 +11,7 @@ namespace kawaii\websocket;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Kawaii;
+use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
@@ -32,7 +33,7 @@ use Swoole\WebSocket\Server;
  * Class Application
  * @package kawaii\websocket
  */
-class Application extends \kawaii\base\Application implements ApplicationInterface
+class Application extends \kawaii\base\Application implements ApplicationInterface, HandleInterface
 {
     use RouterTrait;
 
