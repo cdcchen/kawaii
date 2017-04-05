@@ -24,7 +24,7 @@ class HttpServer extends BaseServer
     use HttpServerTrait;
 
     /**
-     * @param callable $callback
+     * @param callable|ApplicationInterface|HttpServerRequestHandleInterface $callback
      * @return $this
      */
     public function run(callable $callback)

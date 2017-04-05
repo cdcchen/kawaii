@@ -9,7 +9,6 @@
 namespace kawaii\web;
 
 use kawaii\base\Object;
-use kawaii\server\HttpServer;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -21,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 class Context extends Object
 {
     /**
-     * @var ApplicationInterface|Application
+     * @var \kawaii\server\HttpServerRequestHandleInterface|Application
      */
     public $app;
     /**
@@ -45,8 +44,12 @@ class Context extends Object
      * @param ResponseInterface $response
      * @param array $config
      */
-    public function __construct(Application $app, RequestInterface $request, ResponseInterface $response, array $config = [])
-    {
+    public function __construct(
+        Application $app,
+        RequestInterface $request,
+        ResponseInterface $response,
+        array $config = []
+    ) {
         $this->app = $app;
         $this->request = $request;
         $this->response = $response;

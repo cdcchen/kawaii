@@ -85,8 +85,8 @@ class HttpHandle extends Object
         }
 
 
-        foreach ($response->getHeaders() as $name => $value) {
-            $res->header($name, $value);
+        foreach ($response->getHeaders() as $name => $values) {
+            $res->header($name, $response->getHeaderLine($name));
         }
         $serverSignature = empty($this->server->config['server_signature']) ? 'Kawaii' : $this->server->config['server_signature'];
         $res->header('server', $serverSignature);

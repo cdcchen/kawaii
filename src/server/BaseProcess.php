@@ -32,7 +32,8 @@ abstract class BaseProcess extends Object
     public function run(BaseServer $server, bool $redirect = false, bool $createPipe = true): bool
     {
         $this->server = $server;
-        return $this->server->getSwoole()->addProcess($this->createProcess($redirect, $createPipe));
+        $process = $this->createProcess($redirect, $createPipe);
+        return $this->server->getSwoole()->addProcess($process);
     }
 
     /**

@@ -16,6 +16,7 @@ use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use kawaii\server\BaseServer;
+use kawaii\server\WebSocketHandleInterface;
 use kawaii\web\HttpException;
 use kawaii\web\Response;
 use kawaii\web\Router;
@@ -33,7 +34,7 @@ use Swoole\WebSocket\Server;
  * Class Application
  * @package kawaii\websocket
  */
-class Application extends \kawaii\base\Application implements ApplicationInterface, HandleInterface
+class Application extends \kawaii\base\Application implements ApplicationInterface, WebSocketHandleInterface
 {
     use RouterTrait;
 

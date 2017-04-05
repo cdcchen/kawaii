@@ -11,7 +11,6 @@ namespace kawaii\server;
 
 use Closure;
 use kawaii\base\ApplicationInterface;
-use kawaii\websocket\HandleInterface;
 use Swoole\Server as SwooleServer;
 use Swoole\WebSocket\{
     Server
@@ -40,12 +39,14 @@ class WebsocketServer extends BaseServer
     protected $handShakeCallback;
 
     /**
-     * @param HandleInterface $app
+     * @param WebSocketHandleInterface $app
      * @return $this
      */
-    public function run(HandleInterface $app)
+    public function run(WebSocketHandleInterface $app)
     {
-        $app->run();
+        if ($app instanceof ApplicationInterface) {
+            $app->run();
+        }
 
         $this->messageCallback = [$app, 'handleMessage'];
 
@@ -60,7 +61,7 @@ class WebsocketServer extends BaseServer
     }
 
     /**
-     * @param callable $callback
+     * @param callable|HttpServerRequestHandleInterface $callback
      * @return $this
      */
     public function http(callable $callback)

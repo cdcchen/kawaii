@@ -12,11 +12,13 @@ namespace kawaii\web;
 use cdcchen\psr7\Stream;
 use Fig\Http\Message\StatusCodeInterface;
 use Kawaii;
+use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use kawaii\server\BaseServer as BaseServer;
 use kawaii\server\HttpServer;
+use kawaii\server\HttpServerRequestHandleInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -25,7 +27,7 @@ use RuntimeException;
  * Class Application
  * @package kawaii\web
  */
-class Application extends \kawaii\base\Application implements ApplicationInterface
+class Application extends \kawaii\base\Application implements ApplicationInterface, HttpServerRequestHandleInterface
 {
     use RouterTrait;
 
@@ -74,21 +76,12 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         $beginTime = microtime(true);
 
         $context = new Context($this, $request, new Response());
-
         try {
-            // @todo static files process
-            foreach ((array)$this->staticPath as $path) {
-                $filename = $path . '/' . ltrim($request->getUri()->getPath());
-                clearstatcache(true, $filename);
-                if (is_file($filename) && is_readable($filename)) {
-                    $stream = new Stream(fopen($filename, 'r+'));
-                    $context->response = $context->response->withBody($stream);
-
-                    return $context->response;
-                }
+            $exist = $this->handleStaticFiles($context);
+            if (!$exist) {
+                $context = $this->middleware->handle($context);
             }
-            $context = $this->middleware->handle($context);
-            // @todo 要判断返回是否为context，如果不是需要手工造Response组成context
+
         } catch (HttpException $e) {
             $statusCode = $e->statusCode;
             $context->response->write($e->getMessage());
@@ -108,6 +101,42 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
         echo 'Processing the request. time: ', ($finishedTime - $beginTime), PHP_EOL;
 
         return $context->response;
+    }
+
+    /**
+     * @param Context $context
+     * @return bool
+     */
+    protected function handleStaticFiles(Context &$context): bool
+    {
+        // @todo static files process
+        foreach ((array)$this->staticPath as $path) {
+            $filename = $path . '/' . ltrim($context->request->getUri()->getPath());
+            clearstatcache(true, $filename);
+            if (!is_file($filename)) {
+                continue;
+            }
+
+            if (is_readable($filename)) {
+                $info = new \finfo(FILEINFO_MIME_TYPE | FILEINFO_SYMLINK);
+                $mimeType = $info->file($filename);
+                if ($mimeType === false) {
+                    // @todo 处理错误日志
+                    echo "Get {$filename} mimeType error.\n";
+                } else {
+                    $context->response = $context->response->withHeader('Content-Type', $mimeType);
+                }
+                $stream = new Stream(fopen($filename, 'r+'));
+                $context->response = $context->response->withBody($stream);
+                return true;
+            } else {
+                $context->response = $context->response
+                    ->withStatus(StatusCodeInterface::STATUS_FORBIDDEN, "No permission to read {$filename}");
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

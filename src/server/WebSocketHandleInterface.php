@@ -6,7 +6,7 @@
  * Time: 16:48
  */
 
-namespace kawaii\websocket;
+namespace kawaii\server;
 
 
 use Swoole\Http\Request;
@@ -14,10 +14,10 @@ use Swoole\WebSocket\Frame;
 use Swoole\WebSocket\Server;
 
 /**
- * Interface ApplicationInterface
- * @package kawaii\websocket
+ * Interface WebSocketHandleInterface
+ * @package kawaii\server
  */
-interface HandleInterface
+interface WebSocketHandleInterface
 {
     /**
      * @param Server $server

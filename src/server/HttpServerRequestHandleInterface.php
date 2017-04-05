@@ -6,18 +6,17 @@
  * Time: 20:27
  */
 
-namespace kawaii\web;
+namespace kawaii\server;
 
 
-use kawaii\server\BaseServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Interface ApplicationInterface
- * @package kawaii\base
+ * Interface HttpServerRequestHandleInterface
+ * @package kawaii\server
  */
-interface ApplicationInterface extends \kawaii\base\ApplicationInterface
+interface HttpServerRequestHandleInterface
 {
     /**
      * @param ServerRequestInterface $request
