@@ -10,8 +10,8 @@ return [
     'daemonize' => 0,
     'pid_file' => $appPath . '/tmp/kawaii.pid',
 
-    'reactor_num' => 4,
-    'worker_num' => 4,
+    'reactor_num' => 1,
+    'worker_num' => 1,
     'max_request' => 1000,
     'task_max_request' => 1000,
     'max_conn' => 200,

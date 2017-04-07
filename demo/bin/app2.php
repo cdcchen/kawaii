@@ -57,4 +57,6 @@ $app = new kawaii\web\Application($config);
 
 $config = __DIR__ . '/../config/server.php';
 $server = new \kawaii\server\HttpServer($config);
+$process = new \app\process\Publish();
+$server->addProcess($process);
 $server->run($app)->start();

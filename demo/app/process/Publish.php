@@ -23,9 +23,15 @@ class Publish extends BaseProcess
      */
     public function handle(Process $process)
     {
-        foreach ($this->server->getSwoole()->connections as $fd) {
-            $this->server->getSwoole()->push($fd, microtime(true));
+        while (true) {
+            $time = microtime(true);
+            foreach ($this->server->connections as $fd) {
+                $conn = $this->server->getConnection($fd);
+                if ($conn->isWebSocket()) {
+                    $this->server->getSwoole()->push($fd, $time);
+                }
+            }
+            sleep(1);
         }
-        sleep(1);
     }
 }

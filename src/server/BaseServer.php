@@ -14,13 +14,14 @@ use Kawaii;
 use kawaii\base\BaseTask;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
-use Swoole\Http\Server;
 use Swoole\Server as SwooleServer;
 use UnexpectedValueException;
 
 /**
  * Class Server
  * @package kawaii\base
+ *
+ * @property \Traversable $connections
  */
 abstract class BaseServer extends Object
 {
@@ -233,6 +234,29 @@ abstract class BaseServer extends Object
     }
 
     /**
+     * @param int $fd
+     * @param int $fromId
+     * @param bool $ignoreClose
+     * @return Connection|null
+     */
+    public function getConnection(int $fd, int $fromId = -1, bool $ignoreClose = false): ? Connection
+    {
+        $data = $this->getSwoole()->connection_info($fd, $fromId, $ignoreClose);
+        if (is_array($data)) {
+            return new Connection($data);
+        }
+        return null;
+    }
+
+    /**
+     * @return array|\Traversable
+     */
+    public function getConnections()
+    {
+        return $this->getSwoole()->connections;
+    }
+
+    /**
      * @return Listener
      */
     private static function defaultListener(): Listener
@@ -300,13 +324,11 @@ abstract class BaseServer extends Object
 
     /**
      * @param BaseProcess $process
-     * @param bool $redirect
-     * @param $createPipe
      * @return bool
      */
-    public function addProcess(BaseProcess $process, bool $redirect = false, bool $createPipe = true)
+    public function addProcess(BaseProcess $process)
     {
-        return $process->run($this, $redirect, $createPipe);
+        return $process->run($this);
     }
 
     /**

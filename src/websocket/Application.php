@@ -17,6 +17,7 @@ use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use kawaii\server\BaseServer;
 use kawaii\server\WebSocketHandleInterface;
+use kawaii\server\WebsocketServer;
 use kawaii\web\HttpException;
 use kawaii\web\Response;
 use kawaii\web\Router;
@@ -237,6 +238,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      */
     public function handleClose(Server $server, int $fd, int $reactorId)
     {
+//        unset(static::$conn[$fd]);
         echo "App - handleClose - WebSocket Client {$fd} from reactor {$reactorId} disconnected.\n";
     }
 }
