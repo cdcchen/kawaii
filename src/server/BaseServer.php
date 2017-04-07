@@ -50,7 +50,7 @@ abstract class BaseServer extends Object
     /**
      * @var \Swoole\Server
      */
-    protected $swoole;
+    private $swoole;
 
     /**
      * @var callable
@@ -110,27 +110,28 @@ abstract class BaseServer extends Object
     protected $finishCallback;
 
     /**
+     * @param Listener $listener
+     * @return SwooleServer
+     */
+    abstract protected static function swooleServer(Listener $listener): SwooleServer;
+
+    /**
      * BaseServer constructor.
      * @param null|string $configFile
      * @param array $config
      */
     public function __construct(string $configFile = null, array $config = [])
     {
-        Kawaii::$server = $this;
-
         parent::__construct($config);
 
         $this->configFile = $configFile;
         $this->loadConfig();
 
-        $listener = static::$listeners[0] ?? static::defaultListener();
-        $this->swoole = static::createSwooleServer($listener);
-
         static::testLogFile();
         static::testPidFile();
 
         if (isset($this->config['setting'])) {
-            $this->swoole->set($this->config['setting']);
+            $this->getSwoole()->set($this->config['setting']);
         } else {
             echo "User default setting.\n";
             // @todo use default setting
@@ -138,22 +139,6 @@ abstract class BaseServer extends Object
 
         $this->setDefaultCallback();
         $this->setCallback();
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    protected function loadConfig(): void
-    {
-        if (empty($this->configFile)) {
-            return;
-        }
-
-        if (is_readable($this->configFile)) {
-            $this->config = require($this->configFile);
-        } else {
-            throw new InvalidConfigException("Config file: {$this->configFile} is not exist or unreadable.");
-        }
     }
 
     /**
@@ -165,7 +150,7 @@ abstract class BaseServer extends Object
     {
         static::$listeners[] = $listener;
 
-        $port = $this->swoole->listen($listener->host, $listener->port, $listener->type);
+        $port = $this->getSwoole()->listen($listener->host, $listener->port, $listener->type);
         if ($server !== null) {
             $server->run($port);
         }
@@ -181,15 +166,20 @@ abstract class BaseServer extends Object
         $this->beforeStart();
         $this->bindCallback();
 
-        return $this->swoole->start();
+        return $this->getSwoole()->start();
+    }
+
+    public function reload()
+    {
+        return $this->getSwoole()->reload();
     }
 
     /**
      * @return bool
      */
-    public function shutdown(): bool
+    public function stop(): bool
     {
-        return $this->swoole->shutdown();
+        return $this->getSwoole()->shutdown();
     }
 
     /**
@@ -198,12 +188,6 @@ abstract class BaseServer extends Object
     protected function setCallback(): void
     {
     }
-
-    /**
-     * @param Listener $listener
-     * @return mixed
-     */
-    abstract protected static function createSwooleServer(Listener $listener): SwooleServer;
 
     /**
      * Before server run
@@ -219,9 +203,9 @@ abstract class BaseServer extends Object
     public function getSetting(string $name = null): ?array
     {
         if ($name === null) {
-            return $this->swoole->setting;
+            return $this->getSwoole()->setting;
         } else {
-            return $this->swoole->setting[$name] ?? null;
+            return $this->getSwoole()->setting[$name] ?? null;
         }
     }
 
@@ -230,6 +214,10 @@ abstract class BaseServer extends Object
      */
     public function getSwoole(): SwooleServer
     {
+        if (!is_object($this->swoole)) {
+            $this->swoole = static::swooleServer($this->mainListener());
+        };
+
         return $this->swoole;
     }
 
@@ -259,9 +247,30 @@ abstract class BaseServer extends Object
     /**
      * @return Listener
      */
-    private static function defaultListener(): Listener
+    private function mainListener(): Listener
     {
-        return new Listener(self::DEFAULT_HOST, self::DEFAULT_PORT, self::DEFAULT_TYPE, self::DEFAULT_MODE);
+        return new Listener(
+            $this->config['host'] ?? self::DEFAULT_HOST,
+            $this->config['port'] ?? self::DEFAULT_PORT,
+            $this->config['type'] ?? self::DEFAULT_TYPE,
+            $this->config['mode'] ?? self::DEFAULT_MODE
+        );
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    private function loadConfig(): void
+    {
+        if (empty($this->configFile)) {
+            return;
+        }
+
+        if (is_readable($this->configFile)) {
+            $this->config = require($this->configFile);
+        } else {
+            throw new InvalidConfigException("Config file: {$this->configFile} is not exist or unreadable.");
+        }
     }
 
     /**
@@ -338,7 +347,7 @@ abstract class BaseServer extends Object
      */
     public function asyncTask(BaseTask $task, $workerId = -1)
     {
-        return $this->swoole->task($task, $workerId);
+        return $this->getSwoole()->task($task, $workerId);
     }
 
     /**
@@ -349,7 +358,7 @@ abstract class BaseServer extends Object
      */
     public function syncTask(BaseTask $task, float $timeout = 0.5, int $workerId = -1)
     {
-        return $this->swoole->taskwait($task, $timeout, $workerId);
+        return $this->getSwoole()->taskwait($task, $timeout, $workerId);
     }
 
     /**
@@ -359,7 +368,7 @@ abstract class BaseServer extends Object
      */
     public function syncTaskMulti(array $tasks, float $timeout = 0.5)
     {
-        return $this->swoole->taskWaitMulti($tasks, $timeout);
+        return $this->getSwoole()->taskWaitMulti($tasks, $timeout);
     }
 
 
@@ -482,85 +491,85 @@ abstract class BaseServer extends Object
     protected function bindCallback(): void
     {
         if (is_callable($this->masterStartCallback)) {
-            $this->swoole->on('Start', $this->masterStartCallback);
+            $this->getSwoole()->on('Start', $this->masterStartCallback);
         } elseif ($this->masterStartCallback !== null) {
             throw new UnexpectedValueException('masterStartCallback is not callable.');
         }
 
         if (is_callable($this->masterStopCallback)) {
-            $this->swoole->on('Shutdown', $this->masterStopCallback);
+            $this->getSwoole()->on('Shutdown', $this->masterStopCallback);
         } elseif ($this->masterStopCallback !== null) {
             throw new UnexpectedValueException('masterStopCallback is not callable.');
         }
 
         if (is_callable($this->managerStartCallback)) {
-            $this->swoole->on('ManagerStart', $this->managerStartCallback);
+            $this->getSwoole()->on('ManagerStart', $this->managerStartCallback);
         } elseif ($this->managerStartCallback !== null) {
             throw new UnexpectedValueException('managerStartCallback is not callable.');
         }
 
         if (is_callable($this->managerStopCallback)) {
-            $this->swoole->on('ManagerStop', $this->managerStopCallback);
+            $this->getSwoole()->on('ManagerStop', $this->managerStopCallback);
         } elseif ($this->managerStopCallback !== null) {
             throw new UnexpectedValueException('managerStopCallback is not callable.');
         }
 
         if (is_callable($this->workerStartCallback)) {
-            $this->swoole->on('WorkerStart', $this->workerStartCallback);
+            $this->getSwoole()->on('WorkerStart', $this->workerStartCallback);
         } elseif ($this->workerStartCallback !== null) {
             throw new UnexpectedValueException('workerStartCallback is not callable.');
         }
 
         if (is_callable($this->workerStopCallback)) {
-            $this->swoole->on('WorkerStop', $this->workerStopCallback);
+            $this->getSwoole()->on('WorkerStop', $this->workerStopCallback);
         } elseif ($this->workerStopCallback !== null) {
             throw new UnexpectedValueException('workerStopCallback is not callable.');
         }
 
         if (is_callable($this->workerErrorCallback)) {
-            $this->swoole->on('WorkerError', $this->workerErrorCallback);
+            $this->getSwoole()->on('WorkerError', $this->workerErrorCallback);
         } elseif ($this->workerErrorCallback !== null) {
             throw new UnexpectedValueException('workerErrorCallback is not callable.');
         }
 
         if (is_callable($this->connectCallback)) {
-            $this->swoole->on('Connect', $this->connectCallback);
+            $this->getSwoole()->on('Connect', $this->connectCallback);
         } elseif ($this->connectCallback !== null) {
             throw new UnexpectedValueException('connectCallback is not callable.');
         }
 
         if (is_callable($this->closeCallback)) {
-            $this->swoole->on('Close', $this->closeCallback);
+            $this->getSwoole()->on('Close', $this->closeCallback);
         } elseif ($this->closeCallback !== null) {
             throw new UnexpectedValueException('closeCallback is not callable.');
         }
 
         if (is_callable($this->receiveCallback)) {
-            $this->swoole->on('Receive', $this->receiveCallback);
+            $this->getSwoole()->on('Receive', $this->receiveCallback);
         } elseif ($this->receiveCallback !== null) {
             throw new UnexpectedValueException('receiveCallback is not callable.');
         }
 
         if (is_callable($this->packetCallback)) {
-            $this->swoole->on('Packet', $this->packetCallback);
+            $this->getSwoole()->on('Packet', $this->packetCallback);
         } elseif ($this->packetCallback !== null) {
             throw new UnexpectedValueException('packetCallback is not callable.');
         }
 
         if (is_callable($this->pipeMessageCallback)) {
-            $this->swoole->on('PipeMessage', $this->pipeMessageCallback);
+            $this->getSwoole()->on('PipeMessage', $this->pipeMessageCallback);
         } elseif ($this->pipeMessageCallback !== null) {
             throw new UnexpectedValueException('pipeMessageCallback is not callable.');
         }
 
         if (is_callable($this->taskCallback)) {
-            $this->swoole->on('Task', $this->taskCallback);
+            $this->getSwoole()->on('Task', $this->taskCallback);
         } elseif ($this->taskCallback !== null) {
             throw new UnexpectedValueException('taskCallback is not callable.');
         }
 
         if (is_callable($this->finishCallback)) {
-            $this->swoole->on('Finish', $this->finishCallback);
+            $this->getSwoole()->on('Finish', $this->finishCallback);
         } elseif ($this->finishCallback !== null) {
             throw new UnexpectedValueException('finishCallback is not callable.');
         }

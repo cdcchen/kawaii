@@ -18,7 +18,7 @@ use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use kawaii\server\BaseServer as BaseServer;
 use kawaii\server\HttpServer;
-use kawaii\server\HttpServerRequestHandleInterface;
+use kawaii\server\HttpHandleInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -27,7 +27,7 @@ use RuntimeException;
  * Class Application
  * @package kawaii\web
  */
-class Application extends \kawaii\base\Application implements ApplicationInterface, HttpServerRequestHandleInterface
+class Application extends \kawaii\base\Application implements ApplicationInterface, HttpHandleInterface
 {
     use RouterTrait;
 

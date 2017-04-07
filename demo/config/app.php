@@ -22,11 +22,7 @@ return [
         __DIR__ . '/../public'
     ],
 
-    'components' => [
-    ],
+    'components' => include(__DIR__ . '/components.php'),
     'routes' => include(__DIR__ . '/routes.php'),
-
-    'params' => [
-        'email' => 'admin@cdc.com',
-    ],
+    'params' => include(__DIR__ . '/params.php'),
 ];

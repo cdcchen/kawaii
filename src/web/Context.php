@@ -20,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 class Context extends Object
 {
     /**
-     * @var \kawaii\server\HttpServerRequestHandleInterface|Application
+     * @var \kawaii\server\HttpHandleInterface|Application
      */
     public $app;
     /**

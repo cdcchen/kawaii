@@ -3,10 +3,6 @@
 $appPath = dirname(__DIR__);
 
 return [
-    'host' => '0.0.0.0',
-    'port' => 9502,
-    'mode' => SWOOLE_PROCESS,
-    'type' => SWOOLE_TCP,
     'daemonize' => 0,
     'pid_file' => $appPath . '/tmp/kawaii.pid',
 

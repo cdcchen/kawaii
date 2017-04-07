@@ -13,10 +13,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Interface HttpServerRequestHandleInterface
+ * Interface HttpHandleInterface
  * @package kawaii\server
  */
-interface HttpServerRequestHandleInterface
+interface HttpHandleInterface
 {
     /**
      * @param ServerRequestInterface $request

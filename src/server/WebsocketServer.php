@@ -61,7 +61,7 @@ class WebsocketServer extends BaseServer
     }
 
     /**
-     * @param callable|HttpServerRequestHandleInterface $callback
+     * @param callable|HttpHandleInterface $callback
      * @return $this
      */
     public function http(callable $callback)
@@ -106,7 +106,7 @@ class WebsocketServer extends BaseServer
      * @param Listener $listener
      * @return SwooleServer
      */
-    protected static function createSwooleServer(Listener $listener): SwooleServer
+    protected static function swooleServer(Listener $listener): SwooleServer
     {
         return new Server($listener->host, $listener->port);
     }
@@ -119,25 +119,25 @@ class WebsocketServer extends BaseServer
         parent::bindCallback();
 
         if (is_callable($this->openCallback)) {
-            $this->swoole->on('Open', $this->openCallback);
+            $this->getSwoole()->on('Open', $this->openCallback);
         } elseif ($this->openCallback !== null) {
             throw new UnexpectedValueException('openCallback callback is not callable.');
         }
 
         if (is_callable($this->messageCallback)) {
-            $this->swoole->on('Message', $this->messageCallback);
+            $this->getSwoole()->on('Message', $this->messageCallback);
         } else {
             throw new UnexpectedValueException('messageCallback callback is not callable.');
         }
 
         if (is_callable($this->handShakeCallback)) {
-            $this->swoole->on('HandShake', $this->handShakeCallback);
+            $this->getSwoole()->on('HandShake', $this->handShakeCallback);
         } elseif ($this->handShakeCallback !== null) {
             throw new UnexpectedValueException('Callback callback is not callable.');
         }
 
         if (is_callable($this->requestCallback)) {
-            $this->swoole->on('Request', $this->requestCallback);
+            $this->getSwoole()->on('Request', $this->requestCallback);
 
             if (!is_callable($this->requestHandle)) {
                 throw new UnexpectedValueException('requestHandle is not callable.');

@@ -21,7 +21,7 @@ class SocketServer extends BaseServer
      * @param Listener $listener
      * @return SwooleServer
      */
-    protected static function createSwooleServer(Listener $listener): SwooleServer
+    protected static function swooleServer(Listener $listener): SwooleServer
     {
         return new SwooleServer($listener->host, $listener->port, $listener->type, $listener->mode);
     }

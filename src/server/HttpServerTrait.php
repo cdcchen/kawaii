@@ -19,16 +19,16 @@ use Kawaii;
 trait HttpServerTrait
 {
     /**
-     * @var callable|HttpHandle
+     * @var callable|SwooleHttpHandle
      */
     private $requestCallback;
     /**
-     * @var callable|HttpServerRequestHandleInterface
+     * @var callable|HttpHandleInterface
      */
     private $requestHandle;
 
     /**
-     * @param callable|HttpServerRequestHandleInterface $callback
+     * @param callable|HttpHandleInterface $callback
      */
     public function onRequest(callable $callback): void
     {
@@ -41,6 +41,6 @@ trait HttpServerTrait
     protected function setHttpCallback(): void
     {
         $this->receiveCallback = $this->connectCallback = null;
-        $this->requestCallback = new HttpHandle($this, $this->requestHandle);
+        $this->requestCallback = new SwooleHttpHandle($this, $this->requestHandle);
     }
 }

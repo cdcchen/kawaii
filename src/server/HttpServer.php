@@ -24,7 +24,7 @@ class HttpServer extends BaseServer
     use HttpServerTrait;
 
     /**
-     * @param callable|ApplicationInterface|HttpServerRequestHandleInterface $callback
+     * @param callable|ApplicationInterface|HttpHandleInterface $callback
      * @return $this
      */
     public function run(callable $callback)
@@ -42,7 +42,7 @@ class HttpServer extends BaseServer
      * @param Listener $listener
      * @return SwooleServer|SwooleHttpServer
      */
-    protected static function createSwooleServer(Listener $listener): SwooleServer
+    protected static function swooleServer(Listener $listener): SwooleServer
     {
         return new SwooleHttpServer($listener->host, $listener->port);
     }
@@ -55,7 +55,7 @@ class HttpServer extends BaseServer
         parent::bindCallback();
 
         if (is_callable($this->requestCallback)) {
-            $this->swoole->on('Request', $this->requestCallback);
+            $this->getSwoole()->on('Request', $this->requestCallback);
         } else {
             throw new UnexpectedValueException('requestCallback is not callable.');
         }

@@ -21,10 +21,10 @@ use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 
 /**
- * Class HttpHandle
+ * Class SwooleHttpHandle
  * @package kawaii\server
  */
-class HttpHandle extends Object
+class SwooleHttpHandle extends Object
 {
     /**
      * @var BaseServer
