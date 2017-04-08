@@ -11,6 +11,8 @@ namespace kawaii\server;
 
 use Closure;
 use kawaii\base\ApplicationInterface;
+use kawaii\base\InvalidConfigException;
+use kawaii\websocket\Application;
 use Swoole\Server as SwooleServer;
 use Swoole\WebSocket\{
     Server
@@ -39,22 +41,18 @@ class WebsocketServer extends BaseServer
     protected $handShakeCallback;
 
     /**
-     * @param WebSocketHandleInterface $app
+     * @param Application $app
      * @return $this
+     * @throws InvalidConfigException
      */
-    public function run(WebSocketHandleInterface $app)
+    public function run(Application $app)
     {
-        if ($app instanceof ApplicationInterface) {
-            $app->run();
-        }
+        $app->prepare();
 
-        $this->messageCallback = [$app, 'handleMessage'];
-
-        if (method_exists($app, 'handleOpen')) {
-            $this->openCallback = [$app, 'handleOpen'];
-        }
-        if (method_exists($app, 'handleClose')) {
-            $this->closeCallback = [$app, 'handleClose'];
+        if ($app->handle instanceof WebSocketHandleInterface) {
+            $this->setWebSocketCallback($app->handle);
+        } else {
+            echo "Use default websocket handle.\n";
         }
 
         return $this;
@@ -67,7 +65,7 @@ class WebsocketServer extends BaseServer
     public function http(callable $callback)
     {
         if ($callback instanceof ApplicationInterface) {
-            $callback->run();
+            $callback->prepare();
         }
 
         $this->requestHandle = $callback;
@@ -152,6 +150,17 @@ class WebsocketServer extends BaseServer
     {
         parent::setCallback();
         $this->receiveCallback = $this->connectCallback = null;
+        $this->setWebSocketCallback();
+    }
 
+    /**
+     * @param WebSocketHandleInterface $handle
+     */
+    private function setWebSocketCallback(?WebSocketHandleInterface $handle = null): void
+    {
+        $callback = new SwooleWebSocketHandle($this, $handle);
+        $this->openCallback = [$callback, 'onOpen'];
+        $this->messageCallback = [$callback, 'onMessage'];
+        $this->closeCallback = [$callback, 'onClose'];
     }
 }

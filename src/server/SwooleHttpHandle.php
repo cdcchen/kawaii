@@ -55,22 +55,7 @@ class SwooleHttpHandle extends Object
     public function __invoke(SwooleHttpRequest $req, SwooleHttpResponse $res): void
     {
         try {
-            $request = new ServerRequest(
-                $req->server['request_method'],
-                $req->server['request_uri'],
-                new HeaderCollection(empty($req->header) ? [] : $req->header),
-                $req->rawContent(),
-                '1.1',
-                $req->server
-            );
-            $request = $request->withQueryParams($req->get ?? [])
-                               ->withCookieParams($req->cookie ?? []);
-            if (isset($req->post)) {
-                $request = $request->withParsedBody($req->post ?? []);
-            }
-            if (isset($req->files)) {
-                $request = $request->withUploadedFiles(static::buildUploadedFiles($req->files));
-            }
+            $request = static::buildServerRequest($req);
 
             // App handle request
             $response = call_user_func($this->requestHandle, $request, $this->server);
@@ -98,6 +83,32 @@ class SwooleHttpHandle extends Object
         }
         $res->status($response->getStatusCode());
         $res->end((string)$response->getBody());
+    }
+
+    /**
+     * @param SwooleHttpRequest $req
+     * @return ServerRequest
+     */
+    public static function buildServerRequest(SwooleHttpRequest $req): ServerRequest
+    {
+        $request = new ServerRequest(
+            $req->server['request_method'],
+            $req->server['request_uri'],
+            new HeaderCollection(empty($req->header) ? [] : $req->header),
+            $req->rawContent(),
+            '1.1',
+            $req->server
+        );
+        $request = $request->withQueryParams($req->get ?? [])
+                           ->withCookieParams($req->cookie ?? []);
+        if (isset($req->post)) {
+            $request = $request->withParsedBody($req->post ?? []);
+        }
+        if (isset($req->files)) {
+            $request = $request->withUploadedFiles(static::buildUploadedFiles($req->files));
+        };
+
+        return $request;
     }
 
 

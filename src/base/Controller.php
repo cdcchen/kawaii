@@ -15,7 +15,7 @@ use Kawaii;
  * Class Controller
  * @package kawaii\base
  *
- * @property object $context
+ * @property object|null $context
  */
 abstract class Controller extends Object implements ViewContextInterface
 {
@@ -66,7 +66,7 @@ abstract class Controller extends Object implements ViewContextInterface
     }
 
     /**
-     * @return object Controller context
+     * @return object|null Controller context
      */
     public function getContext()
     {
@@ -89,7 +89,9 @@ abstract class Controller extends Object implements ViewContextInterface
         $result = null;
         if ($this->beforeAction($this->action)) {
             // run the action
-            $params = array_merge($this->context->request->getQueryParams(), $params);
+            if (is_object($this->context)) {
+                $params = array_merge($this->context->request->getQueryParams(), $params);
+            }
             $result = $this->action->runWithParams($params);
             $result = $this->afterAction($this->action, $result);
         }

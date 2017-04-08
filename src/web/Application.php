@@ -59,7 +59,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     /**
      * Run server
      */
-    public function run(): void
+    public function prepare(): void
     {
         if (!$this->beforeRun()) {
             throw new RuntimeException('Application::beforeRun must return true or false.');
@@ -237,7 +237,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
             try {
                 ob_start();
                 ob_implicit_flush(false);
-                $result = $this->runAction($route, $context);
+                $result = $this->runAction($route, [], $context);
             } catch (\Exception $e) {
                 $result = $e->getMessage();
             }

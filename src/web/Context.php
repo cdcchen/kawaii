@@ -8,6 +8,9 @@
 
 namespace kawaii\web;
 
+use cdcchen\psr7\ServerRequest;
+use kawaii\base\ApplicationInterface;
+use kawaii\base\ContextInterface;
 use kawaii\base\Object;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -16,21 +19,24 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Class Context
  * @package kawaii\web
+ *
+ * @property Application $app
+ * @property Request $request
  */
-class Context extends Object
+class Context extends Object implements ContextInterface
 {
-    /**
-     * @var \kawaii\server\HttpHandleInterface|Application
-     */
-    public $app;
-    /**
-     * @var Request
-     */
-    public $request;
     /**
      * @var Response
      */
     public $response;
+    /**
+     * @var \kawaii\server\HttpHandleInterface|Application
+     */
+    private $_app;
+    /**
+     * @var Request
+     */
+    private $_request;
 
     /**
      * @var array
@@ -50,11 +56,27 @@ class Context extends Object
         ResponseInterface $response,
         array $config = []
     ) {
-        $this->app = $app;
-        $this->request = $request;
+        $this->_app = $app;
+        $this->_request = $request;
         $this->response = $response;
 
         parent::__construct($config);
+    }
+
+    /**
+     * @return ApplicationInterface|Application
+     */
+    public function getApp(): ApplicationInterface
+    {
+        return $this->_app;
+    }
+
+    /**
+     * @return ServerRequest|Request|RequestInterface
+     */
+    public function getRequest(): ServerRequest
+    {
+        return $this->_request;
     }
 
     /**

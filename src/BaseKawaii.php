@@ -58,10 +58,17 @@ defined('KAWAII_ENABLE_ERROR_HANDLER') or define('KAWAII_ENABLE_ERROR_HANDLER', 
  */
 class BaseKawaii extends Object
 {
+    /**
+     * @var string
+     */
     public static $version = 'Kawaii/1.0.0';
-
+    /**
+     * @var array
+     */
     public static $classMap = [];
-
+    /**
+     * @var array
+     */
     public static $aliases = ['@kawaii' => __DIR__];
 
     /**

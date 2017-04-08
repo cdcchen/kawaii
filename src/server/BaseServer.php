@@ -37,7 +37,7 @@ abstract class BaseServer extends Object
     /**
      * @var Listener[]
      */
-    public static $listeners = [];
+    public $listeners = [];
     /**
      * @var string config file
      */
@@ -46,7 +46,10 @@ abstract class BaseServer extends Object
      * @var array swoole server setting
      */
     public $config = [];
-
+    /**
+     * @var BaseServer[]
+     */
+    private $processes = [];
     /**
      * @var \Swoole\Server
      */
@@ -148,7 +151,7 @@ abstract class BaseServer extends Object
      */
     public function listen(Listener $listener, PortServer $server = null): self
     {
-        static::$listeners[] = $listener;
+        $this->listeners[] = $listener;
 
         $port = $this->getSwoole()->listen($listener->host, $listener->port, $listener->type);
         if ($server !== null) {
@@ -337,6 +340,7 @@ abstract class BaseServer extends Object
      */
     public function addProcess(BaseProcess $process)
     {
+        $this->processes[$process->getPid()] = $process;
         return $process->run($this);
     }
 

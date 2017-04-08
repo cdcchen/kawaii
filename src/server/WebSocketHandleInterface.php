@@ -9,8 +9,7 @@
 namespace kawaii\server;
 
 
-use Swoole\Http\Request;
-use Swoole\WebSocket\Frame;
+use Psr\Http\Message\ServerRequestInterface;
 use Swoole\WebSocket\Server;
 
 /**
@@ -20,16 +19,20 @@ use Swoole\WebSocket\Server;
 interface WebSocketHandleInterface
 {
     /**
+     * @param ServerRequestInterface $req
      * @param Server $server
-     * @param Request $request
-     * @return mixed
      */
-    public function handleOpen(Server $server, Request $request);
+    public function handleOpen(ServerRequestInterface $req, Server $server): void;
+
+    /**
+     * @param WebSocketMessageInterface $message
+     * @param Server $server
+     */
+    public function handleMessage(WebSocketMessageInterface $message, Server $server): void;
 
     /**
      * @param Server $server
-     * @param Frame $frame
-     * @return mixed
+     * @param int $fd
      */
-    public function handleMessage(Server $server, Frame $frame);
+    public function handleClose(Server $server, int $fd): void;
 }

@@ -17,7 +17,6 @@ use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use kawaii\server\BaseServer;
 use kawaii\server\WebSocketHandleInterface;
-use kawaii\server\WebsocketServer;
 use kawaii\web\HttpException;
 use kawaii\web\Response;
 use kawaii\web\Router;
@@ -26,18 +25,22 @@ use kawaii\web\RouteRule;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
-use Swoole\Http\Request;
-use Swoole\WebSocket\Frame;
-use Swoole\WebSocket\Server;
 
 
 /**
  * Class Application
  * @package kawaii\websocket
+ *
+ * @property WebSocketHandleInterface $handle
  */
-class Application extends \kawaii\base\Application implements ApplicationInterface, WebSocketHandleInterface
+class Application extends \kawaii\base\Application implements ApplicationInterface
 {
     use RouterTrait;
+
+    /**
+     * @var WebSocketHandleInterface|null
+     */
+    protected $handle;
 
     /**
      * @var Router
@@ -49,7 +52,9 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
      */
     protected $middleware;
 
-
+    /**
+     * @inheritdoc
+     */
     protected function init(): void
     {
         $seedMiddleware = function (Context $context) {
@@ -65,7 +70,7 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     /**
      * Run server
      */
-    public function run(): void
+    public function prepare(): void
     {
         if (!$this->beforeRun()) {
             throw new RuntimeException('Application::beforeRun must return true or false.');
@@ -134,6 +139,14 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     public function getRouter(): Router
     {
         return $this->router;
+    }
+
+    /**
+     * @return WebSocketHandleInterface|null
+     */
+    public function getHandle(): ?WebSocketHandleInterface
+    {
+        return $this->handle;
     }
 
     /**
@@ -215,30 +228,5 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
             return $context;
         };
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function handleOpen(Server $server, Request $request)
-    {
-        echo "App - handleOpen - Websocket {$request->fd} client connected.\n";
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function handleMessage(Server $server, Frame $frame)
-    {
-        echo "App - handleMessage - Receive message: {$frame->data} form {$frame->fd}.\n";
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function handleClose(Server $server, int $fd, int $reactorId)
-    {
-//        unset(static::$conn[$fd]);
-        echo "App - handleClose - WebSocket Client {$fd} from reactor {$reactorId} disconnected.\n";
     }
 }

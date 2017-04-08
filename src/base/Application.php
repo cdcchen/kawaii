@@ -358,14 +358,14 @@ abstract class Application extends ServiceLocator
 
     /**
      * @param string $route
-     * @param object $context
      * @param array $params
+     * @param object $context
      * @return mixed|null
      * @throws InvalidRouteException
      */
-    public function runAction(string $route, $context, array $params = [])
+    public function runAction(string $route, array $params = [], $context = null)
     {
-        $parts = $this->createController($route, $context);
+        $parts = $this->createControllerByRoute($route, $context);
         if (is_array($parts)) {
             /* @var $controller Controller */
             list($controller, $actionId) = $parts;
@@ -382,7 +382,7 @@ abstract class Application extends ServiceLocator
      * @param $context
      * @return array|bool
      */
-    private function createController($route, $context)
+    private function createControllerByRoute($route, $context)
     {
         $route = trim($route, '/');
         if ($route === '') {

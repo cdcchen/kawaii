@@ -30,7 +30,7 @@ class HttpServer extends BaseServer
     public function run(callable $callback)
     {
         if ($callback instanceof ApplicationInterface) {
-            $callback->run();
+            $callback->prepare();
         }
         $this->requestHandle = $callback;
         $this->setHttpCallback();

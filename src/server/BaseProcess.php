@@ -15,6 +15,8 @@ use Swoole\Process;
 /**
  * Class BaseProcess
  * @package kawaii\server
+ *
+ * @property int pid
  */
 abstract class BaseProcess extends Object
 {
@@ -49,14 +51,6 @@ abstract class BaseProcess extends Object
     }
 
     /**
-     * @return Process
-     */
-    public function getProcess()
-    {
-        return $this->process;
-    }
-
-    /**
      * @param BaseServer $server
      * @return bool Run process
      */
@@ -75,23 +69,20 @@ abstract class BaseProcess extends Object
     }
 
     /**
-     * @param int $interval usec
-     * @param int $type
-     * @return bool
+     * @param int $status
+     * @return int
      */
-    public static function alarm(int $interval, int $type = 0): bool
+    public function exit(int $status = 0): int
     {
-        return Process::alarm($interval, $type);
+        return $this->process->exit($status);
     }
 
-    public function signal(int $signo, ?callable $callback): bool
+    /**
+     * @return int
+     */
+    public function getPid(): int
     {
-        return Process::signal(SIGTERM, $callback);
-    }
-
-    public function daemon(bool $noChdir = true, bool $noClose = true)
-    {
-        Process::daemon($noChdir = true, $noClose = true);
+        return posix_getpid();
     }
 
     /**
