@@ -9,6 +9,7 @@
 namespace kawaii\server;
 
 
+use cdcchen\psr7\ServerRequest;
 use kawaii\base\Object;
 use kawaii\websocket\Message;
 use Swoole\Http\Request;
@@ -28,12 +29,21 @@ class SwooleWebSocketHandle extends Object
     public $handle;
 
     /**
+     * @var ServerRequest[]
+     */
+    private $requests = [];
+    /**
+     * @var string[]
+     */
+    private $_data = [];
+
+    /**
      * SwooleWebSocketHandle constructor.
      * @param BaseServer $server
      * @param WebSocketHandleInterface $handle
      * @param array $config
      */
-    public function __construct(BaseServer $server, ?WebSocketHandleInterface $handle = null, array $config = [])
+    public function __construct(BaseServer $server, WebSocketHandleInterface $handle, array $config = [])
     {
         parent::__construct($config);
         $this->server = $server;
@@ -47,10 +57,12 @@ class SwooleWebSocketHandle extends Object
      */
     public function onOpen(Server $server, Request $req)
     {
+        $this->_data[$req->fd] = '';
+
         $request = SwooleHttpHandle::buildServerRequest($req);
-        if ($this->handle instanceof WebSocketHandleInterface) {
-            $this->handle->handleOpen($request, $server);
-        }
+        $this->requests[$req->fd] = $request;
+
+        $this->handle->handleOpen($request, $server);
 
         echo "App - handleOpen - Websocket {$req->fd} client connected.\n";
         echo var_export($request->getServerParams()) . PHP_EOL;
@@ -63,11 +75,19 @@ class SwooleWebSocketHandle extends Object
      */
     public function onMessage(Server $server, Frame $frame)
     {
-        $message = new Message();
-        if ($this->handle instanceof WebSocketHandleInterface) {
+        $fd = $frame->fd;
+        $this->_data[$fd] .= $frame->data;
+        if ($frame->finish) {
+            $request = $this->requests[$fd];
+            $message = new Message($fd, $request, $this->_data[$fd], $frame->opcode);
             $this->handle->handleMessage($message, $server);
+
+            echo "App - handleMessage - Receive message: {$frame->data} form {$frame->fd}.\n";
+
+            $this->_data[$fd] = '';
+        } else {
+            echo "App - handleMessage - Receive frame data: {$frame->data} form {$frame->fd}.\n";
         }
-        echo "App - handleMessage - Receive message: {$frame->data} form {$frame->fd}.\n";
     }
 
     /**
@@ -77,9 +97,10 @@ class SwooleWebSocketHandle extends Object
      */
     public function onClose(Server $server, int $fd, int $reactorId)
     {
-        if ($this->handle instanceof WebSocketHandleInterface) {
-            $this->handle->handleClose($server, $fd);
-        }
+        unset($this->requests[$fd], $this->_data[$fd]);
+
+        $this->handle->handleClose($server, $fd);
+
         echo "App - handleClose - WebSocket Client {$fd} from reactor {$reactorId} disconnected.\n";
     }
 }

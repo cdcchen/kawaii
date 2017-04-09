@@ -18,4 +18,5 @@ $process = new \app\process\Publish();
 $server->addProcess($process);
 $server->http($app)
        ->run($app2)
+       ->handle(new \app\handle\WebSocketHandle())
        ->start();

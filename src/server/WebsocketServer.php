@@ -11,8 +11,6 @@ namespace kawaii\server;
 
 use Closure;
 use kawaii\base\ApplicationInterface;
-use kawaii\base\InvalidConfigException;
-use kawaii\websocket\Application;
 use Swoole\Server as SwooleServer;
 use Swoole\WebSocket\{
     Server
@@ -41,19 +39,32 @@ class WebsocketServer extends BaseServer
     protected $handShakeCallback;
 
     /**
-     * @param Application $app
-     * @return $this
-     * @throws InvalidConfigException
+     * @param ApplicationInterface $app
+     * @param WebSocketHandleInterface|null $handle
+     * @return $this|WebsocketServer
      */
-    public function run(Application $app)
+    public function run(ApplicationInterface $app, WebSocketHandleInterface $handle = null): self
     {
-        $app->prepare();
-
-        if ($app->handle instanceof WebSocketHandleInterface) {
-            $this->setWebSocketCallback($app->handle);
-        } else {
-            echo "Use default websocket handle.\n";
+        if ($app instanceof ApplicationInterface) {
+            $app->prepare();
         }
+        if ($app instanceof WebSocketHandleInterface) {
+            $this->setWebSocketCallback($app);
+        }
+        if ($handle instanceof WebSocketHandleInterface) {
+            $this->setWebSocketCallback($handle);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param WebSocketHandleInterface $handle
+     * @return $this|WebsocketServer
+     */
+    public function handle(WebSocketHandleInterface $handle): self
+    {
+        $this->setWebSocketCallback($handle);
 
         return $this;
     }
@@ -150,13 +161,12 @@ class WebsocketServer extends BaseServer
     {
         parent::setCallback();
         $this->receiveCallback = $this->connectCallback = null;
-        $this->setWebSocketCallback();
     }
 
     /**
      * @param WebSocketHandleInterface $handle
      */
-    private function setWebSocketCallback(?WebSocketHandleInterface $handle = null): void
+    private function setWebSocketCallback(WebSocketHandleInterface $handle): void
     {
         $callback = new SwooleWebSocketHandle($this, $handle);
         $this->openCallback = [$callback, 'onOpen'];

@@ -9,7 +9,31 @@
 namespace kawaii\server;
 
 
+use Psr\Http\Message\ServerRequestInterface;
+
+/**
+ * Interface WebSocketMessageInterface
+ * @package kawaii\server
+ */
 interface WebSocketMessageInterface
 {
+    /**
+     * @return int
+     */
+    public function getFd(): int;
 
+    /**
+     * @return string
+     */
+    public function getData(): string;
+
+    /**
+     * @return int
+     */
+    public function getOpCode(): int;
+
+    /**
+     * @return ServerRequestInterface
+     */
+    public function getRequest(): ServerRequestInterface;
 }

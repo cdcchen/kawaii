@@ -17,6 +17,7 @@ use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use kawaii\server\BaseServer;
 use kawaii\server\WebSocketHandleInterface;
+use kawaii\server\WebSocketMessageInterface;
 use kawaii\web\HttpException;
 use kawaii\web\Response;
 use kawaii\web\Router;
@@ -25,6 +26,7 @@ use kawaii\web\RouteRule;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
+use Swoole\WebSocket\Server;
 
 
 /**
@@ -33,14 +35,9 @@ use RuntimeException;
  *
  * @property WebSocketHandleInterface $handle
  */
-class Application extends \kawaii\base\Application implements ApplicationInterface
+class Application extends \kawaii\base\Application implements ApplicationInterface, WebSocketHandleInterface
 {
     use RouterTrait;
-
-    /**
-     * @var WebSocketHandleInterface|null
-     */
-    protected $handle;
 
     /**
      * @var Router
@@ -142,14 +139,6 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     }
 
     /**
-     * @return WebSocketHandleInterface|null
-     */
-    public function getHandle(): ?WebSocketHandleInterface
-    {
-        return $this->handle;
-    }
-
-    /**
      * @return bool
      */
     protected function beforeRun(): bool
@@ -228,5 +217,32 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
 
             return $context;
         };
+    }
+
+    /**
+     * @param ServerRequestInterface $req
+     * @param Server $server
+     */
+    public function handleOpen(ServerRequestInterface $req, Server $server): void
+    {
+        // TODO: Implement handleOpen() method.
+    }
+
+    /**
+     * @param WebSocketMessageInterface|Message $message
+     * @param Server $server
+     */
+    public function handleMessage(WebSocketMessageInterface $message, Server $server): void
+    {
+        echo "This is app handleMessage.\n";
+    }
+
+    /**
+     * @param Server $server
+     * @param int $fd
+     */
+    public function handleClose(Server $server, int $fd): void
+    {
+        // TODO: Implement handleClose() method.
     }
 }
