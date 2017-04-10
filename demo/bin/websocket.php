@@ -13,10 +13,8 @@ $config = __DIR__ . '/../config/websocket.php';
 $app2 = new \kawaii\websocket\Application($config);
 
 $config = __DIR__ . '/../config/server.php';
-$server = new \kawaii\server\WebsocketServer($config);
+$server = new \kawaii\server\WebSocketServer($config);
 $process = new \app\process\Publish();
 $server->addProcess($process);
-$server->http($app)
-       ->run($app2)
-       ->handle(new \app\handle\WebSocketHandle())
+$server->run($app2, false)
        ->start();

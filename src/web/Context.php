@@ -14,6 +14,8 @@ use kawaii\base\ContextInterface;
 use kawaii\base\Object;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Http\Response as SwooleHttpResponse;
 
 
 /**
@@ -22,43 +24,60 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @property Application $app
  * @property Request $request
+ * @property Response $response
+ * @property SwooleHttpRequest $req
+ * @property SwooleHttpResponse $res
  */
 class Context extends Object implements ContextInterface
 {
     /**
+     * @var array
+     */
+    public $routeParams = [];
+    /**
      * @var Response
      */
     public $response;
+
     /**
-     * @var \kawaii\server\HttpHandleInterface|Application
+     * @var ApplicationInterface|Application
      */
     private $_app;
     /**
      * @var Request
      */
     private $_request;
-
     /**
-     * @var array
+     * @var SwooleHttpRequest
      */
-    public $routeParams = [];
+    private $_req;
+    /**
+     * @var SwooleHttpResponse
+     */
+    private $_res;
 
     /**
      * Context constructor.
      * @param Application $app
      * @param RequestInterface $request
      * @param ResponseInterface $response
+     * @param SwooleHttpRequest $req
+     * @param SwooleHttpResponse $res
      * @param array $config
      */
     public function __construct(
         Application $app,
         RequestInterface $request,
         ResponseInterface $response,
+        SwooleHttpRequest $req,
+        SwooleHttpResponse $res,
         array $config = []
     ) {
         $this->_app = $app;
         $this->_request = $request;
         $this->response = $response;
+        $this->_req = $req;
+        $this->_res = $res;
 
         parent::__construct($config);
     }
@@ -77,6 +96,22 @@ class Context extends Object implements ContextInterface
     public function getRequest(): ServerRequest
     {
         return $this->_request;
+    }
+
+    /**
+     * @return SwooleHttpRequest
+     */
+    public function getReq(): SwooleHttpRequest
+    {
+        return $this->_req;
+    }
+
+    /**
+     * @return SwooleHttpResponse
+     */
+    public function getRes(): SwooleHttpResponse
+    {
+        return $this->_res;
     }
 
     /**

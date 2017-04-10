@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: chendong
- * Date: 2017/4/3
- * Time: 20:40
+ * Date: 2017/4/10
+ * Time: 17:24
  */
 
 namespace kawaii\server;
@@ -14,54 +14,53 @@ use cdcchen\psr7\Response;
 use cdcchen\psr7\ServerRequest;
 use Fig\Http\Message\StatusCodeInterface;
 use Kawaii;
-use kawaii\base\Object;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 
 /**
- * Class SwooleHttpHandle
+ * Class HttpCallback
  * @package kawaii\server
  */
-class SwooleHttpHandle extends Object
+class HttpCallback extends BaseCallback
 {
     /**
-     * @var BaseServer
+     * @var HttpHandleInterface
      */
-    private $server;
-    /**
-     * @var callable
-     */
-    private $requestHandle;
+    public $handle;
 
     /**
-     * HttpHandle constructor.
-     * @param BaseServer $server
-     * @param callable $requestHandle
-     * @param array $config
+     * @var bool
      */
-    public function __construct(BaseServer $server, callable $requestHandle, array $config = [])
+    protected $enableHttp = true;
+
+    /**
+     * @inheritdoc
+     */
+    public function bind(): void
     {
-        parent::__construct($config);
-        $this->server = $server;
-        $this->requestHandle = $requestHandle;
+        parent::bind();
+
+        if ($this->enableHttp) {
+            $this->server->on('Request', [$this, 'onRequest']);
+        }
     }
 
     /**
      * @param SwooleHttpRequest $req
      * @param SwooleHttpResponse $res
      */
-    public function __invoke(SwooleHttpRequest $req, SwooleHttpResponse $res): void
+    public function onRequest(SwooleHttpRequest $req, SwooleHttpResponse $res): void
     {
         try {
             $request = static::buildServerRequest($req);
 
             // App handle request
-            $response = call_user_func($this->requestHandle, $request, $this->server);
+            $response = $this->handle->handleRequest($this->server, $request, $req, $res);
 
             if (!($response instanceof Response)) {
-                $response = static::buildServerErrorResponse('requestHandle must be return an instance of \kawaii\web\Response');
+                $response = static::buildServerErrorResponse('requestHandle must be return an instance of \cdcchen\psr7\Response');
             }
         } catch (\Exception $e) {
             $message = $e->getFile() . PHP_EOL . $e->getLine() . PHP_EOL . $e->getMessage();

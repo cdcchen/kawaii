@@ -2,31 +2,33 @@
 /**
  * Created by PhpStorm.
  * User: chendong
- * Date: 2017/4/9
- * Time: 00:24
+ * Date: 2017/4/10
+ * Time: 17:26
  */
 
 namespace kawaii\server;
 
 
 use cdcchen\psr7\ServerRequest;
-use kawaii\base\Object;
 use kawaii\websocket\Message;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
 use Swoole\WebSocket\Server;
 
-class SwooleWebSocketHandle extends Object
+/**
+ * Class WebSocketCallback
+ * @package kawaii\server
+ */
+class WebSocketCallback extends HttpCallback
 {
-    /**
-     * @var BaseServer
-     */
-    public $server;
-
     /**
      * @var WebSocketHandleInterface
      */
     public $handle;
+    /**
+     * @var bool
+     */
+    protected $enableHttp = false;
 
     /**
      * @var ServerRequest[]
@@ -38,16 +40,21 @@ class SwooleWebSocketHandle extends Object
     private $_data = [];
 
     /**
-     * SwooleWebSocketHandle constructor.
-     * @param BaseServer $server
-     * @param WebSocketHandleInterface $handle
-     * @param array $config
+     * @inheritdoc
      */
-    public function __construct(BaseServer $server, WebSocketHandleInterface $handle, array $config = [])
+    public function bind(): void
     {
-        parent::__construct($config);
-        $this->server = $server;
-        $this->handle = $handle;
+        parent::bind();
+
+        $this->server->on('Open', [$this, 'onOpen']);
+        $this->server->on('Message', [$this, 'onMessage']);
+        $this->server->on('Close', [$this, 'onClose']);
+    }
+
+    public function http($flag = true): self
+    {
+        $this->enableHttp = (bool)$flag;
+        return $this;
     }
 
     /**
@@ -95,7 +102,7 @@ class SwooleWebSocketHandle extends Object
      * @param int $fd
      * @param int $reactorId
      */
-    public function onClose(Server $server, int $fd, int $reactorId)
+    public function onClose(Server $server, int $fd, int $reactorId): void
     {
         unset($this->requests[$fd], $this->_data[$fd]);
 

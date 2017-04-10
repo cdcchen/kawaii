@@ -11,6 +11,8 @@ namespace kawaii\server;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Swoole\Http\Request;
+use Swoole\Http\Response;
 
 /**
  * Interface HttpHandleInterface
@@ -19,9 +21,16 @@ use Psr\Http\Message\ServerRequestInterface;
 interface HttpHandleInterface
 {
     /**
-     * @param ServerRequestInterface $request
      * @param BaseServer $server
+     * @param ServerRequestInterface $request
+     * @param Request $req
+     * @param Response $res
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, BaseServer $server): ResponseInterface;
+    public function handleRequest(
+        BaseServer $server,
+        ServerRequestInterface $request,
+        Request $req,
+        Response $res
+    ): ResponseInterface;
 }

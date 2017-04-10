@@ -13,7 +13,6 @@ use Kawaii;
 use kawaii\base\ApplicationInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Server as SwooleServer;
-use UnexpectedValueException;
 
 /**
  * Class HttpServer
@@ -21,19 +20,24 @@ use UnexpectedValueException;
  */
 class HttpServer extends BaseServer
 {
-    use HttpServerTrait;
+    /**
+     * @var string|HttpCallback
+     */
+    protected $callback = HttpCallback::class;
 
     /**
-     * @param callable|ApplicationInterface|HttpHandleInterface $callback
+     * @param ApplicationInterface $app
      * @return $this
      */
-    public function run(callable $callback)
+    public function run(ApplicationInterface $app)
     {
-        if ($callback instanceof ApplicationInterface) {
-            $callback->prepare();
+        if ($app instanceof HttpHandleInterface) {
+            $this->callback->handle = $app;
         }
-        $this->requestHandle = $callback;
-        $this->setHttpCallback();
+
+        if ($app instanceof ApplicationInterface) {
+            $app->prepare();
+        }
 
         return $this;
     }
@@ -45,28 +49,5 @@ class HttpServer extends BaseServer
     protected static function swooleServer(Listener $listener): SwooleServer
     {
         return new SwooleHttpServer($listener->host, $listener->port);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function bindCallback(): void
-    {
-        parent::bindCallback();
-
-        if (is_callable($this->requestCallback)) {
-            $this->getSwoole()->on('Request', $this->requestCallback);
-        } else {
-            throw new UnexpectedValueException('requestCallback is not callable.');
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function setCallback(): void
-    {
-        parent::setCallback();
-        $this->receiveCallback = $this->connectCallback = null;
     }
 }

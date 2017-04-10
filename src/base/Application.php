@@ -11,12 +11,13 @@ namespace kawaii\base;
 
 use Kawaii;
 use kawaii\di\ServiceLocator;
+use RuntimeException;
 
 /**
  * Class Application
  * @package kawaii\base
  */
-abstract class Application extends ServiceLocator
+abstract class Application extends ServiceLocator implements ApplicationInterface
 {
     /**
      * @var
@@ -124,6 +125,24 @@ abstract class Application extends ServiceLocator
         $this->preInit($this->config);
 
         $this->registerErrorHandler($this->config);
+    }
+
+    /**
+     * Run server
+     */
+    public function prepare(): void
+    {
+        if (!$this->beforeRun()) {
+            throw new RuntimeException('Application::beforeRun must return true or false.');
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function beforeRun(): bool
+    {
+        return true;
     }
 
     /**

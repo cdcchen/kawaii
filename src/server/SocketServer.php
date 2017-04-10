@@ -9,6 +9,7 @@
 namespace kawaii\server;
 
 
+use kawaii\base\ApplicationInterface;
 use Swoole\Server as SwooleServer;
 
 /**
@@ -17,6 +18,28 @@ use Swoole\Server as SwooleServer;
  */
 class SocketServer extends BaseServer
 {
+    /**
+     * @var string|SocketCallback
+     */
+    protected $callback = SocketCallback::class;
+
+    /**
+     * @param ApplicationInterface $app
+     * @return $this
+     */
+    public function run(ApplicationInterface $app)
+    {
+        if ($app instanceof SocketHandleInterface) {
+            $this->callback->handle = $app;
+        }
+
+        if ($app instanceof ApplicationInterface) {
+            $app->prepare();
+        }
+
+        return $this;
+    }
+
     /**
      * @param Listener $listener
      * @return SwooleServer

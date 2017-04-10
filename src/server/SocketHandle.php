@@ -17,7 +17,7 @@ use Swoole\Server as SwooleServer;
  * Class DefaultHandle
  * @package kawaii\server
  */
-class DefaultHandle extends Object
+class SocketHandle extends Object implements SocketHandleInterface
 {
     /**
      * @var BaseServer

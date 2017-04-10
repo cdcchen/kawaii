@@ -12,22 +12,22 @@ namespace kawaii\web;
 use cdcchen\psr7\Stream;
 use Fig\Http\Message\StatusCodeInterface;
 use Kawaii;
-use kawaii\base\ApplicationInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use kawaii\server\BaseServer as BaseServer;
-use kawaii\server\HttpServer;
 use kawaii\server\HttpHandleInterface;
+use kawaii\server\HttpServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
+use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Http\Response as SwooleHttpResponse;
 
 /**
  * Class Application
  * @package kawaii\web
  */
-class Application extends \kawaii\base\Application implements ApplicationInterface, HttpHandleInterface
+class Application extends \kawaii\base\Application implements HttpHandleInterface
 {
     use RouterTrait;
 
@@ -57,25 +57,21 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     }
 
     /**
-     * Run server
-     */
-    public function prepare(): void
-    {
-        if (!$this->beforeRun()) {
-            throw new RuntimeException('Application::beforeRun must return true or false.');
-        }
-    }
-
-    /**
-     * @param ServerRequestInterface $request
      * @param BaseServer|HttpServer $server
+     * @param ServerRequestInterface $request
+     * @param SwooleHttpRequest $req
+     * @param SwooleHttpResponse $res
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, BaseServer $server): ResponseInterface
-    {
+    public function handleRequest(
+        BaseServer $server,
+        ServerRequestInterface $request,
+        SwooleHttpRequest $req,
+        SwooleHttpResponse $res
+    ): ResponseInterface {
         $beginTime = microtime(true);
 
-        $context = new Context($this, $request, new Response());
+        $context = new Context($this, $request, new Response(), $req, $res);
         try {
             $exist = $this->handleStaticFiles($context);
             if (!$exist) {
@@ -168,14 +164,6 @@ class Application extends \kawaii\base\Application implements ApplicationInterfa
     public function getRouter(): Router
     {
         return $this->router;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function beforeRun(): bool
-    {
-        return true;
     }
 
     /**
