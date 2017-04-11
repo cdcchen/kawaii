@@ -17,7 +17,7 @@ use Swoole\Server;
  * Class BaseCallback
  * @package kawaii\server
  */
-class BaseCallback extends Object
+abstract class BaseCallback extends Object
 {
     /**
      * @var BaseServer
