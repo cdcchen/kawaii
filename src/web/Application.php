@@ -12,6 +12,7 @@ namespace kawaii\web;
 use cdcchen\psr7\Stream;
 use Fig\Http\Message\StatusCodeInterface;
 use Kawaii;
+use kawaii\base\ContextInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
@@ -39,7 +40,7 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
     protected $router;
 
     /**
-     * @var Middleware
+     * @var MiddlewareStackInterface
      */
     protected $middleware;
 
@@ -141,11 +142,11 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
     public function addRoute(
         string $methods,
         string $path,
-        callable $handler,
+        callable $handle,
         bool $strict = false,
         string $suffix = ''
     ): Router {
-        return $this->router->addRoute($methods, $path, $handler, $strict, $suffix);
+        return $this->router->addRoute($methods, $path, $handle, $strict, $suffix);
     }
 
     /**
@@ -169,7 +170,7 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
     /**
      * load routes from routes config file.
      */
-    private function loadRoutes(): void
+    protected function loadRoutes(): void
     {
         if (empty($this->config['routes'])) {
             return;
@@ -206,14 +207,14 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
      * @param string $route
      * @return callable
      */
-    private function buildHandlerByRoute(string $route): callable
+    protected function buildHandlerByRoute(string $route): callable
     {
-        return function (Context $context, callable $next) use ($route) {
+        return function (ContextInterface $context, callable $next) use ($route) {
             /* @var Context $context */
             $context = $next($context);
 
             if ($route === '*') {
-                $route = $context->request->getPath();
+                $route = $context->request->getUri()->getPath();
             } else {
                 $placers = [
                     '{controller}' => $context->getRouteParam('controller', ''),

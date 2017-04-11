@@ -9,6 +9,7 @@
 namespace kawaii\web;
 
 
+use kawaii\base\ContextInterface;
 use kawaii\base\InvalidValueException;
 use kawaii\base\Object;
 
@@ -41,10 +42,10 @@ class Middleware extends Object implements MiddlewareStackInterface
     }
 
     /**
-     * @param Context $context
-     * @return Context|mixed
+     * @param ContextInterface $context
+     * @return ContextInterface|mixed
      */
-    public function handle(Context $context): Context
+    public function handle(ContextInterface $context): ContextInterface
     {
         if (is_callable($this->middleware)) {
             return call_user_func($this->middleware, $context);

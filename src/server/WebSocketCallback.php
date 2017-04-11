@@ -24,7 +24,7 @@ class WebSocketCallback extends HttpCallback
     /**
      * @var WebSocketHandleInterface
      */
-    public $handle;
+    public $handle1;
     /**
      * @var bool
      */
@@ -51,6 +51,10 @@ class WebSocketCallback extends HttpCallback
         $this->server->on('Close', [$this, 'onClose']);
     }
 
+    /**
+     * @param bool $flag
+     * @return WebSocketCallback
+     */
     public function http($flag = true): self
     {
         $this->enableHttp = (bool)$flag;
@@ -60,16 +64,15 @@ class WebSocketCallback extends HttpCallback
     /**
      * @param Server $server
      * @param Request $req
-     * @return mixed
      */
-    public function onOpen(Server $server, Request $req)
+    public function onOpen(Server $server, Request $req): void
     {
         $this->_data[$req->fd] = '';
 
-        $request = SwooleHttpHandle::buildServerRequest($req);
+        $request = static::buildServerRequest($req);
         $this->requests[$req->fd] = $request;
 
-        $this->handle->handleOpen($request, $server);
+        $this->handle1->handleOpen($request, $server);
 
         echo "App - handleOpen - Websocket {$req->fd} client connected.\n";
         echo var_export($request->getServerParams()) . PHP_EOL;
@@ -78,20 +81,19 @@ class WebSocketCallback extends HttpCallback
     /**
      * @param Server $server
      * @param Frame $frame
-     * @return mixed
      */
-    public function onMessage(Server $server, Frame $frame)
+    public function onMessage(Server $server, Frame $frame): void
     {
         $fd = $frame->fd;
         $this->_data[$fd] .= $frame->data;
         if ($frame->finish) {
             $request = $this->requests[$fd];
             $message = new Message($fd, $request, $this->_data[$fd], $frame->opcode);
-            $this->handle->handleMessage($message, $server);
+            $this->handle1->handleMessage($message, $server);
 
             echo "App - handleMessage - Receive message: {$frame->data} form {$frame->fd}.\n";
 
-            $this->_data[$fd] = '';
+            unset($this->_data[$fd]);
         } else {
             echo "App - handleMessage - Receive frame data: {$frame->data} form {$frame->fd}.\n";
         }
@@ -106,7 +108,7 @@ class WebSocketCallback extends HttpCallback
     {
         unset($this->requests[$fd], $this->_data[$fd]);
 
-        $this->handle->handleClose($server, $fd);
+        $this->handle1->handleClose($server, $fd);
 
         echo "App - handleClose - WebSocket Client {$fd} from reactor {$reactorId} disconnected.\n";
     }

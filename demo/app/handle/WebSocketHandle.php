@@ -23,7 +23,7 @@ class WebSocketHandle extends Object implements WebSocketHandleInterface
         // TODO: Implement handleOpen() method.
     }
 
-    public function handleMessage(WebSocketMessageInterface $message, Server $server): void
+    public function handleMessage(WebSocketMessageInterface $message, Server $server)
     {
         echo "This is handle handleMessage.\n";
         // TODO: Implement handleMessage() method.

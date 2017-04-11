@@ -42,9 +42,9 @@ class RouteMiddleware implements MiddlewareInterface
         $context = $next($context);
 
         $path = $context->request->getUri()->getPath();
-        $result = Kawaii::$app->getRouter()->dispatch($context->request->getMethod(), $path);
+        $result = $this->app->getRouter()->dispatch($context->request->getMethod(), $path);
         if ($result === false) {
-            $context->response = $context->response->withStatus(404);
+            $context->response->data = 'No route';
             return $context;
         }
 

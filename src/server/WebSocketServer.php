@@ -31,7 +31,7 @@ class WebSocketServer extends BaseServer
      * @param bool $enableHttp
      * @return $this|WebSocketServer
      */
-    public function run(ApplicationInterface $app, $enableHttp = false): self
+    public function run1(ApplicationInterface $app, $enableHttp = false): self
     {
         if ($app instanceof ApplicationInterface) {
             $app->prepare();
@@ -42,6 +42,23 @@ class WebSocketServer extends BaseServer
         if ($enableHttp && ($app instanceof HttpHandleInterface)) {
             var_dump(__FILE__);
             $this->callback->http($enableHttp);
+        }
+
+        return $this;
+    }
+
+    public function run(ApplicationInterface $app, ?ApplicationInterface $app2 = null): self
+    {
+        if ($app instanceof ApplicationInterface) {
+            $app->prepare();
+        }
+        if ($app instanceof WebSocketHandleInterface) {
+            $this->callback->handle1 = $app;
+        }
+        if ($app2 && ($app2 instanceof HttpHandleInterface)) {
+            var_dump(__FILE__);
+            $this->callback->handle = $app2;
+            $this->callback->http(1);
         }
 
         return $this;

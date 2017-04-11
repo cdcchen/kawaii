@@ -19,5 +19,5 @@ interface SocketHandleInterface
      * @param int $fromWorkerId
      * @param string $data
      */
-    public function onReceive(SwooleServer $server, int $fd, int $fromWorkerId, string $data): void;
+    public function handleReceive(SwooleServer $server, int $fd, int $fromWorkerId, string $data): void;
 }

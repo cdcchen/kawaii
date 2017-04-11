@@ -16,6 +16,13 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Class Message
  * @package kawaii\websocket
+ *
+ * @property ServerRequestInterface $request
+ * @property int $fd
+ * @property int $opcode
+ * @property string $data
+ * @property bool $isBinary
+ * @property bool $isText
  */
 class Message extends Object implements WebSocketMessageInterface
 {
@@ -34,24 +41,24 @@ class Message extends Object implements WebSocketMessageInterface
     /**
      * @var int
      */
-    private $opCode;
+    private $opcode;
 
     /**
      * Message constructor.
      * @param int $fd
      * @param ServerRequestInterface $request
      * @param string $data
-     * @param int $opCode
+     * @param int $opcode
      * @param array $config
      */
-    public function __construct(int $fd, ServerRequestInterface $request, string $data, int $opCode, array $config = [])
+    public function __construct(int $fd, ServerRequestInterface $request, string $data, int $opcode, array $config = [])
     {
         parent::__construct($config);
 
         $this->fd = $fd;
         $this->request = $request;
         $this->data = $data;
-        $this->opCode = $opCode;
+        $this->opcode = $opcode;
     }
 
     /**
@@ -81,9 +88,9 @@ class Message extends Object implements WebSocketMessageInterface
     /**
      * @return int
      */
-    public function getOpCode(): int
+    public function getOpcode(): int
     {
-        return $this->opCode;
+        return $this->opcode;
     }
 
     /**
@@ -91,7 +98,7 @@ class Message extends Object implements WebSocketMessageInterface
      */
     public function getIsBinary(): bool
     {
-        return $this->opCode === WEBSOCKET_OPCODE_BINARY;
+        return $this->opcode === WEBSOCKET_OPCODE_BINARY;
     }
 
     /**
@@ -99,6 +106,6 @@ class Message extends Object implements WebSocketMessageInterface
      */
     public function getIsText(): bool
     {
-        return $this->opCode === WEBSOCKET_OPCODE_TEXT;
+        return $this->opcode === WEBSOCKET_OPCODE_TEXT;
     }
 }

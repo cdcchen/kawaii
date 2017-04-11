@@ -31,18 +31,13 @@ class HttpCallback extends BaseCallback
     public $handle;
 
     /**
-     * @var bool
-     */
-    protected $enableHttp = true;
-
-    /**
      * @inheritdoc
      */
     public function bind(): void
     {
         parent::bind();
 
-        if ($this->enableHttp) {
+        if ($this->handle) {
             $this->server->on('Request', [$this, 'onRequest']);
         }
     }

@@ -9,6 +9,8 @@
 namespace kawaii\web;
 
 
+use kawaii\base\ContextInterface;
+
 interface MiddlewareStackInterface
 {
     /**
@@ -30,8 +32,8 @@ interface MiddlewareStackInterface
      * This method MUST be implemented in such a way as to allow the same
      * stack to be reused for processing multiple requests in sequence.
      *
-     * @param Context $context
-     * @return Context
+     * @param ContextInterface $context
+     * @return ContextInterface
      */
-    public function handle(Context $context): Context;
+    public function handle(ContextInterface $context): ContextInterface;
 }

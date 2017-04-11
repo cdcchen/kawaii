@@ -16,5 +16,5 @@ $config = __DIR__ . '/../config/server.php';
 $server = new \kawaii\server\WebSocketServer($config);
 $process = new \app\process\Publish();
 $server->addProcess($process);
-$server->run($app2, false)
+$server->run($app2, $app)
        ->start();

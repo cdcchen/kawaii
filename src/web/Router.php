@@ -55,7 +55,7 @@ class Router extends Object
     public function addRoute(
         string $methods,
         string $path,
-        callable $handler,
+        callable $handle,
         bool $strict = false,
         string $suffix = ''
     ): self {
@@ -68,7 +68,7 @@ class Router extends Object
         foreach ($routeData as $item) {
             $methods = array_map('trim', explode(',', $methods));
             foreach ($methods as $method) {
-                $route = new Route($method, $handler, $item, $strict, $suffix);
+                $route = new Route($method, $handle, $item, $strict, $suffix);
                 $this->routes->add($route);
             }
         }
@@ -116,7 +116,7 @@ class Router extends Object
 
         if ($this->routes->hasStatic($method, '*')) {
             $route = $this->routes->getStatic($method, '*');
-            return [self::ROUTE_FOUND, $route->handler, []];
+            return [$route->handler, []];
         }
 
         return false;

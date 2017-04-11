@@ -30,7 +30,7 @@ interface WebSocketMessageInterface
     /**
      * @return int
      */
-    public function getOpCode(): int;
+    public function getOpcode(): int;
 
     /**
      * @return ServerRequestInterface

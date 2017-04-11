@@ -18,12 +18,12 @@ trait RouterTrait
     /**
      * @param string $methods
      * @param string $path
-     * @param callable $handler
+     * @param callable $handle
      * @param bool $strict
      * @param string $suffix
      * @return $this|static
      */
-    abstract public function addRoute(string $methods, string $path, callable $handler, bool $strict = false, string $suffix = '');
+    abstract public function addRoute(string $methods, string $path, callable $handle, bool $strict = false, string $suffix = '');
 
     /**
      * @param string $path

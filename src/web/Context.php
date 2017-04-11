@@ -14,6 +14,7 @@ use kawaii\base\ContextInterface;
 use kawaii\base\Object;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 
@@ -59,7 +60,7 @@ class Context extends Object implements ContextInterface
     /**
      * Context constructor.
      * @param Application $app
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param SwooleHttpRequest $req
      * @param SwooleHttpResponse $res
@@ -67,7 +68,7 @@ class Context extends Object implements ContextInterface
      */
     public function __construct(
         Application $app,
-        RequestInterface $request,
+        ServerRequestInterface $request,
         ResponseInterface $response,
         SwooleHttpRequest $req,
         SwooleHttpResponse $res,

@@ -28,7 +28,7 @@ interface WebSocketHandleInterface
      * @param WebSocketMessageInterface $message
      * @param Server $server
      */
-    public function handleMessage(WebSocketMessageInterface $message, Server $server): void;
+    public function handleMessage(WebSocketMessageInterface $message, Server $server);
 
     /**
      * @param Server $server

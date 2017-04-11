@@ -9,25 +9,30 @@
 namespace kawaii\websocket;
 
 use cdcchen\psr7\ServerRequest;
+use kawaii\base\ApplicationInterface;
+use kawaii\base\ContextInterface;
 use kawaii\base\Object;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 
 /**
  * Class Context
  * @package kawaii\websocket
+ *
+ * @property Application $app
+ * @property ServerRequest $request
  */
-class Context extends Object
+class Context extends Object implements ContextInterface
 {
     /**
      * @var Application
      */
-    public $app;
+    public $_app;
     /**
-     * @var ServerRequest
+     * @var ServerRequestInterface
      */
-    public $request;
+    public $_request;
     /**
      * @var Response
      */
@@ -41,17 +46,33 @@ class Context extends Object
     /**
      * Context constructor.
      * @param Application $app
-     * @param RequestInterface $request
-     * @param ResponseInterface $response
+     * @param ServerRequestInterface $request
+     * @param Response $response
      * @param array $config
      */
-    public function __construct(Application $app, RequestInterface $request, ResponseInterface $response, array $config = [])
+    public function __construct(Application $app, ServerRequestInterface $request, Response $response, array $config = [])
     {
-        $this->app = $app;
-        $this->request = $request;
+        $this->_app = $app;
+        $this->_request = $request;
         $this->response = $response;
 
         parent::__construct($config);
+    }
+
+    /**
+     * @return ApplicationInterface|Application
+     */
+    public function getApp(): ApplicationInterface
+    {
+        return $this->_app;
+    }
+
+    /**
+     * @return ServerRequest|RequestInterface
+     */
+    public function getRequest(): ServerRequest
+    {
+        return $this->_request;
     }
 
     /**
