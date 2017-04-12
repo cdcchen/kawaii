@@ -7,7 +7,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../src/Kawaii.php';
 
 $config = __DIR__ . '/../config/app.php';
-$app = new kawaii\web\Application($config);
+$app = new kawaii\http\Application($config);
 
 $config = __DIR__ . '/../config/websocket.php';
 $app2 = new \kawaii\websocket\Application($config);

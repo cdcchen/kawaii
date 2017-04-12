@@ -7,7 +7,7 @@
  */
 require __DIR__ . '/../vendor/autoload.php';
 
-$router = new \kawaii\web\Router();
+$router = new \kawaii\http\Router();
 $router->addRoute('get', '/user/', function ($req, $res, $next) {
     echo __FUNCTION__;
 });

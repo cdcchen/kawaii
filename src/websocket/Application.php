@@ -13,7 +13,6 @@ use Kawaii;
 use kawaii\base\ContextInterface;
 use kawaii\server\WebSocketHandleInterface;
 use kawaii\server\WebSocketMessageInterface;
-use kawaii\web\Router;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\WebSocket\Server;
 
@@ -24,20 +23,8 @@ use Swoole\WebSocket\Server;
  *
  * @property WebSocketHandleInterface $handle
  */
-class Application extends \kawaii\web\Application implements WebSocketHandleInterface
+class Application extends \kawaii\http\Application implements WebSocketHandleInterface
 {
-    protected function init(): void
-    {
-        $seedMiddleware = function (Context $context) {
-            return $context;
-        };
-        $this->middleware = (new Middleware())->add($seedMiddleware);
-
-        $this->router = new Router();
-        $this->loadRoutes();
-        $this->hook(new RouteMiddleware($this));
-    }
-
     /**
      * @param ServerRequestInterface $req
      * @param Server $server
@@ -53,12 +40,13 @@ class Application extends \kawaii\web\Application implements WebSocketHandleInte
      */
     public function handleMessage(WebSocketMessageInterface $message, Server $server): void
     {
+        // @todo Response 实例化未完成
         $response = new Response(['fd' => $message->fd]);
         $context = new Context($this, $message->getRequest(), $response);
         $context = $this->middleware->handle($context);
-        /* @var Response $response */
-        $response = $context->response;
-        if ($context->response instanceof Response) {
+
+        /* @var Context $context */
+        if (($response = $context->response) instanceof Response) {
             $server->push($response->fd, $response->data, $response->opcode, $response->finish);
             echo "handleMessage - Push message to {$message->getFd()}\n";
         } else {

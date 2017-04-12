@@ -11,7 +11,7 @@ namespace app\controllers\user;
 
 
 use Kawaii;
-use kawaii\web\Controller;
+use kawaii\http\Controller;
 
 class HomeController extends Controller
 {

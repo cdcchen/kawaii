@@ -15,7 +15,7 @@ use kawaii\base\InvalidParamException;
 use kawaii\base\Object;
 use kawaii\base\UnknownClassException;
 use kawaii\di\Container;
-use kawaii\web\Application;
+use kawaii\http\Application;
 
 /**
  * Gets the application start timestamp.

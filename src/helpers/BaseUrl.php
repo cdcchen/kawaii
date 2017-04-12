@@ -21,7 +21,7 @@ use kawaii\base\InvalidParamException;
 class BaseUrl
 {
     /**
-     * @var \kawaii\web\UrlManager URL manager to use for creating URLs
+     * @var \kawaii\http\UrlManager URL manager to use for creating URLs
      * @since 2.0.8
      */
     public static $urlManager;
@@ -391,7 +391,7 @@ class BaseUrl
     }
 
     /**
-     * @return \kawaii\web\UrlManager URL manager used to create URLs
+     * @return \kawaii\http\UrlManager URL manager used to create URLs
      * @since 2.0.8
      */
     protected static function getUrlManager()

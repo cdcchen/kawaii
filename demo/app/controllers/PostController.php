@@ -9,13 +9,13 @@
 namespace app\controllers;
 
 
-use kawaii\web\Controller;
+use kawaii\http\Controller;
 
 class PostController extends Controller
 {
     public function actionIndex()
     {
-        return __METHOD__;
+        return __METHOD__ . microtime(true);
     }
 
     public function actionProfile()

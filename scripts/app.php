@@ -10,7 +10,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $config = parse_ini_file(__DIR__ . '/server.ini', true);
 
-$app = new \kawaii\web\Application($config);
+$app = new \kawaii\http\Application($config);
 
 
 //$app->hook(function (\kawaii\web\Context $context, callable $next) {

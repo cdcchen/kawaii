@@ -8,7 +8,7 @@
 
 namespace app\controllers;
 
-use kawaii\web\Controller;
+use kawaii\http\Controller;
 
 /**
  * Class SiteController
@@ -19,5 +19,10 @@ class SiteController extends Controller
     public function actionIndex()
     {
         return $this->render('index', ['hello' => 'Hello world!!']);
+    }
+
+    public function actionHome()
+    {
+        return 'This is site/home page';
     }
 }

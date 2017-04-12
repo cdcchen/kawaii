@@ -11,7 +11,7 @@ use Kawaii;
 use kawaii\base\InvalidParamException;
 use kawaii\db\ActiveRecordInterface;
 use kawaii\validators\StringValidator;
-use kawaii\web\Request;
+use kawaii\http\Request;
 use kawaii\base\Model;
 
 /**

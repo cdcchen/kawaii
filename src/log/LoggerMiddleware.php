@@ -11,7 +11,7 @@ namespace kawaii\log;
 
 use kawaii\base\Object;
 use kawaii\server\MiddlewareInterface;
-use kawaii\web\Context;
+use kawaii\http\Context;
 use Psr\Log\LoggerAwareTrait;
 
 class LoggerMiddleware extends Object implements MiddlewareInterface

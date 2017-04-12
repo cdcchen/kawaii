@@ -8,5 +8,6 @@
 
 return [
     '/' => 'site/index',
+    '/home' => 'site/home',
     '*' => '*',
 ];

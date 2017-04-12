@@ -47,7 +47,7 @@ abstract class Controller extends Object implements ViewContextInterface
     private $viewPath;
 
     /**
-     * @var \kawaii\web\Context|\kawaii\websocket\Context
+     * @var \kawaii\http\Context|\kawaii\websocket\Context
      */
     private $context;
 

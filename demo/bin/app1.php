@@ -7,7 +7,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../src/Kawaii.php';
 
 $config = __DIR__ . '/../config/app.php';
-$app = new kawaii\web\Application($config);
+$app = new kawaii\http\Application($config);
 
 //$app->hook(function (\kawaii\web\Context $context, callable $next) {
 ////    var_dump($next);
@@ -101,8 +101,8 @@ $app = new kawaii\web\Application($config);
 //        $context->response->getBody()->write('<br />ROUTER #3 <br />');
 //        return $context;
 //    });
-$app->get('/', function (\kawaii\web\Context $context, $next) {
-    /* @var \kawaii\web\Context $context */
+$app->get('/', function (\kawaii\http\Context $context, $next) {
+    /* @var \kawaii\http\Context $context */
     $context = $next($context);
     $context->response->getBody()->write('Hello world!!!!!!');
     return $context;

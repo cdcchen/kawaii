@@ -9,7 +9,7 @@ namespace kawaii\helpers;
 
 use kawaii\base\InvalidParamException;
 use kawaii\base\Arrayable;
-use kawaii\web\JsExpression;
+use kawaii\http\JsExpression;
 
 /**
  * BaseJson provides concrete implementation for [[Json]].

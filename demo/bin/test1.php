@@ -10,11 +10,11 @@ require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../src/Kawaii.php';
 
 
-$response = new \kawaii\web\Response();
+$response = new \kawaii\http\Response();
 
 $start = microtime(1);
 for ($i=0; $i<100000; $i++) {
-    new \kawaii\web\Response();
+    new \kawaii\http\Response();
 }
 $time = microtime(1) - $start;
 echo "Time: $time\n\n";
