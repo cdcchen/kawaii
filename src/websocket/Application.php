@@ -11,6 +11,9 @@ namespace kawaii\websocket;
 
 use Kawaii;
 use kawaii\base\ContextInterface;
+use kawaii\base\InvalidConfigException;
+use kawaii\server\Listener;
+use kawaii\server\WebSocketServer;
 use kawaii\server\WebSocketHandleInterface;
 use kawaii\server\WebSocketMessageInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,6 +28,26 @@ use Swoole\WebSocket\Server;
  */
 class Application extends \kawaii\http\Application implements WebSocketHandleInterface
 {
+    private $enableHttp = true;
+
+    public function http($enable = true)
+    {
+        $this->enableHttp = $enable;
+        return $this;
+    }
+
+    public function run(): void
+    {
+        $this->prepare();
+
+        if (!($this->listener instanceof Listener)) {
+            throw new InvalidConfigException('Application::listener must be the instance of ' . Listener::class);
+        }
+
+        $server = new WebSocketServer($this->listener->host, $this->listener->port);
+        $server->run($this, $this->enableHttp)->start();
+    }
+
     /**
      * @param ServerRequestInterface $req
      * @param Server $server
@@ -96,7 +119,11 @@ class Application extends \kawaii\http\Application implements WebSocketHandleInt
                 $output = ob_get_clean();
             }
 
-            $context->response->data = (string)$output . $result;
+            if ($context instanceof \kawaii\http\Context) {
+                $context->response->write((string)$output . $result);
+            } else {
+                $context->response->data = (string)$output . $result;
+            }
 
             return $context;
         };

@@ -2,52 +2,24 @@
 /**
  * Created by PhpStorm.
  * User: chendong
- * Date: 16/5/26
- * Time: 00:43
+ * Date: 2017/4/13
+ * Time: 15:42
  */
 
 namespace kawaii\server;
 
 
-use Kawaii;
-use kawaii\base\ApplicationInterface;
-use Swoole\Http\Server as SwooleHttpServer;
-use Swoole\Server as SwooleServer;
+use Swoole\Http\Server;
 
-/**
- * Class HttpServer
- * @package kawaii\base
- */
-class HttpServer extends BaseServer
+class HttpServer extends Server
 {
-    /**
-     * @var string|HttpCallback
-     */
-    protected $callback = HttpCallback::class;
+    use ServerTrait;
 
-    /**
-     * @param ApplicationInterface $app
-     * @return $this
-     */
-    public function run(ApplicationInterface $app)
+    public function run(HttpHandleInterface $app)
     {
-        if ($app instanceof HttpHandleInterface) {
-            $this->callback->handle = $app;
-        }
-
-        if ($app instanceof ApplicationInterface) {
-            $app->prepare();
-        }
+        $callback = new HttpCallback();
+        $callback->setRequestHandle($app)->bind($this);
 
         return $this;
-    }
-
-    /**
-     * @param Listener $listener
-     * @return SwooleServer|SwooleHttpServer
-     */
-    protected static function swooleServer(Listener $listener): SwooleServer
-    {
-        return new SwooleHttpServer($listener->host, $listener->port);
     }
 }

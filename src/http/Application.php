@@ -16,8 +16,8 @@ use kawaii\base\ContextInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
-use kawaii\server\BaseServer as BaseServer;
 use kawaii\server\HttpHandleInterface;
+use kawaii\server\Listener;
 use kawaii\server\HttpServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -57,15 +57,25 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
         $this->hook(new RouteMiddleware($this));
     }
 
+    public function run(): void
+    {
+        $this->prepare();
+
+        if (!($this->listener instanceof Listener)) {
+            throw new InvalidConfigException('Application::listener must be the instance of ' . Listener::class);
+        }
+
+        $server = new HttpServer($this->listener->host, $this->listener->port);
+        $server->run($this)->start();
+    }
+
     /**
-     * @param BaseServer|HttpServer $server
      * @param ServerRequestInterface $request
      * @param SwooleHttpRequest $req
      * @param SwooleHttpResponse $res
      * @return ResponseInterface
      */
     public function handleRequest(
-        BaseServer $server,
         ServerRequestInterface $request,
         SwooleHttpRequest $req,
         SwooleHttpResponse $res
@@ -195,7 +205,7 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
     /**
      * @param RouteRule $rule
      */
-    private function addRouteRule(RouteRule $rule): void
+    protected function addRouteRule(RouteRule $rule): void
     {
         foreach ($rule->method as $method) {
             $this->router->addRoute($method, $rule->path, $this->buildHandlerByRoute($rule->route), $rule->strict,

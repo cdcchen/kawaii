@@ -11,6 +11,7 @@ namespace kawaii\base;
 
 use Kawaii;
 use kawaii\di\ServiceLocator;
+use kawaii\server\Listener;
 use RuntimeException;
 
 /**
@@ -67,6 +68,12 @@ abstract class Application extends ServiceLocator implements ApplicationInterfac
      * @var array
      */
     public $params = [];
+
+    /**
+     * @var Listener|Listener[]
+     */
+    public $listener;
+
     /**
      * @var string
      */

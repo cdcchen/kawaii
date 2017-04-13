@@ -10,31 +10,14 @@ namespace kawaii\server;
 
 
 use kawaii\base\BaseTask;
-use kawaii\base\Object;
 use Swoole\Server;
 
 /**
  * Class BaseCallback
  * @package kawaii\server
  */
-abstract class BaseCallback extends Object
+abstract class BaseCallback
 {
-    /**
-     * @var BaseServer
-     */
-    protected $server;
-
-    /**
-     * BaseCallback constructor.
-     * @param BaseServer $server
-     * @param array $config
-     */
-    public function __construct(BaseServer $server, array $config = [])
-    {
-        parent::__construct($config);
-        $this->server = $server;
-    }
-
     /**
      * @param Server $server
      */
@@ -42,11 +25,6 @@ abstract class BaseCallback extends Object
     {
         BaseServer::setProcessName('master process');
         echo "Master pid: {$server->master_pid} starting...\n";
-
-
-        if (is_callable($this->server->onStarted)) {
-            call_user_func($this->server->onStarted, $this->server);
-        }
     }
 
     /**
@@ -155,18 +133,19 @@ abstract class BaseCallback extends Object
 
     /**
      * bind callback
+     * @param Server $server
      */
-    public function bind()
+    public function bind(Server $server): void
     {
-        $this->server->on('Start', [$this, 'onMasterStart']);
-        $this->server->on('Shutdown', [$this, 'onMasterStop']);
-        $this->server->on('ManagerStart', [$this, 'onManagerStart']);
-        $this->server->on('ManagerStop', [$this, 'onManagerStop']);
-        $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
-        $this->server->on('WorkerStop', [$this, 'onWorkerStop']);
-        $this->server->on('WorkerError', [$this, 'onWorkerError']);
-        $this->server->on('PipeMessage', [$this, 'onPipeMessage']);
-        $this->server->on('Task', [$this, 'onTask']);
-        $this->server->on('Finish', [$this, 'onFinish']);
+        $server->on('Start', [$this, 'onMasterStart']);
+        $server->on('Shutdown', [$this, 'onMasterStop']);
+        $server->on('ManagerStart', [$this, 'onManagerStart']);
+        $server->on('ManagerStop', [$this, 'onManagerStop']);
+        $server->on('WorkerStart', [$this, 'onWorkerStart']);
+        $server->on('WorkerStop', [$this, 'onWorkerStop']);
+        $server->on('WorkerError', [$this, 'onWorkerError']);
+        $server->on('PipeMessage', [$this, 'onPipeMessage']);
+        $server->on('Task', [$this, 'onTask']);
+        $server->on('Finish', [$this, 'onFinish']);
     }
 }

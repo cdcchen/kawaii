@@ -12,8 +12,8 @@ namespace kawaii\server;
 use cdcchen\psr7\ServerRequest;
 use kawaii\websocket\Message;
 use Swoole\Http\Request;
+use Swoole\Server;
 use Swoole\WebSocket\Frame;
-use Swoole\WebSocket\Server;
 
 /**
  * Class WebSocketCallback
@@ -24,11 +24,7 @@ class WebSocketCallback extends HttpCallback
     /**
      * @var WebSocketHandleInterface
      */
-    public $handle1;
-    /**
-     * @var bool
-     */
-    protected $enableHttp = false;
+    public $messageHandle;
 
     /**
      * @var ServerRequest[]
@@ -39,16 +35,23 @@ class WebSocketCallback extends HttpCallback
      */
     private $_data = [];
 
-    /**
-     * @inheritdoc
-     */
-    public function bind(): void
-    {
-        parent::bind();
 
-        $this->server->on('Open', [$this, 'onOpen']);
-        $this->server->on('Message', [$this, 'onMessage']);
-        $this->server->on('Close', [$this, 'onClose']);
+    public function setMessageHandle(WebSocketHandleInterface $handle)
+    {
+        $this->messageHandle = $handle;
+        return $this;
+    }
+
+    /**
+     * @param Server|WebSocketServer $server
+     */
+    public function bind(Server $server): void
+    {
+        parent::bind($server);
+
+        $server->on('Open', [$this, 'onOpen']);
+        $server->on('Message', [$this, 'onMessage']);
+        $server->on('Close', [$this, 'onClose']);
     }
 
     /**
@@ -62,35 +65,35 @@ class WebSocketCallback extends HttpCallback
     }
 
     /**
-     * @param Server $server
+     * @param WebSocketServer $server
      * @param Request $req
      */
-    public function onOpen(Server $server, Request $req): void
+    public function onOpen(WebSocketServer $server, Request $req): void
     {
         $this->_data[$req->fd] = '';
 
         $request = static::buildServerRequest($req);
         $this->requests[$req->fd] = $request;
 
-        $this->handle1->handleOpen($request, $server);
+        $this->messageHandle->handleOpen($request, $server);
 
         echo "App - handleOpen - Websocket {$req->fd} client connected.\n";
         echo var_export($request->getServerParams()) . PHP_EOL;
     }
 
     /**
-     * @param Server $server
+     * @param WebSocketServer $server
      * @param Frame $frame
      */
-    public function onMessage(Server $server, Frame $frame): void
+    public function onMessage(WebSocketServer $server, Frame $frame): void
     {
         $fd = $frame->fd;
         $this->_data[$fd] .= $frame->data;
         if ($frame->finish) {
             $request = $this->requests[$fd];
-            $connection = $this->server->getConnection($fd);
+            $connection = new Connection($fd, $server->connection_info($fd));
             $message = new Message($connection, $request, $this->_data[$fd], $frame->opcode);
-            $this->handle1->handleMessage($message, $server);
+            $this->messageHandle->handleMessage($message, $server);
 
             echo "App - handleMessage - Receive message: {$frame->data} form {$frame->fd}.\n";
 
@@ -101,15 +104,15 @@ class WebSocketCallback extends HttpCallback
     }
 
     /**
-     * @param Server $server
+     * @param WebSocketServer $server
      * @param int $fd
      * @param int $reactorId
      */
-    public function onClose(Server $server, int $fd, int $reactorId): void
+    public function onClose(WebSocketServer $server, int $fd, int $reactorId): void
     {
         unset($this->requests[$fd], $this->_data[$fd]);
 
-        $this->handle1->handleClose($server, $fd);
+        $this->messageHandle->handleClose($server, $fd);
 
         echo "App - handleClose - WebSocket Client {$fd} from reactor {$reactorId} disconnected.\n";
     }
