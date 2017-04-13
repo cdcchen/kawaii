@@ -18,12 +18,9 @@ use Swoole\Server as SwooleServer;
 /**
  * Class Server
  * @package kawaii\base
- *
- * @property \Traversable $connections
  */
 abstract class BaseServer extends Object
 {
-
     /**
      * Default server listener
      */
@@ -31,6 +28,11 @@ abstract class BaseServer extends Object
     const DEFAULT_PORT = 9527;
     const DEFAULT_MODE = SWOOLE_PROCESS;
     const DEFAULT_TYPE = SWOOLE_SOCK_TCP;
+
+    /**
+     * @var callable
+     */
+    public $onStarted;
 
     /**
      * @var Listener[]
@@ -44,6 +46,10 @@ abstract class BaseServer extends Object
      * @var array swoole server setting
      */
     public $config = [];
+    /**
+     * @var Connect
+     */
+    public $connections;
     /**
      * @var BaseServer[]
      */
@@ -172,21 +178,9 @@ abstract class BaseServer extends Object
      * @param bool $ignoreClose
      * @return Connection|null
      */
-    public function getConnection(int $fd, int $fromId = -1, bool $ignoreClose = false): ? Connection
+    public function getConnection(int $fd, int $fromId = -1, bool $ignoreClose = false): ?Connection
     {
-        $data = $this->getSwoole()->connection_info($fd, $fromId, $ignoreClose);
-        if (is_array($data)) {
-            return new Connection($data);
-        }
-        return null;
-    }
-
-    /**
-     * @return array|\Traversable
-     */
-    public function getConnections()
-    {
-        return $this->getSwoole()->connections;
+        return $this->connections[$fd] ?? null;
     }
 
     /**

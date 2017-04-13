@@ -16,7 +16,7 @@ use kawaii\base\InlineAction;
  * Class Controller
  * @package kawaii\web
  *
- * @property Context $context
+ * @property Context|\kawaii\websocket\Context $context
  * @property Request $request
  */
 class Controller extends \kawaii\base\Controller

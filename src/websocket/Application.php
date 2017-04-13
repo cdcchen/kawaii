@@ -42,7 +42,7 @@ class Application extends \kawaii\http\Application implements WebSocketHandleInt
     {
         // @todo Response 实例化未完成
         $response = new Response(['fd' => $message->fd]);
-        $context = new Context($this, $message->getRequest(), $response);
+        $context = new Context($this, $message->getConnection(), $message->getRequest(), $response);
         $context = $this->middleware->handle($context);
 
         /* @var Context $context */

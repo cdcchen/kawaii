@@ -8,5 +8,5 @@ function fn($redis, $channel, $msg)
 	var_dump($msg);
 }
 
-$redis->subscribe(['monitor'], 'fn');
+$redis->subscribe(['example'], 'fn');
 

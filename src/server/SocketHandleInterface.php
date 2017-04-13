@@ -9,15 +9,15 @@
 namespace kawaii\server;
 
 
-use Swoole\Server as SwooleServer;
+use Swoole\Server;
 
 interface SocketHandleInterface
 {
     /**
-     * @param SwooleServer $server
+     * @param Server $server
      * @param int $fd
      * @param int $fromWorkerId
      * @param string $data
      */
-    public function handleReceive(SwooleServer $server, int $fd, int $fromWorkerId, string $data): void;
+    public function handleReceive(Server $server, int $fd, int $fromWorkerId, string $data): void;
 }

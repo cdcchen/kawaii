@@ -23,6 +23,12 @@ class SiteController extends Controller
 
     public function actionHome()
     {
-        return 'This is site/home page';
+        $conn = $this->context->connection;
+        $text = $conn->getParam('username');
+        $text .= microtime(true);
+
+        $this->context->connection->setParam('username', $text);
+
+        return 'This is site/home page - ' . $text;
     }
 }

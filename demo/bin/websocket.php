@@ -14,7 +14,38 @@ $app2 = new \kawaii\websocket\Application($config);
 
 $config = __DIR__ . '/../config/server.php';
 $server = new \kawaii\server\WebSocketServer($config);
-$process = new \app\process\Publish();
-$server->addProcess($process);
+$ping = new \app\process\Ping();
+$publish = new \app\process\Publish();
+//$server->addProcess($ping);
+//$server->addProcess($publish);
+
+class Test
+{
+    static $val = 1000;
+}
+
+$server->onStarted = function (\kawaii\server\BaseServer &$server) {
+    $client = new swoole_redis();
+    $client->on('Message', function (swoole_redis $redis, array $message) use (&$server) {
+        $text = "<?php\n" . var_export($message, true);
+        var_dump($server->connections);
+        foreach ($server->connections as $connection) {
+            if ($connection->isWebSocket()) {
+                $server->getSwoole()->push($connection->fd, highlight_string($text, true));
+            }
+        }
+    });
+
+    $client->connect('192.168.11.22', 6379, function (swoole_redis $client, $result) {
+        $client->subscribe('example');
+
+        if ($result === false) {
+            echo "Connect failed.\n";
+            return;
+        } else {
+            echo "Connected successfully.\n";
+        }
+    });
+};
 $server->run($app2, $app)
        ->start();

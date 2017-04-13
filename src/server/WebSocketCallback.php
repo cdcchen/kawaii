@@ -88,7 +88,8 @@ class WebSocketCallback extends HttpCallback
         $this->_data[$fd] .= $frame->data;
         if ($frame->finish) {
             $request = $this->requests[$fd];
-            $message = new Message($fd, $request, $this->_data[$fd], $frame->opcode);
+            $connection = $this->server->getConnection($fd);
+            $message = new Message($connection, $request, $this->_data[$fd], $frame->opcode);
             $this->handle1->handleMessage($message, $server);
 
             echo "App - handleMessage - Receive message: {$frame->data} form {$frame->fd}.\n";

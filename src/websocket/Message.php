@@ -10,6 +10,7 @@ namespace kawaii\websocket;
 
 
 use kawaii\base\Object;
+use kawaii\server\Connection;
 use kawaii\server\WebSocketMessageInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -19,6 +20,7 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @property ServerRequestInterface $request
  * @property int $fd
+ * @property Connection $connection
  * @property int $opcode
  * @property string $data
  * @property bool $isBinary
@@ -27,9 +29,9 @@ use Psr\Http\Message\ServerRequestInterface;
 class Message extends Object implements WebSocketMessageInterface
 {
     /**
-     * @var int
+     * @var Connection
      */
-    private $fd;
+    private $connection;
     /**
      * @var ServerRequestInterface
      */
@@ -45,20 +47,33 @@ class Message extends Object implements WebSocketMessageInterface
 
     /**
      * Message constructor.
-     * @param int $fd
+     * @param Connection $connection
      * @param ServerRequestInterface $request
      * @param string $data
      * @param int $opcode
      * @param array $config
      */
-    public function __construct(int $fd, ServerRequestInterface $request, string $data, int $opcode, array $config = [])
-    {
+    public function __construct(
+        Connection $connection,
+        ServerRequestInterface $request,
+        string $data,
+        int $opcode,
+        array $config = []
+    ) {
         parent::__construct($config);
 
-        $this->fd = $fd;
+        $this->connection = $connection;
         $this->request = $request;
         $this->data = $data;
         $this->opcode = $opcode;
+    }
+
+    /**
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 
     /**
@@ -66,7 +81,7 @@ class Message extends Object implements WebSocketMessageInterface
      */
     public function getFd(): int
     {
-        return $this->fd;
+        return $this->connection->fd;
     }
 
     /**

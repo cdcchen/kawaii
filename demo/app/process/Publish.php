@@ -12,6 +12,7 @@ namespace app\process;
 use kawaii\server\BaseProcess;
 use Swoole\Process;
 
+
 /**
  * Class Publish
  * @package app\process
@@ -23,15 +24,24 @@ class Publish extends BaseProcess
      */
     public function handle(Process $process)
     {
-        while (true) {
-            $time = microtime(true);
-            foreach ($this->server->connections as $fd) {
-                $conn = $this->server->getConnection($fd);
-                if ($conn->isWebSocket()) {
-                    $this->server->getSwoole()->push($fd, $time);
-                }
+        var_dump(spl_object_hash($this->server));
+        $redis = new \Redis();
+        $redis->connect('192.168.11.22');
+        $redis->subscribe(['example'], function ($redis, $channel, $message) {
+            $text = "<?php\n" . var_export($message, true);
+            $this->pushAll(highlight_string($text, true));
+        });
+
+        return;
+    }
+
+    private function pushAll(string $message)
+    {
+        foreach ($this->server->connections as $fd) {
+            $conn = $this->server->getConnection($fd);
+            if ($conn->isWebSocket()) {
+                $this->server->getSwoole()->push($fd, $message);
             }
-            sleep(1);
         }
     }
 }

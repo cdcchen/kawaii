@@ -10,7 +10,7 @@ namespace kawaii\server;
 
 
 use kawaii\base\ApplicationInterface;
-use Swoole\Server as SwooleServer;
+use Swoole\Server;
 
 /**
  * Class SocketServer
@@ -42,10 +42,10 @@ class SocketServer extends BaseServer
 
     /**
      * @param Listener $listener
-     * @return SwooleServer
+     * @return Server
      */
-    protected static function swooleServer(Listener $listener): SwooleServer
+    protected static function swooleServer(Listener $listener): Server
     {
-        return new SwooleServer($listener->host, $listener->port, $listener->type, $listener->mode);
+        return new Server($listener->host, $listener->port, $listener->type, $listener->mode);
     }
 }

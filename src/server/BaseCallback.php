@@ -42,6 +42,11 @@ abstract class BaseCallback extends Object
     {
         BaseServer::setProcessName('master process');
         echo "Master pid: {$server->master_pid} starting...\n";
+
+
+        if (is_callable($this->server->onStarted)) {
+            call_user_func($this->server->onStarted, $this->server);
+        }
     }
 
     /**

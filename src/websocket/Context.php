@@ -12,6 +12,7 @@ use cdcchen\psr7\ServerRequest;
 use kawaii\base\ApplicationInterface;
 use kawaii\base\ContextInterface;
 use kawaii\base\Object;
+use kawaii\server\Connection;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -25,6 +26,14 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class Context extends Object implements ContextInterface
 {
+    /**
+     * @var int
+     */
+    public $fd;
+    /**
+     * @var Connection
+     */
+    public $connection;
     /**
      * @var Application
      */
@@ -46,13 +55,20 @@ class Context extends Object implements ContextInterface
     /**
      * Context constructor.
      * @param Application $app
+     * @param Connection $connection
      * @param ServerRequestInterface $request
      * @param Response $response
      * @param array $config
      */
-    public function __construct(Application $app, ServerRequestInterface $request, Response $response, array $config = [])
-    {
+    public function __construct(
+        Application $app,
+        Connection $connection,
+        ServerRequestInterface $request,
+        Response $response,
+        array $config = []
+    ) {
         $this->_app = $app;
+        $this->connection = $connection;
         $this->_request = $request;
         $this->response = $response;
 

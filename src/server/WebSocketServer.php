@@ -11,9 +11,7 @@ namespace kawaii\server;
 
 use kawaii\base\ApplicationInterface;
 use Swoole\Server as SwooleServer;
-use Swoole\WebSocket\{
-    Server
-};
+use Swoole\WebSocket\Server;
 
 /**
  * Class WebSocketServer
@@ -26,27 +24,6 @@ class WebSocketServer extends BaseServer
      */
     public $callback = WebSocketCallback::class;
 
-    /**
-     * @param ApplicationInterface $app
-     * @param bool $enableHttp
-     * @return $this|WebSocketServer
-     */
-    public function run1(ApplicationInterface $app, $enableHttp = false): self
-    {
-        if ($app instanceof ApplicationInterface) {
-            $app->prepare();
-        }
-        if ($app instanceof WebSocketHandleInterface) {
-            $this->callback->handle = $app;
-        }
-        if ($enableHttp && ($app instanceof HttpHandleInterface)) {
-            var_dump(__FILE__);
-            $this->callback->http($enableHttp);
-        }
-
-        return $this;
-    }
-
     public function run(ApplicationInterface $app, ?ApplicationInterface $app2 = null): self
     {
         if ($app instanceof ApplicationInterface) {
@@ -56,7 +33,6 @@ class WebSocketServer extends BaseServer
             $this->callback->handle1 = $app;
         }
         if ($app2 && ($app2 instanceof HttpHandleInterface)) {
-            var_dump(__FILE__);
             $this->callback->handle = $app2;
             $this->callback->http(1);
         }

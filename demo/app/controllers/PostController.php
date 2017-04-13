@@ -15,6 +15,7 @@ class PostController extends Controller
 {
     public function actionIndex()
     {
+        $this->context->connection->setParam('username', 'cdcchen');
         return __METHOD__ . microtime(true);
     }
 

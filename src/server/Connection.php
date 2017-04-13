@@ -10,6 +10,7 @@ namespace kawaii\server;
 
 
 use kawaii\base\Object;
+use kawaii\base\ParamTrait;
 
 /**
  * Class Connection
@@ -17,6 +18,11 @@ use kawaii\base\Object;
  */
 class Connection extends Object
 {
+    use ParamTrait;
+    /**
+     * @var int
+     */
+    public $fd = 0;
     /**
      * @var int
      */
@@ -60,16 +66,18 @@ class Connection extends Object
 
     /**
      * Connection constructor.
+     * @param int $fd
      * @param array $data
      * @param array $config
      */
-    public function __construct($data, array $config = [])
+    public function __construct(int $fd, array $data, array $config = [])
     {
         parent::__construct($config);
 
+        $this->fd = $fd;
         $this->webSocketStatus = $data['websocket_status'] ?? 0;
         $this->serverPort = $data['server_port'] ?? 0;
-        $this->serverFd = $data['server_ip'] ?? 0;
+        $this->serverFd = $data['server_fd'] ?? 0;
         $this->socketType = $data['socket_type'] ?? 0;
         $this->remotePort = $data['remote_type'] ?? 0;
         $this->remoteIp = $data['remote_ip'] ?? 0;
@@ -82,9 +90,8 @@ class Connection extends Object
     /**
      * @return bool
      */
-    public function isWebSocket()
+    public function isWebSocket(): bool
     {
         return $this->webSocketStatus === WEBSOCKET_STATUS_ACTIVE;
     }
-
 }
