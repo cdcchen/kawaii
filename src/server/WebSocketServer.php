@@ -14,6 +14,8 @@ use Swoole\WebSocket\Server;
 
 class WebSocketServer extends Server
 {
+    use ServerTrait;
+    
     public function run(ApplicationInterface $app, $http = false)
     {
         if ($app instanceof WebSocketHandleInterface) {

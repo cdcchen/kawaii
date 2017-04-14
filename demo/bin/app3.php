@@ -55,5 +55,5 @@ $app = new kawaii\http\Application($config);
 //    return $context;
 //});
 
-
-$app->run();
+$config = __DIR__ . '/../config/server.php';
+$app->run($config);

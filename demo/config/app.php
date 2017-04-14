@@ -21,7 +21,6 @@ return [
     'staticPath' => [
         __DIR__ . '/../public'
     ],
-    'listener' => new \kawaii\server\Listener('localhost', 9527),
 
     'components' => include(__DIR__ . '/components.php'),
     'routes' => include(__DIR__ . '/routes.php'),

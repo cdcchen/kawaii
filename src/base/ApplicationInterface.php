@@ -15,8 +15,10 @@ namespace kawaii\base;
  */
 interface ApplicationInterface
 {
-    /**
-     * @return mixed
-     */
     public function prepare(): void;
+
+    /**
+     * @param string $config
+     */
+    public function run(string $config): void;
 }

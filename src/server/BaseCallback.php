@@ -19,11 +19,11 @@ use Swoole\Server;
 abstract class BaseCallback
 {
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      */
     public function onMasterStart(Server $server): void
     {
-        BaseServer::setProcessName('master process');
+        $server->setProcessName('master process');
         echo "Master pid: {$server->master_pid} starting...\n";
     }
 
@@ -36,11 +36,11 @@ abstract class BaseCallback
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      */
     public function onManagerStart(Server $server): void
     {
-        BaseServer::setProcessName('manager');
+        $server->setProcessName('manager');
 
         echo "Manager pid: {$server->manager_pid} starting...\n";
     }
@@ -54,12 +54,12 @@ abstract class BaseCallback
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $workId
      */
     public function onWorkerStart(Server $server, int $workId): void
     {
-        BaseServer::setProcessName($server->taskworker ? 'task' : 'worker');
+        $server->setProcessName($server->taskworker ? 'task' : 'worker');
 
         // @todo 需要重新载入配置
 

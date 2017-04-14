@@ -55,5 +55,5 @@ $app = new kawaii\websocket\Application($config);
 //    return $context;
 //});
 
-
-$app->http()->run();
+$config = __DIR__ . '/../config/server.php';
+$app->http()->run($config);

@@ -13,6 +13,7 @@ use Kawaii;
 use kawaii\di\ServiceLocator;
 use kawaii\server\Listener;
 use RuntimeException;
+use Swoole\Server;
 
 /**
  * Class Application

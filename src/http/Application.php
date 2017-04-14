@@ -17,7 +17,6 @@ use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
 use kawaii\server\HttpHandleInterface;
-use kawaii\server\Listener;
 use kawaii\server\HttpServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -57,15 +56,15 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
         $this->hook(new RouteMiddleware($this));
     }
 
-    public function run(): void
+    /**
+     * @param string $serverConfigFile
+     * @throws InvalidConfigException
+     */
+    public function run(string $serverConfigFile): void
     {
         $this->prepare();
 
-        if (!($this->listener instanceof Listener)) {
-            throw new InvalidConfigException('Application::listener must be the instance of ' . Listener::class);
-        }
-
-        $server = new HttpServer($this->listener->host, $this->listener->port);
+        $server = HttpServer::create($serverConfigFile);
         $server->run($this)->start();
     }
 
