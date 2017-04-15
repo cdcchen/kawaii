@@ -38,8 +38,14 @@ abstract class BaseCallback
                 }
             }
         });
-        $redis->connect($server->app->params['redis_host'], 6379, function (Redis $redis, $result) {
-            var_dump($result);
+
+        $host = $server->app->params['redis_host'];
+        $password = $server->app->params['redis_host'];
+        $redis->connect($host, 6379, function (Redis $redis, $result) use ($password) {
+            echo $result ? "Redis connect successfully.\n" : "Redis connect failed.\n";
+            $result = $redis->auth($password);
+            echo $result ? "Redis auth successfully.\n" : "Redis auth failed.\n";
+
             $redis->subscribe('example');
         });
     }
