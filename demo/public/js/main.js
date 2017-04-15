@@ -25,7 +25,7 @@ var app = new Vue({
       this.opened = !this.opened;
     },
     open: function (event) {
-      this.ws = new WebSocket('ws://127.0.0.1:9527/log');
+      this.ws = new WebSocket(wsHost);
       this.ws.onopen = function (event) {
         this.messages.unshift('开始监控...');
       }.bind(this);
@@ -35,6 +35,9 @@ var app = new Vue({
       }.bind(this);
       this.ws.onmessage = function (event) {
         this.messages.unshift(event.data + '<hr />');
+        if (this.messages.length > 20) {
+          this.messages.pop();
+        }
       }.bind(this);
       this.ws.onerror = function (event) {
         this.messages.unshift(event.data + '<hr />');

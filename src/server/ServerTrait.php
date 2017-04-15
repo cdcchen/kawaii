@@ -9,8 +9,15 @@
 namespace kawaii\server;
 
 
+use kawaii\base\Application;
+
 trait ServerTrait
 {
+    /**
+     * @var Application
+     */
+    public $app;
+
     /**
      * @param null|string $configFile
      * @return static

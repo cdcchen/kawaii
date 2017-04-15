@@ -38,7 +38,7 @@ abstract class BaseCallback
                 }
             }
         });
-        $redis->connect('127.0.0.1', 6379, function (Redis $redis, $result) {
+        $redis->connect($server->app->params['redis_host'], 6379, function (Redis $redis, $result) {
             var_dump($result);
             $redis->subscribe('example');
         });

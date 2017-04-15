@@ -1,12 +1,12 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: chendong
- * Date: 16/9/7
- * Time: 10:37
+ * @var string $wsHost
  */
-
 ?>
+
+<script type="text/javascript">
+  var wsHost = '<?= $wsHost ?>';
+</script>
 
 <div id="app">
   <form class="form-inline text-center my-2">
@@ -19,5 +19,3 @@
     <p v-html="msg"></p>
   </template>
 </div>
-
-<div id="output"></div>

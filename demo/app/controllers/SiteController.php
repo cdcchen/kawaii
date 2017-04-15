@@ -18,7 +18,10 @@ class SiteController extends Controller
 {
     public function actionIndex()
     {
-        return $this->render('index', ['hello' => 'Hello world!!']);
+        $wsHost = $this->context->app->params['ws_host'];
+        return $this->render('index', [
+            'wsHost' => $wsHost,
+        ]);
     }
 
     public function actionHome()

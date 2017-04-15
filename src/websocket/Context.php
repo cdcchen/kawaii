@@ -35,17 +35,17 @@ class Context extends Object implements ContextInterface
      */
     public $connection;
     /**
-     * @var Application
-     */
-    public $_app;
-    /**
-     * @var ServerRequestInterface
-     */
-    public $_request;
-    /**
      * @var Response
      */
     public $response;
+    /**
+     * @var Application
+     */
+    private $_app;
+    /**
+     * @var ServerRequestInterface
+     */
+    private $_request;
 
     /**
      * @var array

@@ -65,6 +65,7 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
         $this->prepare();
 
         $server = HttpServer::create($serverConfigFile);
+        $server->app = $this;
         $server->run($this)->start();
     }
 

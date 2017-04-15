@@ -51,6 +51,7 @@ class Application extends \kawaii\http\Application implements WebSocketHandleInt
         $this->prepare();
 
         $server = WebSocketServer::create($serverConfigFile);
+        $server->app = $this;
         $server->run($this, $this->enableHttp)->start();
     }
 

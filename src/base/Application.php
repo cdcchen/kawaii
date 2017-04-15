@@ -100,7 +100,6 @@ abstract class Application extends ServiceLocator implements ApplicationInterfac
      */
     private $vendorPath;
 
-
     /**
      * Application constructor.
      * @param string $configFile

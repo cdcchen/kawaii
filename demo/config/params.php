@@ -8,4 +8,6 @@
 
 return [
     'email' => 'admin@cdc.com',
+    'ws_host' => 'ws://127.0.0.1:9527/log',
+    'redis_host' => '127.0.0.1',
 ];
