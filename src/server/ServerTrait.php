@@ -43,6 +43,20 @@ trait ServerTrait
     }
 
     /**
+     * @param int $fd
+     * @return bool|Connection
+     */
+    public function getConnection(int $fd)
+    {
+        $info = $this->connection_info($fd);
+        if (is_array($info)) {
+            return new Connection($fd, $info);
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $name
      * @param null $defaultValue
      * @return mixed|null
