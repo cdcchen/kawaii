@@ -43,10 +43,10 @@ abstract class BaseCallback
         $password = $server->app->params['redis_password'];
         $redis->connect($host, 6379, function (Redis $redis, $result) use ($password) {
             echo $result ? "Redis connect successfully.\n" : "Redis connect failed.\n";
-            $result = $redis->auth($password);
-            echo $result ? "Redis auth successfully.\n" : "Redis auth failed.\n";
-
-            $redis->subscribe('example');
+            $redis->auth($password, function (Redis $redis, $result) {
+                echo $result ? "Redis auth successfully.\n" : "Redis auth failed.\n";
+                $redis->subscribe('example');
+            });
         });
     }
 
