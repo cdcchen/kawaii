@@ -55,16 +55,6 @@ class WebSocketCallback extends HttpCallback
     }
 
     /**
-     * @param bool $flag
-     * @return WebSocketCallback
-     */
-    public function http($flag = true): self
-    {
-        $this->enableHttp = (bool)$flag;
-        return $this;
-    }
-
-    /**
      * @param WebSocketServer $server
      * @param Request $req
      */
@@ -78,7 +68,6 @@ class WebSocketCallback extends HttpCallback
         $this->messageHandle->handleOpen($request, $server);
 
         echo "App - handleOpen - Websocket {$req->fd} client connected.\n";
-        echo var_export($request->getServerParams()) . PHP_EOL;
     }
 
     /**

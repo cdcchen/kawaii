@@ -10,6 +10,7 @@ namespace kawaii\server;
 
 
 use kawaii\base\BaseTask;
+use Swoole\Redis;
 use Swoole\Server;
 
 /**
@@ -25,6 +26,22 @@ abstract class BaseCallback
     {
         $server->setProcessName('master process');
         echo "Master pid: {$server->master_pid} starting...\n";
+
+
+        $redis = new Redis();
+        $redis->on('Message', function (Redis $redis, $result) use ($server) {
+            $text = "<?php\n" . var_export($result, true);
+            foreach ($server->connections as $fd) {
+                $connection = $server->getConnection($fd);
+                if ($connection->isWebSocket()) {
+                    $server->push($fd, highlight_string($text, true));
+                }
+            }
+        });
+        $redis->connect('127.0.0.1', 6379, function (Redis $redis, $result) {
+            var_dump($result);
+            $redis->subscribe('example');
+        });
     }
 
     /**
