@@ -226,7 +226,7 @@ class Object implements Configurable
      * @see canGetProperty()
      * @see canSetProperty()
      */
-    public function hasProperty(string $name, $checkVars = true): bool
+    public function hasProperty(string $name, bool $checkVars = true): bool
     {
         return $this->canGetProperty($name, $checkVars) || $this->canSetProperty($name, false);
     }
@@ -244,7 +244,7 @@ class Object implements Configurable
      * @return boolean whether the property can be read
      * @see canSetProperty()
      */
-    public function canGetProperty(string $name, $checkVars = true): bool
+    public function canGetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, 'get' . $name) || $checkVars && property_exists($this, $name);
     }
@@ -262,7 +262,7 @@ class Object implements Configurable
      * @return boolean whether the property can be written
      * @see canGetProperty()
      */
-    public function canSetProperty(string $name, $checkVars = true): bool
+    public function canSetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, 'set' . $name) || $checkVars && property_exists($this, $name);
     }
@@ -275,7 +275,7 @@ class Object implements Configurable
      * @param string $name the method name
      * @return boolean whether the method is defined
      */
-    public function hasMethod($name): bool
+    public function hasMethod(string $name): bool
     {
         return method_exists($this, $name);
     }

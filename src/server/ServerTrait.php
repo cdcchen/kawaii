@@ -9,7 +9,9 @@
 namespace kawaii\server;
 
 
+use Kawaii;
 use kawaii\base\Application;
+use kawaii\base\InvalidConfigException;
 
 trait ServerTrait
 {
@@ -17,6 +19,7 @@ trait ServerTrait
      * @var Application
      */
     public $app;
+    public $hookNamespace = 'app\\hooks';
 
     /**
      * @param null|string $configFile
@@ -89,5 +92,21 @@ trait ServerTrait
     {
         $title = static::getProcessName() . ' - ' . $extra;
         @cli_set_process_title($title);
+    }
+
+    public function runHook(string $className): void
+    {
+        $className = ltrim($this->hookNamespace . '\\' . $className, '\\');
+        if (!class_exists($className)) {
+            return;
+        }
+
+        if (is_subclass_of($className, 'kawaii\server\BaseHook')) {
+            /* @var BaseHook $hook */
+            $hook = Kawaii::createObject($className);
+            $hook->run($this);
+        } elseif (KAWAII_DEBUG) {
+            throw new InvalidConfigException("Hook class must extend from \\kawaii\\server\\BaseHook.");
+        }
     }
 }

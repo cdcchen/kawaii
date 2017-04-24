@@ -16,6 +16,6 @@
   <hr/>
 
   <template v-for="msg in messages">
-    <p v-html="msg"></p>
+    <pre v-html="msg"></pre>
   </template>
 </div>

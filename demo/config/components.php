@@ -7,5 +7,8 @@
  */
 
 return [
-
+    'redis' => [
+        'class' => 'kawaii\\redis\\Connection',
+        'host' => '127.0.0.1',
+    ],
 ];
