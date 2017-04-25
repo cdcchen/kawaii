@@ -13,7 +13,8 @@ $redis->connect('127.0.0.1', 6379, function (\Swoole\Redis $redis, $result) {
     var_dump($result);
 
     swoole_timer_tick(1000, function (int $timerId, $params) use ($redis) {
-        $redis->publish('prod_log_monitor', microtime(true), function (\Swoole\Redis $redis, $result) {
+        $message = ['project' => 'exam', 'message' => microtime(true)];
+        $redis->publish('prod_log_monitor', json_encode($message, 512), function (\Swoole\Redis $redis, $result) {
             var_export($result);
         });
     }, []);

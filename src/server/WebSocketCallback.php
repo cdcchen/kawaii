@@ -67,6 +67,8 @@ class WebSocketCallback extends HttpCallback
 
         $this->messageHandle->handleOpen($request, $server);
 
+        $server->runHook('WebSocketOnOpen', $req->fd, $request);
+
         echo "App - handleOpen - Websocket {$req->fd} client connected.\n";
     }
 

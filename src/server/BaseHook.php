@@ -12,10 +12,11 @@ namespace kawaii\server;
 use kawaii\base\Object;
 use Swoole\Server;
 
+/**
+ * Class BaseHook
+ * @package kawaii\server
+ *
+ */
 abstract class BaseHook extends Object
 {
-    /**
-     * @param Server|ServerTrait $server
-     */
-    abstract public function run(Server $server);
 }

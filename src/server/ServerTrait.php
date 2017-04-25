@@ -94,7 +94,7 @@ trait ServerTrait
         @cli_set_process_title($title);
     }
 
-    public function runHook(string $className): void
+    public function runHook(string $className, ...$params): void
     {
         $className = ltrim($this->hookNamespace . '\\' . $className, '\\');
         if (!class_exists($className)) {
@@ -104,7 +104,7 @@ trait ServerTrait
         if (is_subclass_of($className, 'kawaii\server\BaseHook')) {
             /* @var BaseHook $hook */
             $hook = Kawaii::createObject($className);
-            $hook->run($this);
+            $hook->run($this, ...$params);
         } elseif (KAWAII_DEBUG) {
             throw new InvalidConfigException("Hook class must extend from \\kawaii\\server\\BaseHook.");
         }

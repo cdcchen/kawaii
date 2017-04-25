@@ -26,7 +26,7 @@ abstract class BaseCallback
         $server->setProcessName('master process');
         echo "Master pid: {$server->master_pid} starting...\n";
 
-        $server->runHook('MasterStart');
+        $server->runHook('ServerOnMasterStart');
     }
 
     /**

@@ -9,12 +9,13 @@
 namespace app\hooks;
 
 
+use kawaii\redis\Connection;
 use kawaii\server\BaseHook;
 use kawaii\server\ServerTrait;
 use Swoole\Redis;
 use Swoole\Server;
 
-class MasterStart extends BaseHook
+class ServerOnMasterStart extends BaseHook
 {
     /**
      * @param Server|ServerTrait $server
@@ -25,11 +26,17 @@ class MasterStart extends BaseHook
         $redis->on('Message', function (Redis $redis, $result) use ($server) {
             $text = json_decode($result[2], true);
             $message = $text['message'] ?? '';
+            $project = $text['project'] ?? null;
             unset($text['message']);
             $text = print_r($text, true) . print_r($message, true);
             foreach ($server->connections as $fd) {
                 $connection = $server->getConnection($fd);
-                if ($connection->isWebSocket()) {
+
+                /* @var Connection $redis */
+                $redis = $server->app->getComponent('redis');
+                $clientProject = $redis->get('client_config_' . $fd);
+
+                if ($connection->isWebSocket() && $project == $clientProject) {
                     $server->push($fd, $text);
                 }
             }
