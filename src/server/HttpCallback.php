@@ -18,6 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
+use Swoole\Server;
 
 /**
  * Class HttpCallback
@@ -28,17 +29,23 @@ class HttpCallback extends BaseCallback
     /**
      * @var HttpHandleInterface
      */
-    public $handle;
+    protected $requestHandle;
+
+    public function setRequestHandle(HttpHandleInterface $handle)
+    {
+        $this->requestHandle = $handle;
+        return $this;
+    }
 
     /**
-     * @inheritdoc
+     * @param Server|HttpServer $server
      */
-    public function bind(): void
+    public function bind(Server $server): void
     {
-        parent::bind();
+        parent::bind($server);
 
-        if ($this->handle) {
-            $this->server->on('Request', [$this, 'onRequest']);
+        if ($this->requestHandle instanceof HttpHandleInterface) {
+            $server->on('Request', [$this, 'onRequest']);
         }
     }
 
@@ -52,24 +59,24 @@ class HttpCallback extends BaseCallback
             $request = static::buildServerRequest($req);
 
             // App handle request
-            $response = $this->handle->handleRequest($this->server, $request, $req, $res);
+            $response = $this->requestHandle->handleRequest($request, $req, $res);
 
             if (!($response instanceof Response)) {
                 $response = static::buildServerErrorResponse('requestHandle must be return an instance of \cdcchen\psr7\Response');
             }
+
+
         } catch (\Exception $e) {
             $message = $e->getFile() . PHP_EOL . $e->getLine() . PHP_EOL . $e->getMessage();
             $response = new Response(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR, null, $message);
             echo "Exception occurred: {$e->getMessage()}\n";
         }
 
-
         foreach ($response->getHeaders() as $name => $values) {
             $res->header($name, $response->getHeaderLine($name));
         }
-        $serverSignature = empty($this->server->config['server_signature']) ? 'Kawaii' : $this->server->config['server_signature'];
-        $res->header('server', $serverSignature);
 
+        // @todo 上面已经输出header了，理论上不用再输出cookie了。
         /* @var \cdcchen\psr7\Cookie $cookie */
         foreach ($response->getCookies() as $cookie) {
             $res->cookie($cookie->name, $cookie->name, $cookie->expires, $cookie->path, $cookie->domain,

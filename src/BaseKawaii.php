@@ -9,13 +9,11 @@
 namespace kawaii;
 
 
-use kawaii\server\BaseServer;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\InvalidParamException;
 use kawaii\base\Object;
 use kawaii\base\UnknownClassException;
 use kawaii\di\Container;
-use kawaii\http\Application;
 
 /**
  * Gets the application start timestamp.
@@ -79,6 +77,8 @@ class BaseKawaii extends Object
      * @see Container
      */
     public static $container;
+
+    public static $server;
 
     /**
      * @param object $object

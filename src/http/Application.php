@@ -16,7 +16,6 @@ use kawaii\base\ContextInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
-use kawaii\server\BaseServer as BaseServer;
 use kawaii\server\HttpHandleInterface;
 use kawaii\server\HttpServer;
 use Psr\Http\Message\ResponseInterface;
@@ -58,14 +57,25 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
     }
 
     /**
-     * @param BaseServer|HttpServer $server
+     * @param string $serverConfigFile
+     * @throws InvalidConfigException
+     */
+    public function run(string $serverConfigFile): void
+    {
+        $this->prepare();
+
+        $server = HttpServer::create($serverConfigFile);
+        $server->app = $this;
+        $server->run($this)->start();
+    }
+
+    /**
      * @param ServerRequestInterface $request
      * @param SwooleHttpRequest $req
      * @param SwooleHttpResponse $res
      * @return ResponseInterface
      */
     public function handleRequest(
-        BaseServer $server,
         ServerRequestInterface $request,
         SwooleHttpRequest $req,
         SwooleHttpResponse $res
@@ -195,7 +205,7 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
     /**
      * @param RouteRule $rule
      */
-    private function addRouteRule(RouteRule $rule): void
+    protected function addRouteRule(RouteRule $rule): void
     {
         foreach ($rule->method as $method) {
             $this->router->addRoute($method, $rule->path, $this->buildHandlerByRoute($rule->route), $rule->strict,

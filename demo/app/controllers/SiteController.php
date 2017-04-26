@@ -9,6 +9,7 @@
 namespace app\controllers;
 
 use kawaii\http\Controller;
+use kawaii\redis\Connection;
 
 /**
  * Class SiteController
@@ -18,7 +19,10 @@ class SiteController extends Controller
 {
     public function actionIndex()
     {
-        return $this->render('index', ['hello' => 'Hello world!!']);
+        $wsHost = $this->context->app->params['ws_host'];
+        return $this->render('index', [
+            'wsHost' => $wsHost,
+        ]);
     }
 
     public function actionHome()
@@ -30,5 +34,13 @@ class SiteController extends Controller
         $this->context->connection->setParam('username', $text);
 
         return 'This is site/home page - ' . $text;
+    }
+
+    public function actionRedis()
+    {
+        /* @var Connection $redis */
+        $redis = $this->context->app->getComponent('redis');
+        $redis->open();
+        $redis->publish('prod_log_monitor', json_encode(['message' => microtime(true) . __FILE__]));
     }
 }

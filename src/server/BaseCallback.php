@@ -10,59 +10,51 @@ namespace kawaii\server;
 
 
 use kawaii\base\BaseTask;
-use kawaii\base\Object;
 use Swoole\Server;
 
 /**
  * Class BaseCallback
  * @package kawaii\server
  */
-abstract class BaseCallback extends Object
+abstract class BaseCallback
 {
     /**
-     * @var BaseServer
-     */
-    protected $server;
-
-    /**
-     * BaseCallback constructor.
-     * @param BaseServer $server
-     * @param array $config
-     */
-    public function __construct(BaseServer $server, array $config = [])
-    {
-        parent::__construct($config);
-        $this->server = $server;
-    }
-
-    /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      */
     public function onMasterStart(Server $server): void
     {
-        BaseServer::setProcessName('master process');
+        $server->setProcessName('master process');
         echo "Master pid: {$server->master_pid} starting...\n";
 
-
-        if (is_callable($this->server->onStarted)) {
-            call_user_func($this->server->onStarted, $this->server);
+        $hook = $server->createHook('ServerOnMasterStart');
+        if ($hook instanceof ServerHookInterface) {
+            $hook->run($server);
+        } elseif ($hook !== null) {
+            throw new \UnexpectedValueException('ServerOnMasterStart must implement the ServerHookInterface');
         }
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      */
     public function onMasterStop(Server $server): void
     {
         echo "Master pid: {$server->master_pid} shutdown...\n";
+
+        $hook = $server->createHook('ServerOnMasterStop');
+        if ($hook instanceof ServerHookInterface) {
+            $hook->run($server);
+        } elseif ($hook !== null) {
+            throw new \UnexpectedValueException('ServerOnMasterStop must implement the ServerHookInterface');
+        }
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      */
     public function onManagerStart(Server $server): void
     {
-        BaseServer::setProcessName('manager');
+        $server->setProcessName('manager');
 
         echo "Manager pid: {$server->manager_pid} starting...\n";
     }
@@ -76,25 +68,39 @@ abstract class BaseCallback extends Object
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $workId
      */
     public function onWorkerStart(Server $server, int $workId): void
     {
-        BaseServer::setProcessName($server->taskworker ? 'task' : 'worker');
+        $server->setProcessName($server->taskworker ? 'task' : 'worker');
 
         // @todo 需要重新载入配置
 
         echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
+
+        $hook = $server->createHook('ServerOnWorkerStart');
+        if ($hook instanceof WorkerHookInterface) {
+            $hook->run($server, $workId);
+        } elseif ($hook !== null) {
+            throw new \UnexpectedValueException('ServerOnWorkerStart must implement the ServerHookInterface');
+        }
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $workId
      */
     public function onWorkerStop(Server $server, int $workId): void
     {
         echo "Worker: $workId stopped...\n";
+
+        $hook = $server->createHook('ServerOnWorkerStop');
+        if ($hook instanceof WorkerHookInterface) {
+            $hook->run($server, $workId);
+        } elseif ($hook !== null) {
+            throw new \UnexpectedValueException('ServerOnWorkerStop must implement the ServerHookInterface');
+        }
     }
 
     /**
@@ -115,7 +121,7 @@ abstract class BaseCallback extends Object
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $taskId
      * @param int $fromWorkerId
      * @param $data
@@ -130,7 +136,7 @@ abstract class BaseCallback extends Object
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $taskId
      * @param $data
      */
@@ -144,7 +150,7 @@ abstract class BaseCallback extends Object
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $fromWorkerId
      * @param $message
      */
@@ -155,18 +161,19 @@ abstract class BaseCallback extends Object
 
     /**
      * bind callback
+     * @param Server $server
      */
-    public function bind()
+    public function bind(Server $server): void
     {
-        $this->server->on('Start', [$this, 'onMasterStart']);
-        $this->server->on('Shutdown', [$this, 'onMasterStop']);
-        $this->server->on('ManagerStart', [$this, 'onManagerStart']);
-        $this->server->on('ManagerStop', [$this, 'onManagerStop']);
-        $this->server->on('WorkerStart', [$this, 'onWorkerStart']);
-        $this->server->on('WorkerStop', [$this, 'onWorkerStop']);
-        $this->server->on('WorkerError', [$this, 'onWorkerError']);
-        $this->server->on('PipeMessage', [$this, 'onPipeMessage']);
-        $this->server->on('Task', [$this, 'onTask']);
-        $this->server->on('Finish', [$this, 'onFinish']);
+        $server->on('Start', [$this, 'onMasterStart']);
+        $server->on('Shutdown', [$this, 'onMasterStop']);
+        $server->on('ManagerStart', [$this, 'onManagerStart']);
+        $server->on('ManagerStop', [$this, 'onManagerStop']);
+        $server->on('WorkerStart', [$this, 'onWorkerStart']);
+        $server->on('WorkerStop', [$this, 'onWorkerStop']);
+        $server->on('WorkerError', [$this, 'onWorkerError']);
+        $server->on('PipeMessage', [$this, 'onPipeMessage']);
+        $server->on('Task', [$this, 'onTask']);
+        $server->on('Finish', [$this, 'onFinish']);
     }
 }

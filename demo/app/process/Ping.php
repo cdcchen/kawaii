@@ -32,9 +32,10 @@ class Ping extends BaseProcess
 
     private function pushAll(string $message)
     {
-        var_dump(\Test::$val);
-        foreach ($this->server->connections as $connection) {
+        foreach ($this->server->connections as $fd) {
+            $connection = $this->server->getSwoole()->getConnection($fd);
             if ($connection->isWebSocket()) {
+                var_dump($this->server->getSwoole()->getConnection($fd));
                 $data = $connection->getParam('username', 'I am chendong') . ' - ' . $message;
                 $this->server->getSwoole()->push($connection->fd, $data);
             }

@@ -16,20 +16,18 @@ $config = __DIR__ . '/../config/server.php';
 $server = new \kawaii\server\WebSocketServer($config);
 $ping = new \app\process\Ping();
 $publish = new \app\process\Publish();
-//$server->addProcess($ping);
+$server->addProcess($ping);
 //$server->addProcess($publish);
 
-class Test
-{
-    static $val = 1000;
-}
+$count = 11;
 
-$server->onStarted = function (\kawaii\server\BaseServer &$server) {
+$server->onStarted = function (\kawaii\server\BaseServer $server) {
     $client = new swoole_redis();
-    $client->on('Message', function (swoole_redis $redis, array $message) use (&$server) {
+    $client->on('Message', function (swoole_redis $redis, array $message) use ($server) {
         $text = "<?php\n" . var_export($message, true);
-        var_dump($server->connections);
-        foreach ($server->connections as $connection) {
+
+        foreach ($server->connections as $fd) {
+            $connection = new \kawaii\server\Connection($fd, $server->getSwoole()->connection_info($fd));
             if ($connection->isWebSocket()) {
                 $server->getSwoole()->push($connection->fd, highlight_string($text, true));
             }

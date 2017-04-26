@@ -13,14 +13,17 @@ use Kawaii;
 use kawaii\base\BaseTask;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\Object;
-use Swoole\Server as SwooleServer;
+use Swoole\Server;
 
 /**
  * Class Server
  * @package kawaii\base
+ *
+ * @property \Traversable $connections
  */
 abstract class BaseServer extends Object
 {
+
     /**
      * Default server listener
      */
@@ -28,11 +31,6 @@ abstract class BaseServer extends Object
     const DEFAULT_PORT = 9527;
     const DEFAULT_MODE = SWOOLE_PROCESS;
     const DEFAULT_TYPE = SWOOLE_SOCK_TCP;
-
-    /**
-     * @var callable
-     */
-    public $onStarted;
 
     /**
      * @var Listener[]
@@ -47,10 +45,6 @@ abstract class BaseServer extends Object
      */
     public $config = [];
     /**
-     * @var Connect
-     */
-    public $connections;
-    /**
      * @var BaseServer[]
      */
     private $processes = [];
@@ -64,12 +58,14 @@ abstract class BaseServer extends Object
      */
     protected $callback;
 
+    public $onStarted;
+
 
     /**
      * @param Listener $listener
-     * @return SwooleServer
+     * @return Server
      */
-    abstract protected static function swooleServer(Listener $listener): SwooleServer;
+    abstract protected static function swooleServer(Listener $listener): Server;
 
     /**
      * BaseServer constructor.
@@ -114,33 +110,6 @@ abstract class BaseServer extends Object
     }
 
     /**
-     * @return bool
-     */
-    public function start(): bool
-    {
-        $this->callback->bind();
-        $this->beforeStart();
-
-        return $this->getSwoole()->start();
-    }
-
-    /**
-     * @return bool
-     */
-    public function reload()
-    {
-        return $this->getSwoole()->reload();
-    }
-
-    /**
-     * @return bool
-     */
-    public function stop(): bool
-    {
-        return $this->getSwoole()->shutdown();
-    }
-
-    /**
      * Before server run
      */
     protected function beforeStart(): void
@@ -161,26 +130,23 @@ abstract class BaseServer extends Object
     }
 
     /**
-     * @return SwooleServer|\Swoole\Http\Server|\Swoole\WebSocket\Server
+     * @return Server|SocketServer|HttpServer|WebSocketServer
      */
-    public function getSwoole(): SwooleServer
+    public function getSwoole(): Server
     {
         if (!is_object($this->swoole)) {
-            $this->swoole = static::swooleServer($this->mainListener());
+            Kawaii::$server = $this->swoole = static::swooleServer($this->mainListener());
         };
 
         return $this->swoole;
     }
 
     /**
-     * @param int $fd
-     * @param int $fromId
-     * @param bool $ignoreClose
-     * @return Connection|null
+     * @return array|\Traversable
      */
-    public function getConnection(int $fd, int $fromId = -1, bool $ignoreClose = false): ?Connection
+    public function getConnections()
     {
-        return $this->connections[$fd] ?? null;
+        return $this->getSwoole()->connections;
     }
 
     /**

@@ -19,7 +19,8 @@
   },
   "autoload": {
     "psr-4": {
-      "kawaii\\": "src/"
+      "kawaii\\": "src/",
+      "kawaii\\redis\\": "kawaii-redis/src/"
     }
   },
   "extra": {

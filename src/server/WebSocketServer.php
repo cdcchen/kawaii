@@ -2,50 +2,32 @@
 /**
  * Created by PhpStorm.
  * User: chendong
- * Date: 2017/3/24
- * Time: 15:03
+ * Date: 2017/4/13
+ * Time: 15:43
  */
 
 namespace kawaii\server;
 
 
 use kawaii\base\ApplicationInterface;
-use Swoole\Server as SwooleServer;
 use Swoole\WebSocket\Server;
 
-/**
- * Class WebSocketServer
- * @package kawaii\server
- */
-class WebSocketServer extends BaseServer
+class WebSocketServer extends Server
 {
-    /**
-     * @var string|WebSocketCallback|HttpCallback
-     */
-    public $callback = WebSocketCallback::class;
-
-    public function run(ApplicationInterface $app, ?ApplicationInterface $app2 = null): self
+    use ServerTrait;
+    
+    public function run(ApplicationInterface $app, $http = false)
     {
-        if ($app instanceof ApplicationInterface) {
-            $app->prepare();
-        }
         if ($app instanceof WebSocketHandleInterface) {
-            $this->callback->handle1 = $app;
+            $callback = new WebSocketCallback();
+            $callback->setMessageHandle($app)->bind($this);
         }
-        if ($app2 && ($app2 instanceof HttpHandleInterface)) {
-            $this->callback->handle = $app2;
-            $this->callback->http(1);
+
+        if ($http && $app instanceof HttpHandleInterface) {
+            $callback = new HttpCallback();
+            $callback->setRequestHandle($app)->bind($this);
         }
 
         return $this;
-    }
-
-    /**
-     * @param Listener $listener
-     * @return SwooleServer
-     */
-    protected static function swooleServer(Listener $listener): SwooleServer
-    {
-        return new Server($listener->host, $listener->port);
     }
 }

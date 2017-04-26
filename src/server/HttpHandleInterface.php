@@ -21,14 +21,12 @@ use Swoole\Http\Response;
 interface HttpHandleInterface
 {
     /**
-     * @param BaseServer $server
      * @param ServerRequestInterface $request
      * @param Request $req
      * @param Response $res
      * @return ResponseInterface
      */
     public function handleRequest(
-        BaseServer $server,
         ServerRequestInterface $request,
         Request $req,
         Response $res

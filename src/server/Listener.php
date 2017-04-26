@@ -21,14 +21,19 @@ use kawaii\base\Object;
  */
 class Listener extends Object
 {
+    const DEFAULT_HOST = 'localhost';
+    const DEFAULT_PORT = 9527;
+    const DEFAULT_TYPE = SWOOLE_SOCK_TCP;
+    const DEFAULT_MODE = SWOOLE_PROCESS;
+
     /**
      * @var string
      */
-    public $host = '0.0.0.0';
+    public $host;
     /**
      * @var int
      */
-    public $port = 9527;
+    public $port;
     /**
      * @var int
      */
@@ -47,10 +52,10 @@ class Listener extends Object
      * @param array $config
      */
     public function __construct(
-        string $host,
-        int $port,
-        int $type = SWOOLE_SOCK_TCP,
-        int $mode = SWOOLE_PROCESS,
+        string $host = self::DEFAULT_HOST,
+        int $port = self::DEFAULT_PORT,
+        int $type = self::DEFAULT_TYPE,
+        int $mode = self::DEFAULT_MODE,
         array $config = []
     ) {
         $this->host = $host;
@@ -59,5 +64,13 @@ class Listener extends Object
         $this->mode = $mode;
 
         parent::__construct($config);
+    }
+
+    /**
+     * @return static|self
+     */
+    public static function default(): self
+    {
+        return new static();
     }
 }
