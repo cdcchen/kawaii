@@ -64,6 +64,8 @@ class HttpCallback extends BaseCallback
             if (!($response instanceof Response)) {
                 $response = static::buildServerErrorResponse('requestHandle must be return an instance of \cdcchen\psr7\Response');
             }
+
+
         } catch (\Exception $e) {
             $message = $e->getFile() . PHP_EOL . $e->getLine() . PHP_EOL . $e->getMessage();
             $response = new Response(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR, null, $message);

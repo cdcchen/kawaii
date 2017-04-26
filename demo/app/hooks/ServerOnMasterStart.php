@@ -10,12 +10,12 @@ namespace app\hooks;
 
 
 use kawaii\redis\Connection;
-use kawaii\server\BaseHook;
+use kawaii\server\ServerHookInterface;
 use kawaii\server\ServerTrait;
 use Swoole\Redis;
 use Swoole\Server;
 
-class ServerOnMasterStart extends BaseHook
+class ServerOnMasterStart implements ServerHookInterface
 {
     /**
      * @param Server|ServerTrait $server
@@ -29,14 +29,12 @@ class ServerOnMasterStart extends BaseHook
             $project = $text['project'] ?? null;
             unset($text['message']);
             $text = print_r($text, true) . print_r($message, true);
+
+            /* @var Connection $redis */
+//            $redis = $server->app->getComponent('redis');
             foreach ($server->connections as $fd) {
                 $connection = $server->getConnection($fd);
-
-                /* @var Connection $redis */
-                $redis = $server->app->getComponent('redis');
-                $clientProject = $redis->get('client_config_' . $fd);
-
-                if ($connection->isWebSocket() && $project == $clientProject) {
+                if ($connection->isWebSocket() && $project == 'exam') {
                     $server->push($fd, $text);
                 }
             }

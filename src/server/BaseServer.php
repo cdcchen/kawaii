@@ -110,17 +110,6 @@ abstract class BaseServer extends Object
     }
 
     /**
-     * @return bool
-     */
-    public function start(): bool
-    {
-        $this->callback->bind();
-        $this->beforeStart();
-
-        return $this->getSwoole()->start();
-    }
-
-    /**
      * Before server run
      */
     protected function beforeStart(): void
@@ -141,7 +130,7 @@ abstract class BaseServer extends Object
     }
 
     /**
-     * @return Server|SwooleServer|HttpServer|WebSocketServer
+     * @return Server|SocketServer|HttpServer|WebSocketServer
      */
     public function getSwoole(): Server
     {

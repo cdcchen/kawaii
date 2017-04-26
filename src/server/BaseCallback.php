@@ -26,15 +26,27 @@ abstract class BaseCallback
         $server->setProcessName('master process');
         echo "Master pid: {$server->master_pid} starting...\n";
 
-        $server->runHook('ServerOnMasterStart');
+        $hook = $server->createHook('ServerOnMasterStart');
+        if ($hook instanceof ServerHookInterface) {
+            $hook->run($server);
+        } elseif ($hook !== null) {
+            throw new \UnexpectedValueException('ServerOnMasterStart must implement the ServerHookInterface');
+        }
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      */
     public function onMasterStop(Server $server): void
     {
         echo "Master pid: {$server->master_pid} shutdown...\n";
+
+        $hook = $server->createHook('ServerOnMasterStop');
+        if ($hook instanceof ServerHookInterface) {
+            $hook->run($server);
+        } elseif ($hook !== null) {
+            throw new \UnexpectedValueException('ServerOnMasterStop must implement the ServerHookInterface');
+        }
     }
 
     /**
@@ -66,15 +78,29 @@ abstract class BaseCallback
         // @todo 需要重新载入配置
 
         echo ($server->taskworker ? 'task' : 'worker') . ": $workId starting...\n";
+
+        $hook = $server->createHook('ServerOnWorkerStart');
+        if ($hook instanceof WorkerHookInterface) {
+            $hook->run($server, $workId);
+        } elseif ($hook !== null) {
+            throw new \UnexpectedValueException('ServerOnWorkerStart must implement the ServerHookInterface');
+        }
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $workId
      */
     public function onWorkerStop(Server $server, int $workId): void
     {
         echo "Worker: $workId stopped...\n";
+
+        $hook = $server->createHook('ServerOnWorkerStop');
+        if ($hook instanceof WorkerHookInterface) {
+            $hook->run($server, $workId);
+        } elseif ($hook !== null) {
+            throw new \UnexpectedValueException('ServerOnWorkerStop must implement the ServerHookInterface');
+        }
     }
 
     /**
@@ -95,7 +121,7 @@ abstract class BaseCallback
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $taskId
      * @param int $fromWorkerId
      * @param $data
@@ -110,7 +136,7 @@ abstract class BaseCallback
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $taskId
      * @param $data
      */
@@ -124,7 +150,7 @@ abstract class BaseCallback
     }
 
     /**
-     * @param Server $server
+     * @param Server|ServerTrait $server
      * @param int $fromWorkerId
      * @param $message
      */
