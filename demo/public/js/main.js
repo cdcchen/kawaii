@@ -14,6 +14,9 @@ var app = new Vue({
       return this.opened ? '暂停监控' : '开始监控'
     }
   },
+  mounted: function() {
+	this.open(); 
+  },
   methods: {
     changeState: function (event) {
       if (this.opened) {
@@ -22,7 +25,6 @@ var app = new Vue({
       else {
         this.open(event);
       }
-      this.opened = !this.opened;
     },
     open: function (event) {
       this.ws = new WebSocket(wsHost);
@@ -42,13 +44,23 @@ var app = new Vue({
       this.ws.onerror = function (event) {
         this.messages.unshift(event.data + '<hr />');
       }.bind(this);
+
+	  this.opened = true;
     },
     close: function (event) {
       this.ws.close();
       this.ws = null;
+	  this.opened = false;
     },
     clear: function (event) {
       this.messages = [];
+    },
+    send: function (event) {
+      var message = JSON.stringify({
+        route: '/project',
+        data: 'hahahahaha'
+      });
+      this.ws.send(message);
     }
   },
   watch: {}

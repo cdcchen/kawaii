@@ -1,13 +1,17 @@
 #!/usr/bin/env php
 
 <?php
-
 date_default_timezone_set('Asia/Shanghai');
+define('KAWAII_ENV', getenv('KAWAII_ENV'));
+
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../src/Kawaii.php';
 
-$config = __DIR__ . '/../config/app.php';
-$app = new kawaii\websocket\Application($config);
+$httpConfig = __DIR__ . '/../config/http-app.php';
+$httpApp = new kawaii\http\Application($httpConfig);
+
+$wsConfig = __DIR__ . '/../config/ws-app.php';
+$wsApp = new kawaii\websocket\Application($wsConfig);
 
 //$app->hook(function (\kawaii\web\Context $context, callable $next) {
 ////    var_dump($next);
@@ -56,4 +60,4 @@ $app = new kawaii\websocket\Application($config);
 //});
 
 $config = __DIR__ . '/../config/server.php';
-$app->http()->run($config);
+$wsApp->http($httpApp)->run($config);

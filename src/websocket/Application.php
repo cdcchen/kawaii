@@ -12,6 +12,7 @@ namespace kawaii\websocket;
 use Kawaii;
 use kawaii\base\ContextInterface;
 use kawaii\base\InvalidConfigException;
+use kawaii\server\HttpHandleInterface;
 use kawaii\server\WebSocketHandleInterface;
 use kawaii\server\WebSocketMessageInterface;
 use kawaii\server\WebSocketServer;
@@ -30,15 +31,19 @@ class Application extends \kawaii\http\Application implements WebSocketHandleInt
     /**
      * @var bool
      */
-    private $enableHttp = true;
+    private $httpApp;
 
     /**
-     * @param bool $enable
+     * @param HttpHandleInterface $app
      * @return Application
      */
-    public function http(bool $enable = true): self
+    public function http(HttpHandleInterface $app): self
     {
-        $this->enableHttp = $enable;
+        if ($app instanceof \kawaii\base\Application) {
+            $app->prepare();
+        }
+        
+        $this->httpApp = $app;
         return $this;
     }
 
@@ -52,7 +57,7 @@ class Application extends \kawaii\http\Application implements WebSocketHandleInt
 
         $server = WebSocketServer::create($serverConfigFile);
         $server->app = $this;
-        $server->run($this, $this->enableHttp)->start();
+        $server->run($this, $this->httpApp)->start();
     }
 
     /**

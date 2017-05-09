@@ -8,7 +8,7 @@
 
 return [
     'email' => 'admin@cdc.com',
-    'ws_host' => 'ws://127.0.0.1:9527/log',
-    'redis_host' => '127.0.0.1',
-    'redis_password' => '127.0.0.1',
+    'ws_host' => KAWAII_ENV_PROD ? 'ws://114.55.130.163:9527/log' : 'ws://127.0.0.1:9527/log',
+    'redis_host' => KAWAII_ENV_PROD ? '2dbf2b5dbcc6435f.redis.rds.aliyuncs.com' : '127.0.0.1',
+    'redis_password' => KAWAII_ENV_PROD ? 'yDb123321' : null,
 ];

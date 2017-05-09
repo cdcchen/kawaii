@@ -23,6 +23,6 @@ return [
     ],
 
     'components' => include(__DIR__ . '/components.php'),
-    'routes' => include(__DIR__ . '/routes.php'),
+    'routes' => include(__DIR__ . '/http-routes.php'),
     'params' => include(__DIR__ . '/params.php'),
 ];

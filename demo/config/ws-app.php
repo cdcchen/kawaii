@@ -18,12 +18,11 @@ return [
     'timeZone' => 'Asia/Shanghai',
     'controllerNamespace' => 'app\\controllers',
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
-
-    'components' => [
+    'staticPath' => [
+        __DIR__ . '/../public'
     ],
-    'routes' => include(__DIR__ . '/routes.php'),
 
-    'params' => [
-        'email' => 'admin@cdc.com',
-    ],
+    'components' => include(__DIR__ . '/components.php'),
+    'routes' => include(__DIR__ . '/ws-routes.php'),
+    'params' => include(__DIR__ . '/params.php'),
 ];

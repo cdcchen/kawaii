@@ -15,17 +15,17 @@ use Swoole\WebSocket\Server;
 class WebSocketServer extends Server
 {
     use ServerTrait;
-    
-    public function run(ApplicationInterface $app, $http = false)
+
+    public function run(ApplicationInterface $app, HttpHandleInterface $httpApp = null)
     {
         if ($app instanceof WebSocketHandleInterface) {
             $callback = new WebSocketCallback();
             $callback->setMessageHandle($app)->bind($this);
         }
 
-        if ($http && $app instanceof HttpHandleInterface) {
+        if ($httpApp instanceof HttpHandleInterface) {
             $callback = new HttpCallback();
-            $callback->setRequestHandle($app)->bind($this);
+            $callback->setRequestHandle($httpApp)->bind($this);
         }
 
         return $this;

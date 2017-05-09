@@ -9,6 +9,7 @@
 return [
     'redis' => [
         'class' => 'kawaii\\redis\\Connection',
-        'host' => '127.0.0.1',
+        'host' => KAWAII_ENV_PROD ? 'define(\'KAWAII_ENV\', getenv(\'KAWAII_ENV\'));' : '127.0.0.1',
+        'password' => KAWAII_ENV_PROD ? 'yDb123321' : null,
     ],
 ];
