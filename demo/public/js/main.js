@@ -7,15 +7,16 @@ var app = new Vue({
   data: {
     opened: false,
     messages: [],
-    ws: null
+    ws: null,
+    project: ''
   },
   computed: {
     btnLabel: function () {
       return this.opened ? '暂停监控' : '开始监控'
     }
   },
-  mounted: function() {
-	this.open(); 
+  mounted: function () {
+    this.open();
   },
   methods: {
     changeState: function (event) {
@@ -36,7 +37,11 @@ var app = new Vue({
         this.ws = null;
       }.bind(this);
       this.ws.onmessage = function (event) {
-        this.messages.unshift(event.data + '<hr />');
+        var log = JSON.parse(event.data);
+        if (this.project != '' && log.project != this.project) {
+          return;
+        }
+        this.messages.unshift(log.message + '<hr />');
         if (this.messages.length > 20) {
           this.messages.pop();
         }
@@ -45,12 +50,12 @@ var app = new Vue({
         this.messages.unshift(event.data + '<hr />');
       }.bind(this);
 
-	  this.opened = true;
+      this.opened = true;
     },
     close: function (event) {
       this.ws.close();
       this.ws = null;
-	  this.opened = false;
+      this.opened = false;
     },
     clear: function (event) {
       this.messages = [];

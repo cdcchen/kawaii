@@ -24,18 +24,20 @@ class ServerOnMasterStart implements ServerHookInterface
     {
         $redis = new Redis();
         $redis->on('Message', function (Redis $redis, $result) use ($server) {
-            $text = json_decode($result[2], true);
-            $message = $text['message'] ?? '';
-            $project = $text['project'] ?? null;
+            $text = (array)json_decode($result[2], true);
+            $message = $text['message'] ?? [];
             unset($text['message']);
-            $text = print_r($text, true) . print_r($message, true);
+            $text['message'] = print_r($text, true);
+            if ($message) {
+                $text['message'] .= print_r($message, true);
+            }
+            $log = json_encode($text, 512);
 
             /* @var Connection $redis */
-//            $redis = $server->app->getComponent('redis');
             foreach ($server->connections as $fd) {
                 $connection = $server->getConnection($fd);
-                if ($connection->isWebSocket() && $project == 'exam') {
-                    $server->push($fd, $text);
+                if ($connection->isWebSocket()) {
+                    $server->push($fd, $log);
                 }
             }
         });
