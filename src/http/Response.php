@@ -141,7 +141,7 @@ class Response extends \cdcchen\psr7\Response
      */
     private function buildHeaders()
     {
-        return "HTTP/{$this->protocol} {$this->statusCode} {$this->reasonPhrase}" . (string)$this->headers;
+        return "HTTP/{$this->protocol} {$this->statusCode} {$this->reasonPhrase}\r\n\r\n" . (string)$this->headers;
     }
 
     /**
@@ -149,7 +149,7 @@ class Response extends \cdcchen\psr7\Response
      */
     private function buildContent()
     {
-        return $this->buildHeaders() . self::HTTP_EOF . (string)$this->getBody();
+        return $this->buildHeaders() . "\r\n\r\n" . (string)$this->getBody();
     }
 
 }

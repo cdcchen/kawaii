@@ -118,9 +118,9 @@ abstract class BaseServer extends Object
 
     /**
      * @param string|null $name
-     * @return array
+     * @return array|string|null
      */
-    public function getSetting(string $name = null): ?array
+    public function getSetting(string $name = null)
     {
         if ($name === null) {
             return $this->getSwoole()->setting;

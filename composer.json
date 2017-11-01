@@ -15,7 +15,9 @@
     "psr/log": "~1.0",
     "psr/cache": "~1.0",
     "fig/http-message-util": "^1.1",
-    "cdcchen/psr7": "^1.0"
+    "cdcchen/psr7": "^1.0",
+    "phpunit/phpunit": "^6.4",
+    "cdcchen/util-ds": "^1.0"
   },
   "autoload": {
     "psr-4": {
@@ -29,7 +31,6 @@
     }
   },
   "require-dev": {
-    "phpspec/phpspec": "^3.1"
   },
   "config": {
     "bin-dir": "bin"
