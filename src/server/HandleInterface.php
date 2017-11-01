@@ -18,7 +18,7 @@ use Swoole\Http\Response;
  * Interface HttpHandleInterface
  * @package kawaii\server
  */
-interface HttpHandleInterface
+interface HandleInterface
 {
     /**
      * @param ServerRequestInterface $request

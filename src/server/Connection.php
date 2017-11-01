@@ -9,82 +9,65 @@
 namespace kawaii\server;
 
 
-use kawaii\base\Object;
-use kawaii\base\ParamTrait;
-
 /**
  * Class Connection
  * @package kawaii\server
  */
-class Connection extends Object
+class Connection
 {
-    use ParamTrait;
     /**
      * @var int
      */
-    public $fd = 0;
+    private $fd = 0;
     /**
      * @var int
      */
-    public $webSocketStatus = 0;
+    private $webSocketStatus = 0;
     /**
      * @var int
      */
-    public $serverPort;
+    private $serverPort;
     /**
      * @var int
      */
-    public $serverFd;
+    private $serverFd;
     /**
      * @var int
      */
-    public $socketType;
+    private $socketType;
     /**
      * @var int
      */
-    public $remotePort;
+    private $remotePort;
     /**
      * @var string
      */
-    public $remoteIp;
+    private $remoteIP;
     /**
      * @var int
      */
-    public $fromId;
+    private $fromId;
     /**
      * @var int
      */
-    public $connectTime;
+    private $connectTime;
     /**
      * @var int
      */
-    public $lastTime;
+    private $lastTime;
     /**
      * @var int
      */
-    public $closeErrno = 0;
+    private $closeErrno = 0;
 
     /**
      * Connection constructor.
      * @param int $fd
      * @param array $data
-     * @param array $config
      */
-    public function __construct(int $fd, array $data, array $config = [])
+    public function __construct(int $fd, array $data)
     {
-        parent::__construct($config);
-
         $this->fd = $fd;
-        $this->webSocketStatus = $data['websocket_status'] ?? 0;
-        $this->serverPort = $data['server_port'] ?? 0;
-        $this->serverFd = $data['server_fd'] ?? 0;
-        $this->socketType = $data['socket_type'] ?? 0;
-        $this->remotePort = $data['remote_type'] ?? 0;
-        $this->remoteIp = $data['remote_ip'] ?? 0;
-        $this->fromId = $data['from_id'] ?? 0;
-        $this->connectTime = $data['connect_time'] ?? 0;
-        $this->lastTime = $data['last_time'] ?? 0;
-        $this->closeErrno = $data['close_errno'] ?? 0;
     }
 
     /**
@@ -93,5 +76,133 @@ class Connection extends Object
     public function isWebSocket(): bool
     {
         return $this->webSocketStatus === WEBSOCKET_STATUS_ACTIVE;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFd()
+    {
+        return $this->fd;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWebSocketStatus()
+    {
+        if ($this->webSocketStatus === null) {
+            $this->webSocketStatus = $data['websocket_status'] ?? 0;
+        }
+
+        return $this->webSocketStatus;
+    }
+
+    /**
+     * @return int
+     */
+    public function getServerPort()
+    {
+        if ($this->serverPort === null) {
+            $this->serverPort = $data['server_port'] ?? 0;
+        }
+
+        return $this->serverPort;
+    }
+
+    /**
+     * @return int
+     */
+    public function getServerFd()
+    {
+        if ($this->serverFd === null) {
+            $this->serverFd = $data['server_fd'] ?? 0;
+        }
+
+        return $this->serverFd;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSocketType()
+    {
+        if ($this->socketType === null) {
+            $this->socketType = $data['socket_type'] ?? 0;
+        }
+
+        return $this->socketType;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRemotePort()
+    {
+        if ($this->remotePort === null) {
+            $this->remotePort = $data['remote_type'] ?? 0;
+        }
+
+        return $this->remotePort;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemoteIP()
+    {
+        if ($this->remoteIP === null) {
+            $this->remoteIP = $data['remote_ip'] ?? '';
+        }
+
+        return $this->remoteIP;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFromId()
+    {
+        if ($this->fromId === null) {
+            $this->fromId = $data['from_id'] ?? 0;
+        }
+
+        return $this->fromId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getConnectTime()
+    {
+        if ($this->connectTime === null) {
+            $this->connectTime = $data['connect_time'] ?? 0;
+        }
+
+        return $this->connectTime;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastTime()
+    {
+        if ($this->lastTime === null) {
+            $this->lastTime = $data['last_time'] ?? 0;
+        }
+
+        return $this->lastTime;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCloseErrno()
+    {
+        if ($this->closeErrno === null) {
+            $this->closeErrno = $data['close_errno'] ?? 0;
+        }
+
+        return $this->closeErrno;
     }
 }

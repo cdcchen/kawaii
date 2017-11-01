@@ -13,5 +13,4 @@ class Kawaii extends \kawaii\BaseKawaii
 }
 
 spl_autoload_register([Kawaii::class, 'autoload'], true, true);
-Kawaii::$classMap = require(__DIR__ . '/classes.php');
 Kawaii::$container = new Container();

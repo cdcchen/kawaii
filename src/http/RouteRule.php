@@ -40,7 +40,7 @@ class RouteRule extends Object
 
     /**
      * RouteRule constructor.
-     * @param array $path
+     * @param string $path
      * @param string $route
      * @param array $config
      */

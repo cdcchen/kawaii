@@ -16,7 +16,7 @@ use kawaii\base\ContextInterface;
 use kawaii\base\Exception;
 use kawaii\base\InvalidConfigException;
 use kawaii\base\UserException;
-use kawaii\server\HttpHandleInterface;
+use kawaii\server\HandleInterface;
 use kawaii\server\HttpServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,7 +27,7 @@ use Swoole\Http\Response as SwooleHttpResponse;
  * Class Application
  * @package kawaii\web
  */
-class Application extends \kawaii\base\Application implements HttpHandleInterface
+class Application extends \kawaii\base\Application implements HandleInterface
 {
     use RouterTrait;
 
@@ -57,15 +57,14 @@ class Application extends \kawaii\base\Application implements HttpHandleInterfac
     }
 
     /**
-     * @param string $serverConfigFile
+     * @param array $config
      * @throws InvalidConfigException
      */
-    public function run(string $serverConfigFile): void
+    public function run(array $config): void
     {
         $this->prepare();
 
-        $server = HttpServer::create($serverConfigFile);
-        $server->app = $this;
+        $server = HttpServer::create($config);
         $server->run($this)->start();
     }
 

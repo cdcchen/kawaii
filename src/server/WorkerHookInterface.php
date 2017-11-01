@@ -14,7 +14,7 @@ use Swoole\Server;
 interface WorkerHookInterface
 {
     /**
-     * @param Server|ServerTrait $server
+     * @param Server|HttpServer $server
      * @param int $workerId
      */
     public function run(Server $server, int $workerId);

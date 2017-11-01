@@ -6,7 +6,7 @@
  * Time: 09:34
  */
 
-namespace kawaii\base;
+namespace kawaii\server;
 
 
 use Swoole\Server;
@@ -14,11 +14,8 @@ use Swoole\Server;
 /**
  * Class BaseTask
  * @package kawaii\base
- *
- * @property mixed $data
- * @property int $taskId
  */
-abstract class BaseTask extends Object
+abstract class BaseTask
 {
     /**
      * @var Server

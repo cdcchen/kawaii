@@ -18,7 +18,7 @@ interface ApplicationInterface
     public function prepare(): void;
 
     /**
-     * @param string $config
+     * @param array $config
      */
-    public function run(string $config): void;
+    public function run(array $config): void;
 }

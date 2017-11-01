@@ -14,7 +14,7 @@ use Swoole\Server;
 interface ServerHookInterface
 {
     /**
-     * @param Server|ServerTrait $server
+     * @param Server|HttpServer $server
      */
     public function run(Server $server);
 }

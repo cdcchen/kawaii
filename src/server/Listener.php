@@ -13,13 +13,7 @@ namespace kawaii\server;
  * Class ServerListener
  * @package kawaii\base
  */
-use kawaii\base\Object;
-
-/**
- * Class ServerListener
- * @package kawaii\base
- */
-class Listener extends Object
+class Listener
 {
     const DEFAULT_HOST = 'localhost';
     const DEFAULT_PORT = 9527;
@@ -62,8 +56,6 @@ class Listener extends Object
         $this->port = $port;
         $this->type = $type;
         $this->mode = $mode;
-
-        parent::__construct($config);
     }
 
     /**
