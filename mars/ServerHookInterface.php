@@ -6,11 +6,15 @@
  * Time: 14:16
  */
 
-namespace kawaii\server;
+namespace mars;
 
 
 use Swoole\Server;
 
+/**
+ * Interface ServerHookInterface
+ * @package mars
+ */
 interface ServerHookInterface
 {
     /**

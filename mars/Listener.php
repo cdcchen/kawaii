@@ -6,12 +6,12 @@
  * Time: 11:17
  */
 
-namespace kawaii\server;
+namespace mars;
 
 
 /**
  * Class ServerListener
- * @package kawaii\base
+ * @package mars
  */
 class Listener
 {
@@ -59,7 +59,7 @@ class Listener
     }
 
     /**
-     * @return static|self
+     * @return static
      */
     public static function default(): self
     {

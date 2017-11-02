@@ -10,5 +10,7 @@ require __DIR__ . '/../../src/Kawaii.php';
 $config = __DIR__ . '/../config/http-app.php';
 $app = new kawaii\http\Application($config);
 
-$config = require(__DIR__ . '/../config/server.php');
-$app->run($config);
+$config = __DIR__ . '/../config/server.php';
+$setting = __DIR__ . '/../config/swoole.php';
+$server = \mars\HttpServer::create($config, $setting);
+$server->run($app);

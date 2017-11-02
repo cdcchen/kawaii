@@ -6,14 +6,14 @@
  * Time: 09:34
  */
 
-namespace kawaii\server;
+namespace mars;
 
 
 use Swoole\Server;
 
 /**
  * Class BaseTask
- * @package kawaii\base
+ * @package mars
  */
 abstract class BaseTask
 {
@@ -64,7 +64,7 @@ abstract class BaseTask
      * @param Server $server
      * @param int $taskId
      */
-    public function handle(Server $server, int $taskId)
+    public function handle(Server $server, int $taskId): void
     {
         $this->server = $server;
         $this->taskId = $taskId;

@@ -6,15 +6,16 @@
  * Time: 15:42
  */
 
-namespace kawaii\server;
+namespace mars;
 
 
 use Kawaii;
+use kawaii\base\ApplicationInterface;
 use Swoole\Http\Server;
 
 /**
  * Class HttpServer
- * @package kawaii\server
+ * @package mars
  */
 class HttpServer extends Server
 {
@@ -25,59 +26,76 @@ class HttpServer extends Server
 
     /**
      * @param HandleInterface $app
-     * @return $this
      */
-    public function run(HandleInterface $app)
+    public function run(HandleInterface $app): void
     {
+        if ($app instanceof ApplicationInterface) {
+            $app->prepare();
+        }
+
         $callback = new Callback();
         $callback->setRequestHandle($app)->bind($this);
 
-        return $this;
+        $this->start();
     }
 
     /**
-     * @param array $config
+     * @param string $configFile
+     * @param string $settingFile
      * @return static
      */
-    public static function create(array $config)
+    public static function create(string $configFile = null, string $settingFile = null): self
     {
-        $host = $config['host'] ?? Listener::DEFAULT_HOST;
-        $port = $config['port'] ?? Listener::DEFAULT_PORT;
-        $type = $config['type'] ?? Listener::DEFAULT_TYPE;
-        $mode = $config['mode'] ?? Listener::DEFAULT_MODE;
-        $listener = new Listener($host, $port, $type, $mode);
+        if ($configFile && !is_readable($configFile)) {
+            echo "Server config file is not exist or unreadable.\n";
+            exit(1);
+        }
+        if ($settingFile && !is_readable($settingFile)) {
+            echo "Swoole server setting file is not exist or unreadable.\n";
+            exit(1);
+        }
 
+        if ($configFile) {
+            $config = require($configFile);
+            $host = $config['host'] ?? Listener::DEFAULT_HOST;
+            $port = $config['port'] ?? Listener::DEFAULT_PORT;
+            $type = $config['type'] ?? Listener::DEFAULT_TYPE;
+            $mode = $config['mode'] ?? Listener::DEFAULT_MODE;
+            $listener = new Listener($host, $port, $type, $mode);
+        } else {
+            $listener = Listener::default();
+        }
         $server = new static($listener->host, $listener->port, $listener->mode, $listener->type);
-        echo "Server listen on {$listener->host}:{$listener->port}.\n";
+
+        if ($settingFile) {
+            $server->set(require($settingFile));
+        }
 
         if (isset($config)) {
-            if (isset($config['setting'])) {
-                $server->set($config['setting']);
-                unset($config['setting']);
-            }
             Kawaii::configure($server, $config);
         }
 
+        echo "Server listen on {$listener->host}:{$listener->port}.\n";
         return $server;
     }
 
     /**
      * @param int $fd
-     * @return bool|Connection
+     * @return null|Connection
      */
-    public function getConnection(int $fd)
+    public function getConnection(int $fd): ?Connection
     {
         $info = $this->connection_info($fd);
         if (is_array($info)) {
             return new Connection($fd, $info);
         }
 
-        return false;
+        return null;
     }
 
     /**
      * @param string $name
-     * @param null $defaultValue
+     * @param string|null $defaultValue
      * @return mixed|null
      */
     public function getSetting(string $name, $defaultValue = null)
@@ -105,9 +123,9 @@ class HttpServer extends Server
 
     /**
      * @param string $className
-     * @return null|object
+     * @return null|WorkerHookInterface
      */
-    public function createHook(string $className)
+    public function createHook(string $className): ?WorkerHookInterface
     {
         $className = ltrim($this->hookNamespace . '\\' . $className, '\\');
         if (!class_exists($className)) {

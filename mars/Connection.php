@@ -6,12 +6,12 @@
  * Time: 20:09
  */
 
-namespace kawaii\server;
+namespace mars;
 
 
 /**
  * Class Connection
- * @package kawaii\server
+ * @package mars
  */
 class Connection
 {
@@ -81,7 +81,7 @@ class Connection
     /**
      * @return int
      */
-    public function getFd()
+    public function getFd(): int
     {
         return $this->fd;
     }
@@ -89,7 +89,7 @@ class Connection
     /**
      * @return int
      */
-    public function getWebSocketStatus()
+    public function getWebSocketStatus(): int
     {
         if ($this->webSocketStatus === null) {
             $this->webSocketStatus = $data['websocket_status'] ?? 0;
@@ -101,7 +101,7 @@ class Connection
     /**
      * @return int
      */
-    public function getServerPort()
+    public function getServerPort(): int
     {
         if ($this->serverPort === null) {
             $this->serverPort = $data['server_port'] ?? 0;
@@ -113,7 +113,7 @@ class Connection
     /**
      * @return int
      */
-    public function getServerFd()
+    public function getServerFd(): int
     {
         if ($this->serverFd === null) {
             $this->serverFd = $data['server_fd'] ?? 0;
@@ -125,7 +125,7 @@ class Connection
     /**
      * @return int
      */
-    public function getSocketType()
+    public function getSocketType(): int
     {
         if ($this->socketType === null) {
             $this->socketType = $data['socket_type'] ?? 0;
@@ -137,7 +137,7 @@ class Connection
     /**
      * @return int
      */
-    public function getRemotePort()
+    public function getRemotePort(): int
     {
         if ($this->remotePort === null) {
             $this->remotePort = $data['remote_type'] ?? 0;
@@ -149,7 +149,7 @@ class Connection
     /**
      * @return string
      */
-    public function getRemoteIP()
+    public function getRemoteIP(): string
     {
         if ($this->remoteIP === null) {
             $this->remoteIP = $data['remote_ip'] ?? '';
@@ -161,7 +161,7 @@ class Connection
     /**
      * @return int
      */
-    public function getFromId()
+    public function getFromId(): int
     {
         if ($this->fromId === null) {
             $this->fromId = $data['from_id'] ?? 0;
@@ -173,7 +173,7 @@ class Connection
     /**
      * @return int
      */
-    public function getConnectTime()
+    public function getConnectTime(): int
     {
         if ($this->connectTime === null) {
             $this->connectTime = $data['connect_time'] ?? 0;
@@ -185,7 +185,7 @@ class Connection
     /**
      * @return int
      */
-    public function getLastTime()
+    public function getLastTime(): int
     {
         if ($this->lastTime === null) {
             $this->lastTime = $data['last_time'] ?? 0;
@@ -197,7 +197,7 @@ class Connection
     /**
      * @return int
      */
-    public function getCloseErrno()
+    public function getCloseErrno(): int
     {
         if ($this->closeErrno === null) {
             $this->closeErrno = $data['close_errno'] ?? 0;

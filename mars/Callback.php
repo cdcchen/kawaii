@@ -6,7 +6,7 @@
  * Time: 17:24
  */
 
-namespace kawaii\server;
+namespace mars;
 
 
 use cdcchen\psr7\HeaderCollection;
@@ -22,7 +22,7 @@ use Swoole\Server;
 
 /**
  * Class HttpCallback
- * @package kawaii\server
+ * @package mars
  */
 class Callback
 {
@@ -31,7 +31,11 @@ class Callback
      */
     protected $requestHandle;
 
-    public function setRequestHandle(HandleInterface $handle)
+    /**
+     * @param HandleInterface $handle
+     * @return static
+     */
+    public function setRequestHandle(HandleInterface $handle): self
     {
         $this->requestHandle = $handle;
         return $this;

@@ -16,9 +16,4 @@ namespace kawaii\base;
 interface ApplicationInterface
 {
     public function prepare(): void;
-
-    /**
-     * @param array $config
-     */
-    public function run(array $config): void;
 }

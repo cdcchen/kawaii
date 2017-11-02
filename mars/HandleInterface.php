@@ -6,7 +6,7 @@
  * Time: 20:27
  */
 
-namespace kawaii\server;
+namespace mars;
 
 
 use Psr\Http\Message\ResponseInterface;
@@ -16,7 +16,7 @@ use Swoole\Http\Response;
 
 /**
  * Interface HttpHandleInterface
- * @package kawaii\server
+ * @package mars
  */
 interface HandleInterface
 {
